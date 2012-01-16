@@ -1,0 +1,32 @@
+; $Id: bartik.info,v 1.5 2010/11/07 00:27:20 dries Exp $
+
+name = MIC
+description = Main theme for the Music Institute of Chicago
+package = Core
+version = VERSION
+core = 7.x
+
+; Stylesheets
+stylesheets[all][] = css/yui-reset.min.css
+stylesheets[all][] = css/styles.css
+stylesheets[all][] = css/implementation.css
+
+; Scripts
+scripts[] = js/jquery-OOP.js
+scripts[] = js/jquery.mbanner.js
+scripts[] = js/master.js
+
+; Regions
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+regions[header_search] = Header Search
+
+regions[header] = Header
+regions[content] = Content
+regions[footer] = Footer
+regions[static_blocks] = Static Blocks
+regions[left_navigation] = Left Navigation
+
+regions[homepage_calendar_block] = Homepage Calendar Block
+
+

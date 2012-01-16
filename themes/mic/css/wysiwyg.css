@@ -1,0 +1,227 @@
+body {
+	background: #FFFFFF;
+	font-family: Arial, Helvetica, Garuda, sans-serif;
+	font-size: .8em;
+	line-height: 1.6em;
+	color: #333333;
+	margin: 0px;
+	padding: 0px;
+}
+
+.show {
+	display: block;
+}
+
+.hide {
+	display: none;
+}
+
+.no-margin {
+	margin: 0px;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.no-border {
+	border-none: none;
+}
+
+.margin-top-small {
+	margin-top: 10px;
+}
+
+.margin-top-medium {
+	margin-top: 10px;
+}
+
+.margin-top-large {
+	margin-top: 20px;
+}
+
+.margin-right-small {
+	margin-right: 10px;
+}
+
+.margin-right-medium {
+	margin-right: 10px;
+}
+
+.margin-right-large {
+	margin-right: 20px;
+}
+
+.margin-bottom-small {
+	margin-bottom: 10px;
+}
+
+.margin-bottom-medium {
+	margin-bottom: 10px;
+}
+
+.margin-bottom-large {
+	margin-bottom: 20px;
+}
+
+.margin-left-tiny {
+	margin-left: 5px;
+}
+
+.margin-left-small {
+	margin-left: 10px;
+}
+
+.margin-left-medium {
+	margin-left: 10px;
+}
+
+.margin-left-large {
+	margin-left: 20px;
+}
+
+.bold-font {
+	font-weight: bold;
+}
+
+.normal-font {
+	font-weight: normal;
+}
+
+.blue-font {
+	color: #0d70a1;
+}
+
+.flat-blue-font {
+	color: #455561;
+}
+
+.champaign-font {
+	color: #666655;
+}
+
+.green-font {
+	color: #339933;
+}
+
+.red-font {
+	color: #f73833;
+}
+
+/********************
+
+Text
+
+********************/
+
+h1, h2 {
+	color: #455561;
+}
+
+h3, h4, h5, h6 {
+	color: #666655;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+	margin: 20px 0px 20px 0px;
+}
+
+p {
+	margin: 0px;
+}
+
+h1 {
+	font-size: 2em;
+	margin: 0px;
+}
+
+h2 {
+	font-size: 1.4em;
+	line-height: 1.6em;
+}
+
+h3 {
+	font-size: 1.2em;
+	font-weight: bold;
+	line-height: 1.4em;
+}
+
+address {
+	font-style: normal;
+}
+
+strong {
+	font-weight: bold;
+}
+
+em {
+	font-style: italic;
+}
+
+blockquote {
+	margin: 1em 1.1em;
+	padding: .5em;
+}
+
+blockquote p {
+	margin: 0; 
+}
+	
+/********************
+
+Anchors
+
+********************/
+
+a {
+    color: #0D70A1;
+	outline: none;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+/********************
+
+Images
+
+********************/
+img {
+	border: none;
+}
+
+/********************
+
+Lists
+
+********************/
+
+ul {
+	list-style: none;
+	margin: 10px 0px; 
+}
+
+ol {
+	margin: 10px 0px 10px 20px;
+}
+
+ul, ol {
+	padding: 0px 0px 0px 10px;
+}
+
+li {
+	margin: 5px 0px 5px 0px;*/
+}
+
+ol li {
+	list-style: decimal inside;
+}
+
+ul li {
+	background: url('../images/common/black-dot.jpg') 0px center no-repeat;
+	padding: 0px 0px 0px 10px;
+}
