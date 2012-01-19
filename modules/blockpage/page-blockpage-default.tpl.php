@@ -1,1 +1,0 @@
-<p>Default Block Page, You can overwrite this if you want to display a message throughout all BlockPages from the $content variable. If not, omit the $content variable from your template file.</p>
