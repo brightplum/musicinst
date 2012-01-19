@@ -1,0 +1,9 @@
+; $Id: blockpage.info,v 1.0 2011/01/28 06:04:18 mgn Exp $
+name = BlockPage
+description = Defines static pages that are comprised of block regions and no content area.
+package = Other
+core = 7.x
+
+files[] = blockpage.module
+
+version = "7.x-1.0"
