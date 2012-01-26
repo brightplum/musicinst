@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file Wufoo import stuff
+ */
+
+define('WUFOO_API', 'AICY-DMZE-OMJ5-0SJ7');
+define('WUFOO_SUBDOMAIN', 'musicinst');
+//https://AICY-DMZE-OMJ5-0SJ7:musicinst@wufooapi.wufoo.com/api/v3/forms.json?pretty=true
+
+function mic_wufoo_menu() {
+  $items = array();
+
+  $items['wufoo/profiles'] = array(
+		'title' => 'Wufoo Import Profiles',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_wufoo_profiles_form'),
+		'access arguments' => array('administer site configuration'),
+		'type' => MENU_CALLBACK,
+		'file' => 'mic_wufoo.profiles.inc',
+	);
+
+	return $items;
+}
+
+function mic_wufoo_admin_paths() {
+  $paths = array(
+    'wufoo/profiles' => TRUE,
+  );
+  return $paths;
+}
+
+function _mic_wufoo_taxonomy_lookup($string) {
+  $result = db_select('taxonomy_term_data', 'ttd')
+    ->fields('ttd', array('tid'))
+    ->condition('name', $string)
+    ->execute()
+    ->fetchCol();
+  return reset($result);
+}
+
+function _mic_wufoo_fieldcheck($name) {
+  return is_numeric(strpos($name, 'Field')) ? TRUE : FALSE;
+
+}

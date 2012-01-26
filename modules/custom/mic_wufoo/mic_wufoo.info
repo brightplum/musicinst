@@ -1,0 +1,10 @@
+name = MIC Wufoo
+description = Import stuff into MIC from Wufoo
+package = Music Institute of Chicago
+core = 7.x
+
+files[] = wufoo/WufooApiWrapper.php
+files[] = wufoo/WufooApiWrapperBase.php
+files[] = wufoo/WufooValueObjects.php
+files[] = wufoo/EntryArgs.php
+files[] = mic_wufoo.api.php
