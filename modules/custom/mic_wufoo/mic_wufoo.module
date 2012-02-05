@@ -7,6 +7,11 @@ define('WUFOO_API', 'AICY-DMZE-OMJ5-0SJ7');
 define('WUFOO_SUBDOMAIN', 'musicinst');
 //https://AICY-DMZE-OMJ5-0SJ7:musicinst@wufooapi.wufoo.com/api/v3/forms.json?pretty=true
 
+/**
+ * Implements hook_menu()
+ *
+ * @return array
+ */
 function mic_wufoo_menu() {
   $items = array();
 
@@ -22,6 +27,11 @@ function mic_wufoo_menu() {
 	return $items;
 }
 
+/**
+ * Implementes hook_admin_paths()
+ *
+ * @return array
+ */
 function mic_wufoo_admin_paths() {
   $paths = array(
     'wufoo/profiles' => TRUE,
@@ -29,6 +39,12 @@ function mic_wufoo_admin_paths() {
   return $paths;
 }
 
+/**
+ * Helper to lookup taxonomy based on a string
+ *
+ * @param string $string
+ * @return int
+ */
 function _mic_wufoo_taxonomy_lookup($string) {
   $instrument = taxonomy_vocabulary_machine_name_load('instrument');
   $program = taxonomy_vocabulary_machine_name_load('program_area');
@@ -43,6 +59,12 @@ function _mic_wufoo_taxonomy_lookup($string) {
   return (isset($term->tid)) ? $term->tid : NULL;
 }
 
+/**
+ * Helper to see if this a proper field to import
+ *
+ * @param string $name
+ * @return bool
+ */
 function _mic_wufoo_fieldcheck($name) {
   return is_numeric(strpos($name, 'Field')) ? TRUE : FALSE;
 

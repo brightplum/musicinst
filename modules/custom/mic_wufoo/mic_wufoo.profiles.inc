@@ -1,6 +1,14 @@
 <?php
+/**
+ * @file
+ * Import profile information from wufoo
+ */
 
-
+/**
+ * Import start form
+ *
+ * @return array
+ */
 function mic_wufoo_profiles_form() {
   $form['submit'] = array(
     '#type' => 'submit',
@@ -10,6 +18,12 @@ function mic_wufoo_profiles_form() {
   return $form;
 }
 
+/**
+ * Submit handler for profile import form
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function mic_wufoo_profiles_form_submit(&$form, &$form_state) {
   $form_id = 'm7p7s5';
   $operations = array();
@@ -20,6 +34,7 @@ function mic_wufoo_profiles_form_submit(&$form, &$form_state) {
   mic_wufoo_profiles_set_ignore(NULL, TRUE);
 
   $count = $wufoo->getEntryCount($form_id);
+  //25 entries at a time
   for ($i=0; $i <= $count; $i+=25) {
     $entries = $wufoo->getEntries($form_id, 'forms', 'pageStart=' . $i);
     foreach ($entries as $id => $entry) {
@@ -35,6 +50,11 @@ function mic_wufoo_profiles_form_submit(&$form, &$form_state) {
   batch_set($batch);
 }
 
+/**
+ * Map fields to values and taxonomy tid's to be referenced later
+ *
+ * @param array $fields
+ */
 function mic_wufoo_profiles_fieldmap($fields) {
   $map = array();
   foreach ($fields as $id => $field) {
@@ -80,6 +100,12 @@ function mic_wufoo_profiles_fieldmap($fields) {
   return;
 }
 
+/**
+ * Perform import
+ *
+ * @param mixed $entry
+ * @param array $context
+ */
 function mic_wufoo_profiles_batch_import($entry, &$context) {
   $entry = (array) $entry;
   $firstname = mic_wufoo_profiles_firstname($entry);
@@ -132,6 +158,13 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   $context['message'] = t('Imported profile %title', array('%title' => $$name));
 }
 
+/**
+ * Import successful callback
+ *
+ * @param unknown_type $success
+ * @param unknown_type $results
+ * @param unknown_type $operations
+ */
 function mic_wufoo_profiles_batch_finished($success, $results, $operations) {
   if ($success) {
     drupal_set_message(t('Import successful'));
@@ -215,6 +248,13 @@ function mic_wufoo_profiles_terms($entry) {
   return $terms;
 }
 
+/**
+ * Helper to lookup if profile with name already exists
+ * Returns the nid if found
+ *
+ * @param string $name
+ * @return int
+ */
 function mic_wufoo_profiles_namelookup($name) {
   $result = db_select('node', 'n')
     ->fields('n', array('nid'))
@@ -228,6 +268,12 @@ function mic_wufoo_profiles_get_ignore() {
   return variable_get('mic_wufoo_ignore');
 }
 
+/**
+ * Ignore fields so body doesn't reprint
+ *
+ * @param string $value
+ * @param bool $reset
+ */
 function mic_wufoo_profiles_set_ignore($value, $reset = FALSE) {
   $ignore = variable_get('mic_wufoo_ignore', array());
   if ($reset) {
@@ -249,5 +295,6 @@ function mic_wufoo_profiles_set_ignore($value, $reset = FALSE) {
     );
   }
   $ignore[] = $value;
+  $ignore = drupal_map_assoc($ignore);
   variable_set('mic_wufoo_ignore', $ignore);
 }
