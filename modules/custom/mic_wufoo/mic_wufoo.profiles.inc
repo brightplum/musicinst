@@ -17,6 +17,7 @@ function mic_wufoo_profiles_form_submit(&$form, &$form_state) {
   $wufoo = new WufooApiWrapper(WUFOO_API, WUFOO_SUBDOMAIN);
   $form = $wufoo->getFields($form_id);
   mic_wufoo_profiles_fieldmap($form->Fields);
+  mic_wufoo_profiles_set_ignore(NULL, TRUE);
 
   $count = $wufoo->getEntryCount($form_id);
   for ($i=0; $i <= $count; $i+=25) {
@@ -55,6 +56,7 @@ function mic_wufoo_profiles_fieldmap($fields) {
             'title' => $sub_field->Label,
           );
         }
+        mic_wufoo_profiles_set_ignore($sub_id);
       }
     }
     else {
@@ -70,6 +72,7 @@ function mic_wufoo_profiles_fieldmap($fields) {
           'title' => $field->Title,
         );
       }
+      mic_wufoo_profiles_set_ignore($id);
     }
   }
   variable_del('mic_wufoo_fieldmap');
@@ -105,6 +108,7 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   }
 
   $node->title = $name;
+  $node->user = 4;
   $node->field_prefix[LANGUAGE_NONE][0]['value'] = $title;
   $node->field_first_name[LANGUAGE_NONE][0]['value'] = $firstname;
   $node->field_last_name[LANGUAGE_NONE][0]['value'] = $lastname;
@@ -135,28 +139,33 @@ function mic_wufoo_profiles_batch_finished($success, $results, $operations) {
 }
 
 function mic_wufoo_profiles_firstname($entry) {
+  mic_wufoo_profiles_set_ignore('Field1343');
   return $entry['Field1343'];
 }
 
 function mic_wufoo_profiles_lastname($entry) {
+  mic_wufoo_profiles_set_ignore('Field1344');
   return $entry['Field1344'];
 }
 
 function mic_wufoo_profiles_title($entry) {
+  mic_wufoo_profiles_set_ignore('Field1342');
   return $entry['Field1342'];
 }
 
 function mic_wufoo_profiles_suffix($entry) {
+  mic_wufoo_profiles_set_ignore('Field1345');
   return $entry['Field1345'];
 }
 
 function mic_wufoo_profiles_titles($entry) {
+  mic_wufoo_profiles_set_ignore('Field1346');
   return $entry['Field1336'];
 }
 
 function mic_wufoo_profiles_body($entry) {
   $body = array();
-  $ignore = mic_wufoo_profiles_ignore();
+  $ignore = mic_wufoo_profiles_get_ignore();
 
   $map = variable_get('mic_wufoo_fieldmap', array());
   foreach ($entry as $key => $value) {
@@ -175,7 +184,7 @@ function mic_wufoo_profiles_terms($entry) {
   $terms = array();
   $instrument = taxonomy_vocabulary_machine_name_load('instrument');
   $program = taxonomy_vocabulary_machine_name_load('program_area');
-  $ignore = mic_wufoo_profiles_ignore();
+  $ignore = mic_wufoo_profiles_get_ignore();
   $map = variable_get('mic_wufoo_fieldmap', array());
 
   foreach ($entry as $key => $value) {
@@ -190,6 +199,7 @@ function mic_wufoo_profiles_terms($entry) {
       else if ($term->vid == $program->vid) {
         $terms['program'][]['tid'] = $map[$key]['tid'];
       }
+      mic_wufoo_profiles_set_ignore($key);
     }
     else if (is_int(strpos($value, 'Suzuki')) && (strlen($value) < 30)) {
       $suzuki_inst = substr($value, 7);
@@ -215,25 +225,30 @@ function mic_wufoo_profiles_namelookup($name) {
   return reset($result);
 }
 
-function mic_wufoo_profiles_ignore() {
-  return array(
-    'Field1343',
-    'Field1344',
-    'Field1342',
-    'Field1345',
-    'Field1336',
-    'Field1235',
-    'Field1236',
-    'Field410',
-    'Field411',
-    'Field412',
-    'Field413',
-    'Field414',
-    'Field415',
-    'Field416',
-    'Field417',
-    'Field418',
-    'Field419',
-    'Field208',
-  );
+function mic_wufoo_profiles_get_ignore() {
+  return variable_get('mic_wufoo_ignore');
+}
+
+function mic_wufoo_profiles_set_ignore($value, $reset = FALSE) {
+  $ignore = variable_get('mic_wufoo_ignore', array());
+  if ($reset) {
+    variable_del('mic_wufoo_ignore');
+    $ignore = array(
+      'Field410',
+      'Field411',
+      'Field412',
+      'Field413',
+      'Field414',
+      'Field415',
+      'Field416',
+      'Field417',
+      'Field418',
+      'Field419',
+      'Field208',
+      'Field1235',
+      'Field1236',
+    );
+  }
+  $ignore[] = $value;
+  variable_set('mic_wufoo_ignore', $ignore);
 }
