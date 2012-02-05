@@ -224,5 +224,15 @@ function mic_wufoo_profiles_ignore() {
     'Field1336',
     'Field1235',
     'Field1236',
+    'Field410',
+    'Field411',
+    'Field412',
+    'Field413',
+    'Field414',
+    'Field415',
+    'Field416',
+    'Field417',
+    'Field418',
+    'Field419',
   );
 }
