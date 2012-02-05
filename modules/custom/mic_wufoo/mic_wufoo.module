@@ -30,12 +30,17 @@ function mic_wufoo_admin_paths() {
 }
 
 function _mic_wufoo_taxonomy_lookup($string) {
-  $result = db_select('taxonomy_term_data', 'ttd')
-    ->fields('ttd', array('tid'))
-    ->condition('name', $string)
-    ->execute()
-    ->fetchCol();
-  return reset($result);
+  $instrument = taxonomy_vocabulary_machine_name_load('instrument');
+  $program = taxonomy_vocabulary_machine_name_load('program_area');
+
+  $query = new EntityFieldQuery;
+  $result = $query
+    ->entityCondition('entity_type', 'taxonomy_term')
+    ->propertyCondition('name', $string)
+    ->propertyCondition('vid', array($instrument->vid, $program->vid), 'IN')
+    ->execute();
+  $term = isset($result['taxonomy_term']) ? reset($result['taxonomy_term']) : new stdClass();
+  return (isset($term->tid)) ? $term->tid : NULL;
 }
 
 function _mic_wufoo_fieldcheck($name) {

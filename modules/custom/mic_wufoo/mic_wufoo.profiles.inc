@@ -44,7 +44,7 @@ function mic_wufoo_profiles_fieldmap($fields) {
     if ($sub_fields) {
       foreach ($sub_fields as $sub_id => $sub_field) {
         $tid = _mic_wufoo_taxonomy_lookup($sub_field->Label);
-        if ($tid) {
+        if (!empty($tid)) {
           $map[$sub_id] = array(
             'title' => $sub_field->Label,
             'tid' => $tid,
@@ -59,7 +59,7 @@ function mic_wufoo_profiles_fieldmap($fields) {
     }
     else {
       $tid = _mic_wufoo_taxonomy_lookup($field->Title);
-      if ($tid) {
+      if (!empty($tid)) {
         $map[$id] = array(
           'title' => $field->Title,
           'tid' => $tid,
@@ -72,6 +72,7 @@ function mic_wufoo_profiles_fieldmap($fields) {
       }
     }
   }
+  variable_del('mic_wufoo_fieldmap');
   variable_set('mic_wufoo_fieldmap', $map);
   return;
 }
@@ -84,6 +85,8 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   $suffix = mic_wufoo_profiles_suffix($entry);
   $titles = mic_wufoo_profiles_titles($entry);
   $body = mic_wufoo_profiles_body($entry);
+
+  $terms = mic_wufoo_profiles_terms($entry);
 
   $name = $firstname . ' ' . $lastname;
 
@@ -107,6 +110,15 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   $node->field_last_name[LANGUAGE_NONE][0]['value'] = $lastname;
   $node->field_suffix[LANGUAGE_NONE][0]['value'] = $suffix;
   $node->field_job_title[LANGUAGE_NONE][0]['value'] = $titles;
+
+  //terms
+  if ($terms['program']) {
+    $node->field_profile_program_area[LANGUAGE_NONE] = $terms['program'];
+  }
+
+  if ($terms['instrument']) {
+    $node->field_profile_instrument[LANGUAGE_NONE] = $terms['instrument'];
+  }
 
   $node->body[LANGUAGE_NONE][0]['value'] = $body;
   $node->body[LANGUAGE_NONE][0]['format'] = 'full_html';
@@ -144,24 +156,54 @@ function mic_wufoo_profiles_titles($entry) {
 
 function mic_wufoo_profiles_body($entry) {
   $body = array();
-  $ignore = array(
-    'Field1343',
-    'Field1344',
-    'Field1342',
-    'Field1345',
-    'Field1336',
-    'Field1235',
-    'Field1236',
-  );
+  $ignore = mic_wufoo_profiles_ignore();
+
   $map = variable_get('mic_wufoo_fieldmap', array());
   foreach ($entry as $key => $value) {
     if ((isset($map[$key]['tid']) || in_array($key, $ignore)) || (!_mic_wufoo_fieldcheck($key))) {
       continue;
     }
-    $body[] = $map[$key]['title'] . '<br />' . $value;
+    if ($value) {
+      $body[] = $map[$key]['title'] . '<br />' . $value;
+    }
   }
 
   return implode('<br /><hr><br />', $body);
+}
+
+function mic_wufoo_profiles_terms($entry) {
+  $terms = array();
+  $instrument = taxonomy_vocabulary_machine_name_load('instrument');
+  $program = taxonomy_vocabulary_machine_name_load('program_area');
+  $ignore = mic_wufoo_profiles_ignore();
+  $map = variable_get('mic_wufoo_fieldmap', array());
+
+  foreach ($entry as $key => $value) {
+    if (in_array($key, $ignore) || (!_mic_wufoo_fieldcheck($key)) || !$value) {
+      continue;
+    }
+    else if (isset($map[$key]['tid'])) {
+      $term = taxonomy_term_load($map[$key]['tid']);
+      if ($term->vid == $instrument->vid) {
+        $terms['instrument'][]['tid'] = $map[$key]['tid'];
+      }
+      else if ($term->vid == $program->vid) {
+        $terms['program'][]['tid'] = $map[$key]['tid'];
+      }
+    }
+    else if (is_int(strpos($value, 'Suzuki')) && (strlen($value) < 30)) {
+      $suzuki_inst = substr($value, 7);
+      $suzuki_inst_tid = _mic_wufoo_taxonomy_lookup($suzuki_inst);
+      $suzuki_tid = _mic_wufoo_taxonomy_lookup('Suzuki Instruction');
+      $terms['program'][]['tid'] = $suzuki_tid;
+      if ($suzuki_inst_tid) {
+        if (!in_array($suzuki_inst_tid, $terms['instrument'])) {
+          $terms['instrument'][]['tid'] = $suzuki_inst_tid;
+        }
+      }
+    }
+  }
+  return $terms;
 }
 
 function mic_wufoo_profiles_namelookup($name) {
@@ -171,4 +213,16 @@ function mic_wufoo_profiles_namelookup($name) {
     ->execute()
     ->fetchCol();
   return reset($result);
+}
+
+function mic_wufoo_profiles_ignore() {
+  return array(
+    'Field1343',
+    'Field1344',
+    'Field1342',
+    'Field1345',
+    'Field1336',
+    'Field1235',
+    'Field1236',
+  );
 }
