@@ -108,7 +108,7 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   }
 
   $node->title = $name;
-  $node->user = 4;
+  $node->uid = 4;
   $node->field_prefix[LANGUAGE_NONE][0]['value'] = $title;
   $node->field_first_name[LANGUAGE_NONE][0]['value'] = $firstname;
   $node->field_last_name[LANGUAGE_NONE][0]['value'] = $lastname;
@@ -184,11 +184,10 @@ function mic_wufoo_profiles_terms($entry) {
   $terms = array();
   $instrument = taxonomy_vocabulary_machine_name_load('instrument');
   $program = taxonomy_vocabulary_machine_name_load('program_area');
-  $ignore = mic_wufoo_profiles_get_ignore();
   $map = variable_get('mic_wufoo_fieldmap', array());
 
   foreach ($entry as $key => $value) {
-    if (in_array($key, $ignore) || (!_mic_wufoo_fieldcheck($key)) || !$value) {
+    if ((!_mic_wufoo_fieldcheck($key)) || !$value) {
       continue;
     }
     else if (isset($map[$key]['tid'])) {
