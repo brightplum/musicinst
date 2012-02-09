@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ *
+ * @return array
+ */
+function mic_commerce_menu() {
+  $items = array();
+
+  $items['create/classes-products'] = array(
+		'title' => 'Classes to Products Bulk Update',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_commerce_classes_products_form'),
+		'access arguments' => array('administer site configuration'),
+		'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+/**
+ * Implementes hook_admin_paths()
+ *
+ * @return array
+ */
+function mic_commerce_admin_paths() {
+  $paths = array(
+    'create/classes-products' => TRUE,
+  );
+  return $paths;
+}
+
+/**
+ * Classes, product build start form
+ *
+ * @return array
+ */
+function mic_commerce_classes_products_form() {
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Start'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for classes, product build form
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function mic_commerce_classes_products_form_submit(&$form, &$form_state) {
+  $product = entity_load('product', 1);
+
+  $batch = array(
+    'operations' => $operations,
+    'finished' => 'mic_wufoo_profiles_batch_finished',
+    'file' => drupal_get_path('module', 'mic_wufoo') . '/mic_wufoo.profiles.inc',
+  );
+
+  batch_set($batch);
+}

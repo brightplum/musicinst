@@ -1,0 +1,373 @@
+<?php
+/**
+ * @file
+ * Install for mic_commerce
+ * Add product field to classes; Add product fields needed
+ */
+
+/**
+ * Implements hook_install()
+ *
+ */
+function mic_commerce_install() {
+  mic_commerce_commerce_product_fields();
+  mic_commerce_class_product_fields();
+}
+
+/**
+ * Additional fields on commerce_product entity
+ *
+ */
+function mic_commerce_commerce_product_fields() {
+  //class node reference
+  field_create_field(array(
+    'translatable' => '0',
+    'entity_types' => array(),
+    'settings' => array(
+      'referenceable_types' => array(
+        'item_class' => 'item_class',
+        'banner' => 0,
+        'item_course' => 0,
+        'profile' => 0,
+        'news_article' => 0,
+        'audience_gateway_page' => 0,
+        'event' => 0,
+        'feature_story' => 0,
+        'landing_page' => 0,
+        'standard_template_page' => 0,
+        'feature_video' => 0,
+      ),
+      'view' => array(
+        'view_name' => '',
+        'display_name' => '',
+        'args' => array(),
+      ),
+    ),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+      'module' => 'field_sql_storage',
+      'active' => '1',
+      'details' => array(
+        'sql' => array(
+          'FIELD_LOAD_CURRENT' => array(
+            'field_data_field_commerce_class' => array(
+              'nid' => 'field_commerce_class_nid',
+            ),
+          ),
+          'FIELD_LOAD_REVISION' => array(
+            'field_revision_field_commerce_class' => array(
+              'nid' => 'field_commerce_class_nid',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'foreign keys' => array(
+      'nid' => array(
+        'table' => 'node',
+        'columns' => array(
+          'nid' => 'nid',
+        ),
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array(
+        'nid',
+      ),
+    ),
+    'field_name' => 'field_commerce_class',
+    'type' => 'node_reference',
+    'module' => 'node_reference',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+    'deleted' => '0',
+    'columns' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'bundles' => array(
+      'commerce_product' => array(
+        'product',
+      ),
+    ),
+  ));
+
+  field_create_instance(array(
+    'label' => 'Class',
+    'widget' => array(
+      'weight' => '5',
+      'type' => 'node_reference_autocomplete',
+      'module' => 'node_reference',
+      'active' => 1,
+      'settings' => array(
+        'autocomplete_match' => 'contains',
+        'size' => '60',
+        'autocomplete_path' => 'node_reference/autocomplete',
+      ),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'node_reference_default',
+        'weight' => '1',
+        'settings' => array(),
+        'module' => 'node_reference',
+      ),
+      'line_item' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+      'node_teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 1,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_commerce_class',
+    'entity_type' => 'commerce_product',
+    'bundle' => 'product',
+    'deleted' => '0',
+  ));
+
+  //material fees
+  field_create_field(array(
+    'translatable' => '0',
+    'entity_types' => array(),
+    'settings' => array(),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+      'module' => 'field_sql_storage',
+      'active' => '1',
+      'details' => array(
+        'sql' => array(
+          'FIELD_LOAD_CURRENT' => array(
+            'field_data_field_commerce_materialfees' => array(
+              'amount' => 'field_commerce_materialfees_amount',
+              'currency_code' => 'field_commerce_materialfees_currency_code',
+              'data' => 'field_commerce_materialfees_data',
+            ),
+          ),
+          'FIELD_LOAD_REVISION' => array(
+            'field_revision_field_commerce_materialfees' => array(
+              'amount' => 'field_commerce_materialfees_amount',
+              'currency_code' => 'field_commerce_materialfees_currency_code',
+              'data' => 'field_commerce_materialfees_data',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'foreign keys' => array(),
+    'indexes' => array(
+      'currency_price' => array(
+        'amount',
+        'currency_code',
+      ),
+    ),
+    'field_name' => 'field_commerce_materialfees',
+    'type' => 'commerce_price',
+    'module' => 'commerce_price',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+    'deleted' => '0',
+    'columns' => array(
+      'amount' => array(
+        'description' => 'The price amount.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'currency_code' => array(
+        'description' => 'The currency code for the price.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'description' => 'A serialized array of additional price data.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'bundles' => array(
+      'commerce_product' => array(
+        'product',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'label' => 'Material Fees',
+    'widget' => array(
+      'weight' => '3',
+      'type' => 'commerce_price_full',
+      'module' => 'commerce_price',
+      'active' => 1,
+      'settings' => array(
+        'currency_code' => 'default',
+      ),
+    ),
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'commerce_price_formatted_amount',
+        'weight' => '2',
+        'settings' => array(
+          'calculation' => FALSE,
+        ),
+        'module' => 'commerce_price',
+      ),
+      'line_item' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+      'node_teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_commerce_materialfees',
+    'entity_type' => 'commerce_product',
+    'bundle' => 'product',
+    'deleted' => '0',
+  ));
+}
+
+/**
+ * Additional field on item_class for product relationship
+ *
+ */
+function mic_commerce_class_product_fields() {
+  field_create_field(array(
+    'translatable' => '0',
+    'entity_types' => array(),
+    'settings' => array(),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+      'module' => 'field_sql_storage',
+      'active' => '1',
+      'details' => array(
+        'sql' => array(
+          'FIELD_LOAD_CURRENT' => array(
+            'field_data_field_class_product' => array(
+              'product_id' => 'field_class_product_product_id',
+            ),
+          ),
+          'FIELD_LOAD_REVISION' => array(
+            'field_revision_field_class_product' => array(
+              'product_id' => 'field_class_product_product_id',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'foreign keys' => array(
+      'product_id' => array(
+        'table' => 'commerce_product',
+        'columns' => array(
+          'product_id' => 'product_id',
+        ),
+      ),
+    ),
+    'indexes' => array(
+      'product_id' => array(
+        'product_id',
+      ),
+    ),
+    'field_name' => 'field_class_product',
+    'type' => 'commerce_product_reference',
+    'module' => 'commerce_product_reference',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '1',
+    'deleted' => '0',
+    'columns' => array(
+      'product_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'bundles' => array(
+      'node' => array(
+        'item_class',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'label' => 'Product',
+    'widget' => array(
+      'weight' => '17',
+      'type' => 'commerce_product_reference_autocomplete',
+      'module' => 'commerce_product_reference',
+      'active' => 1,
+      'settings' => array(
+        'autocomplete_match' => 'contains',
+        'size' => '60',
+        'autocomplete_path' => 'commerce_product/autocomplete',
+      ),
+    ),
+    'settings' => array(
+      'field_injection' => 1,
+      'referenceable_types' => array(
+        'product' => 'product',
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'type' => 'commerce_cart_add_to_cart_form',
+        'weight' => '14',
+        'settings' => array(
+          'show_quantity' => FALSE,
+          'default_quantity' => 1,
+          'combine' => TRUE,
+          'line_item_type' => 'product',
+        ),
+        'module' => 'commerce_cart',
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_class_product',
+    'entity_type' => 'node',
+    'bundle' => 'item_class',
+    'deleted' => '0',
+  ));
+}

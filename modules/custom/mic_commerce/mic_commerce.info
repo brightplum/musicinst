@@ -1,0 +1,15 @@
+name = MIC Commerce
+description = MIC Commerce for classes and courses
+package = Music Institute of Chicago
+core = 7.x
+
+dependencies[] = commerce
+dependencies[] = commerce_cart
+dependencies[] = commerce_checkout
+dependencies[] = commerce_price
+dependencies[] = commerce_line_item
+dependencies[] = commerce_customer
+dependencies[] = commerce_order
+dependencies[] = commerce_price
+dependencies[] = commerce_product_pricing
+dependencies[] = commerce_product_reference
