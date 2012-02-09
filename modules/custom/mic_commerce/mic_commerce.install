@@ -344,7 +344,7 @@ function mic_commerce_class_product_fields() {
     ),
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'type' => 'commerce_cart_add_to_cart_form',
         'weight' => '14',
         'settings' => array(
