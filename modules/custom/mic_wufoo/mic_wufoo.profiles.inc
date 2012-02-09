@@ -155,7 +155,7 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
 
   node_save($node);
 
-  $context['message'] = t('Imported profile %title', array('%title' => $$name));
+  $context['message'] = t('Imported profile %title', array('%title' => $name));
 }
 
 /**
