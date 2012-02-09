@@ -224,7 +224,19 @@ function mic_implementation_theme_mic_course(&$variables) {
 	$rows = array();
 
 	foreach($results as $row) {
-		$rows[] = array($row->field_day_of_week_value, $row->field_time_value, $row->field_start_date_value, $row->name, l($row->field_last_name_value, drupal_lookup_path('alias', 'node/'.$row->instr_nid)), $row->field_status_value, $row->field_custom_enrollment_value, $row->field_custom_enrollment_message_value);
+	  $class = node_load($row->nid);
+	  $add_to_cart = drupal_render(field_view_field('node', $class, 'field_class_product', 'commerce_cart_add_to_cart_form'));
+		$rows[] = array(
+		  $row->field_day_of_week_value,
+		  $row->field_time_value,
+		  $row->field_start_date_value,
+		  $row->name,
+		  l($row->field_last_name_value, drupal_lookup_path('alias', 'node/'.$row->instr_nid)),
+		  $row->field_status_value,
+		  $row->field_custom_enrollment_value,
+		  $row->field_custom_enrollment_message_value,
+		  $add_to_cart,
+		);
 	}
 
 	return array(
