@@ -7,97 +7,108 @@ require_once('includes/mic_implementation.theme.inc');
 require_once('includes/mic_implementation.model.inc');
 require_once('includes/mic_implementation.helper.inc');
 
+
+function mic_implementation_custom_theme() {
+  $node = menu_get_object('node');
+  switch ($node->type) {
+    case 'item_course':
+      $theme = 'mic_theme';
+      break;
+  }
+  return $theme;
+}
+
 /**
  * Implements hook_permission().
  */
 function mic_implementation_permission() {
 	$perms = array();
-	
+
 	$perms['administer news and events page'] = array(
 	    'title' => t('Administer News & Events Page Settings'),
 	  );
-	  
+
 	$perms['administer homepage'] =array(
 	    'title' => t('Administer the Homepage Settings'),
 	  );
-	  
+
 	$perms['administer miscellaneous'] =array(
 	    'title' => t('Administer the Miscellaneous Settings'),
 	  );
-	  
+
 	return $perms;
 }
 
 /**
  * Implementation of hook_menu
- */ 
+ */
 function mic_implementation_menu() {
- 	
+
  	$items = array();
-	
+
 	$items['admin/build/news-events'] = array(
 		'title' => 'News & Events Settings',
 		'page callback' => 'news_events_admin',
-		'page arguments' => array('form_type' => 'edit', null),		
+		'page arguments' => array('form_type' => 'edit', null),
 		'access arguments' => array('administer news and events page'),
 		'description' => 'Configure the settings for the news and events page.',
 		'type' => MENU_NORMAL_ITEM,
 	);
-	
+
 	$items['admin/build/homepage'] = array(
 		'title' => 'Homepage Settings',
 		'page callback' => 'homepage_admin',
-		'page arguments' => array('form_type' => 'edit', null),		
+		'page arguments' => array('form_type' => 'edit', null),
 		'access arguments' => array('administer homepage'),
 		'description' => 'Configure the settings for the homepage.',
 		'type' => MENU_NORMAL_ITEM,
 	);
-	
+
 	$items['admin/build/miscellaneous'] = array(
 		'title' => 'Miscellaneous Settings',
 		'page callback' => 'miscellaneous_admin',
-		'page arguments' => array('form_type' => 'edit', null),		
+		'page arguments' => array('form_type' => 'edit', null),
 		'access arguments' => array('administer miscellaneous'),
 		'description' => 'Configure the miscellaneous settings.',
 		'type' => MENU_NORMAL_ITEM,
 	);
-	
+
 	$items['class-finder'] = array(
 		'title' => 'Class Finder',
-		'page callback' => 'mic_implementation_class_finder',		
+		'page callback' => 'mic_implementation_class_finder',
 		'access arguments' => array('access content'),
 		'type' => MENU_NORMAL_ITEM,
 	);
-	
+
 	return $items;
 }
 
 /**
  * Implementation of hook_theme
- */ 
+ */
 function mic_implementation_theme($existing, $type, $theme, $path) {
-	
+
 	$theme = array();
 	$path = drupal_get_path('module', 'mic_implementation') .'/theme';
-	
+
 	$theme['mic_banner'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_banner',
 		'path' => $path,
 	);
-		
+
 	$theme['mic_feature_story'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_feature_story',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_feature_video'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_feature_video',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_news_article'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_news_article',
@@ -109,19 +120,19 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 		'function' => 'mic_implementation_theme_mic_profile',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_course'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_course',
 		'path' => $path,
 	);
-		
+
 	$theme['mic_event'] = array(
 		'arguments' => array('data' => null),
 		'function' => 'mic_implementation_theme_mic_event',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_slideshow'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-slideshow',
@@ -133,87 +144,87 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 		'template' => 'mic-news-list',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_events_list'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-events-list',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_related_links'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-related-links',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_gateway_links'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-gateway-links',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_events_block'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-events-block',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_feature_story_block'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-feature-story-block',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_feature_video_block'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-feature-video-block',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_news_articles_block'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-news-articles-block',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_homepage_slideshow'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-homepage-slideshow',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_homepage_news_list'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-homepage-news-list',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_homepage_feature_list'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-homepage-feature-list',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_homepage_classfinder'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-homepage-classfinder',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_class_listing'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-class-listing',
 		'path' => $path,
 	);
-	
+
 	$theme['mic_classfinder_widget'] = array(
 		'arguments' => array('data' => null),
 		'template' => 'mic-classfinder-widget',
 		'path' => $path,
 	);
-	
+
 	return $theme;
-	
+
 }
 
 
@@ -221,7 +232,7 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
  * Implements hook_form_alter().
  */
 function mic_implementation_form_alter(&$form, &$form_state, $form_id) {
-	
+
 	// remove N/A option
 	if($form_id == 'landing_page_node_form') {
 		$form['field_show_banner_slideshow']['und']['#options'] = array(0 => 'Show Banner', 1 => 'Show Slideshow');
@@ -234,48 +245,72 @@ function mic_implementation_form_alter(&$form, &$form_state, $form_id) {
  * Implementation of hook_block_info().
  */
 function mic_implementation_block_info() {
-			
-	$blocks = array();
-	
-	$blocks['class_finder'] = array(
-	    'info' => t('Classfinder Button (mic implementation)'),
-	    'cache' => DRUPAL_NO_CACHE
-	);													
-	
+  $blocks = array();
+  $blocks['class_finder'] = array(
+    'info' => t('Classfinder Button (mic implementation)'),
+    'cache' => DRUPAL_NO_CACHE
+	);
+	$blocks['profile_courses'] = array(
+	 'info' => t('MIC: Courses by Profile'),
+	);
+
 	return $blocks;
-	
 }
 
 /**
  * Implementation of hook_block_view().
  */
-function mic_implementation_block_view($delta = '') {		
-
+function mic_implementation_block_view($delta = '') {
+  $block = array();
 	switch($delta) {
-				
 		case 'class_finder':
-			
-			$block = array();
 			$block['subject'] = t('Classfinder Button');
 			$content = '<div class="class-finder-wrapper">
-						    
+
 						    <div class="class-finder-bottom">
-						    
+
 						    	<div class="inner-wrapper">
-						    		
-						    		<p><a href="'.base_path().'class-finder">Find classes quickly and easily using our ClassFinder.</a></p>		
-						    	
+
+						    		<p><a href="'.base_path().'class-finder">Find classes quickly and easily using our ClassFinder.</a></p>
+
 						    	</div>
-						
+
 						    </div>
-						    
+
 						</div>';
-							
+
 			$block['content'] = t($content);
-			return $block;		
-			break;															
+			break;
+		case 'profile_courses':
+		  $block['subject'] = t('My Courses');
+		  $block['content'] = mic_implementation_profile_courses();
+		  break;
 	}
-	
+	return $block;
+}
+
+function mic_implementation_profile_courses() {
+  $node = menu_get_object();
+  $courses = array();
+
+  if ($node->type == 'profile') {
+    $query = new EntityFieldQuery();
+    $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'item_class')
+      ->propertyCondition('status', '1')
+      ->fieldCondition('field_instructor_reference', 'nid', $node->nid);
+
+    $result = $query->execute();
+
+    foreach ($result['node'] as $class) {
+      $class_node = node_load($class->nid);
+      $course = reset(field_get_items('node', $class_node, 'field_course_reference'));
+      $courses[$course['nid']] = l(_mic_implementation_course_title($course['nid']), 'node/' . $course['nid']);
+    }
+  }
+
+  return (!empty($courses)) ? theme('item_list', array('items' => $courses)) : NULL;
 }
 
 /**
@@ -292,21 +327,21 @@ function mic_implementation_views_query_alter(&$view, &$query) {
 	  		$query->add_where('tid', 'taxonomy_index.tid', explode(',', $request['filter']), 'IN');
 
     	}
-	
+
 	}
-		
+
 }
 
 /**
  * Implementation of hook_menu_alter();
  */
 function mic_implementation_menu_alter(&$items) {
-	
+
 	//print_r($items);
-	
+
 	//If for some reason someone tries to access a taxonomy term page (http://mountmercy/category/article-tags/lorem-ipsum). We will not allow it. We are using views for this purpose and above we will modify the taxonomy links accordingly. This page is still visible to people with the "administer taxonomy" perm.
 	$items['taxonomy/term/%']['access arguments'] = array('administer taxonomy');
-	
+
 }
 
 /**
@@ -318,199 +353,199 @@ function mic_implementation_image_default_styles() {
 	$styles['profile'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 200,
 					'height' => 248,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['banner-small'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 480,
 					'height' => 161,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['banner-small-node'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale', 
+				'name' => 'image_scale',
 				'data' => array(
 					'width' => 480,
 					//'height' => 161,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['banner-large'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 656,
 					'height' => 272,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['slideshow'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 660,
 					'height' => 273,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-		
+
 	$styles['feature-story-block'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 236,
 					'height' => 161,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
-	);	
-	
+	);
+
 	$styles['feature-story-block-large'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 295,
 					'height' => 151,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
-	);	
-	
+	);
+
 	$styles['feature-video-block'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 236,
 					'height' => 121,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['feature-video-block-large'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 295,
 					'height' => 151,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
-	);	
-	
+	);
+
 	$styles['news-articles-block'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 112,
 					'height' => 96,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['news-list-main-story'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 430,
 					'height' => 275,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['news-list-small'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 112,
 					'height' => 96,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
 
 	$styles['slideshow-homepage'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 695,
 					'height' => 283,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	$styles['homepage-feature'] = array(
     	'effects' => array(
 			array(
-				'name' => 'image_scale_and_crop', 
+				'name' => 'image_scale_and_crop',
 				'data' => array(
 					'width' => 375,
 					'height' => 195,
 					'upscale' => 0,
-	        		), 
+	        		),
 				'weight' => 0,
-			), 
+			),
     	),
 	);
-	
+
 	return $styles;
 }
 
@@ -518,11 +553,11 @@ function mic_implementation_image_default_styles() {
  * Implementation of hook_define_pages();
  */
 function mic_implementation_define_pages() {
-	
+
 	$pages = array();
-	
+
 	$pages['news-events'] = array(
-		
+
 		'menu' => array( //This is a simple menu API array, you can use all keys defined in the API for hook_menu here.
 			'title' => 'News & Events',
 			'page callback' => 'mic_implementation_display_news_events',
@@ -532,11 +567,11 @@ function mic_implementation_define_pages() {
 		'page-template' => array( //Define your own page.tpl file here.
 			'template' => 'page--news-events',
 		),
-	    
+
 	);
-	
+
 	$pages['rss'] = array(
-		
+
 		'menu' => array( //This is a simple menu API array, you can use all keys defined in the API for hook_menu here.
 			'title' => 'RSS Feeds',
 			'page callback' => 'mic_implementation_display_rss',
@@ -546,11 +581,11 @@ function mic_implementation_define_pages() {
 		'page-template' => array( //Define your own page.tpl file here.
 			'template' => 'page--rss',
 		),
-	    
+
 	);
-	
+
 	return $pages;
-	
+
 }
 
 function mic_implementation_display_news_events() {
@@ -564,4 +599,14 @@ function mic_implementation_display_rss() {
 function mic_implementation_class_finder() {
 	return '';
 }
-?>
+
+/**
+ * Helper to retrieve course title
+ *
+ * @param int $nid
+ * @return array
+ */
+function _mic_implementation_course_title($nid) {
+  $result = db_query("SELECT title FROM {node} WHERE nid = :nid", array(':nid' => $nid))->fetchCol();
+  return reset($result);
+}

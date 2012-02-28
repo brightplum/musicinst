@@ -65,8 +65,8 @@ function mic_implementation_preprocess_page(&$variables) {
     			$variables['taxonomy_blocks'] = mic_implementation_model('taxonomy-blocks', $variables['node']->type, array('node'=>$variables['node']));
     			break;
     		case 'item_course':
-    			$variables['course'] = theme('mic_course', array('node' => $variables['node']));
-    			$variables['taxonomy_blocks'] = mic_implementation_model('taxonomy-blocks', $variables['node']->type, array('node'=>$variables['node']));
+    			//$variables['course'] = theme('mic_course', array('node' => $variables['node']));
+    			//$variables['taxonomy_blocks'] = mic_implementation_model('taxonomy-blocks', $variables['node']->type, array('node'=>$variables['node']));
     			break;
     	}
     }
