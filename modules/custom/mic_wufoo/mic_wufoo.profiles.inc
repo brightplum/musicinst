@@ -123,7 +123,6 @@ function mic_wufoo_profiles_batch_import($entry, &$context) {
   $nid = mic_wufoo_profiles_namelookup($name);
   if ($nid) {
     $node = node_load($nid);
-    //something's up with image field
     unset($node->field_image);
   }
   else {
@@ -243,6 +242,7 @@ function mic_wufoo_profiles_terms($entry) {
           $terms['instrument'][]['tid'] = $suzuki_inst_tid;
         }
       }
+      mic_wufoo_profiles_set_ignore($key);
     }
   }
   return $terms;
