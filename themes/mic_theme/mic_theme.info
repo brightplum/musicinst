@@ -1,0 +1,46 @@
+name = MIC Theme (Revamp)
+description = The MIC theme revamped.
+package = MIC
+version = VERSION
+core = 7.x
+
+; REGIONS =====================================================
+regions[header1] = Header 1
+regions[header2] = Header 2
+regions[header3] = Header 3
+regions[header4] = Header 4
+regions[header5] = Header 5
+regions[navigation] = Navigation
+regions[top] = Top
+regions[banner_left] = Banner Left
+regions[banner_right] = Banner Right
+
+; middle content regions; these will be contained in the grid
+regions[content_top] = Content Top
+regions[content] = Content
+regions[content_bottom] = Content Bottom
+regions[sidebar_left] = Sidebar Left
+regions[sidebar_right] = Sidebar Right
+regions[content_sidebar_span] = Content Sidebar Span
+
+; footer regions; these will expand beyond the grid
+regions[footer_left] = Footer Left
+regions[footer_nav] = Footer Navigation
+regions[footer_social] = Footer Social
+regions[footer_bottom] = Footer Bottom
+regions[closure] = Closure
+
+; Drupal expects these
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[page_top] = Page Top
+regions[page_bottom] = Page Bottom
+
+; DEPENDENCIES ================================================
+stylesheets[all][] = css/yui-reset.css
+stylesheets[all][] = css/styles.css
+stylesheets[all][] = css/implementation.css
+
+scripts[] = js/jquery-OOP.js
+scripts[] = js/jquery.mbanner.js
+scripts[] = js/master.js
