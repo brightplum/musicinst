@@ -91,7 +91,7 @@
             <div class="primary-navigation-wrapper">
               <div class="primary-navigation-inner-wrapper">
                 <div class="primary-navigation">
-                  <?php print render($page['navigation']); ?>
+                  <?php print render($navigation); ?>
 		    				</div>
 		    			</div> <!-- end primary-navigation-inner-wrapper -->
 		    		</div> <!-- end primary-navigation-wrapper -->
@@ -126,25 +126,37 @@
       	  <?php endif ; ?>
       	  <div class="body-wrapper">
             <div class="body-inner-wrapper">
-              <div class="main-content-wrapper">
-                <?php if ($page['help'] || ($show_messages && $messages)): ?>
-                  <div id="console">
-                    <?php print render($page['help']); ?>
-                    <?php if ($show_messages && $messages): print $messages; endif; ?>
-                  </div>
-                <?php endif; ?>
-                <?php if ($page['highlighted']): ?>
-                  <div id="highlighted">
-                    <?php print render($page['highlighted']); ?>
-                  </div>
-                <?php endif; ?>
-                <?php if ($page['top']): ?>
-                  <?php print render($page['top']); ?>
-                <?php endif; ?>
-	    	    		<?php if ($title): echo '<h1 style="margin: 20px 0px; color: #455561;">'.$title.'</h1>'; endif; ?>
-	    	    		<?php if ($tabs): echo render($tabs); endif; ?>
-	    	    		<?php echo render($page['content']); ?>
-    	    	  </div><!-- /main-content-wrapper -->
+              <?php if ($page['top']): ?>
+                <?php print render($page['top']); ?>
+              <?php endif; ?>
+              <?php if ($page['sidebar_left']): ?>
+              <div class="left-column">
+				    		<div class="secondary-navigation-wrapper">
+				    			<?php print render($page['sidebar_left']); ?>
+				    		</div>
+				    	</div>  <!-- end left-column -->
+				    	<?php endif; ?>
+				    	<?php if ($page['sidebar_left'] || $page['sidebar_right']) print '<div class="middle-column ' . $middle_column . '">'; ?>
+                <div class="main-content-wrapper">
+  	    	    		<?php if ($title): echo '<h1 style="margin: 20px 0px; color: #455561;">'.$title.'</h1>'; endif; ?>
+  	    	    		<?php if ($page['help'] || ($show_messages && $messages)): ?>
+                    <div id="console">
+                      <?php print render($page['help']); ?>
+                      <?php if ($show_messages && $messages): print $messages; endif; ?>
+                    </div>
+                  <?php endif; ?>
+  	    	    		<?php if ($tabs): echo render($tabs); endif; ?>
+  	    	    		<?php echo render($page['content']); ?>
+      	    	  </div><!-- /main-content-wrapper -->
+      	    	<?php if ($page['sidebar_left'] || $page['sidebar_right']) print '</div><!-- /middle-column -->' ; ?>
+      	    	<?php if ($page['sidebar_right']): ?>
+      	    	<div class="right-column">
+				    		<div class="inner-wrapper">
+				    		  <?php print render($page['sidebar_right']); ?>
+				        </div>
+				    	</div> <!-- end right-column -->
+				    	<?php endif; ?>
+				    	<div class="clear"></div>
     	    	</div> <!-- end body-inner-wrapper -->
     	    </div> <!-- end body-wrapper -->
    	    	<div class="clear"></div>

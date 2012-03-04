@@ -21,7 +21,6 @@ regions[content] = Content
 regions[content_bottom] = Content Bottom
 regions[sidebar_left] = Sidebar Left
 regions[sidebar_right] = Sidebar Right
-regions[content_sidebar_span] = Content Sidebar Span
 
 ; footer regions; these will expand beyond the grid
 regions[footer_left] = Footer Left
@@ -31,7 +30,6 @@ regions[footer_bottom] = Footer Bottom
 regions[closure] = Closure
 
 ; Drupal expects these
-regions[highlighted] = Highlighted
 regions[help] = Help
 regions[page_top] = Page Top
 regions[page_bottom] = Page Bottom
