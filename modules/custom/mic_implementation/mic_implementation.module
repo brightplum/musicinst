@@ -7,15 +7,21 @@ require_once('includes/mic_implementation.theme.inc');
 require_once('includes/mic_implementation.model.inc');
 require_once('includes/mic_implementation.helper.inc');
 
-
+/**
+ * Implements hook_custom_theme
+ *
+ * @return string
+ */
 function mic_implementation_custom_theme() {
   $node = menu_get_object('node');
-  switch ($node->type) {
-    case 'item_course':
-      $theme = 'mic_theme';
-      break;
+  if (is_object($node)) {
+    switch ($node->type) {
+      case 'item_course':
+        $theme = 'mic_theme';
+        break;
+    }
+    return $theme;
   }
-  return $theme;
 }
 
 /**
