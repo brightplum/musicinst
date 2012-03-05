@@ -172,95 +172,33 @@ function mic_implementation_theme_mic_profile(&$variables) {
 }
 
 function mic_implementation_theme_mic_course(&$variables) {
+  $header = $rows = array();
+  $variables = reset($variables);
+	$classes = $variables['#classes'];
 
-	$node = $variables['node'];
+	$header = array(
+    t('Day'),
+    t('Time'),
+    t('Start Date'),
+    t('Location'),
+    t('Instructor'),
+    '',
+  );
 
-	$today = strtotime(date('n/j/Y', time()));
-	//print_r($node);
+  foreach ($classes as $key => $class) {
+    if (is_numeric($key)) {
+      $row = array();
+      foreach ($class as $value) {
+        $row[] = $value;
+      }
+      $rows[] = $row;
+    }
+  }
 
-	// get all class info
-	$query = db_select('node', 'cls');
+  $output = '<h3>Classes</h3>';
+  $output .= theme('table', array('rows' => $rows, 'header' => $header));
 
-	$query->fields('cls', array('nid', 'title'));
-	$query->fields('sd', array('field_start_date_value'));
-	$query->fields('td_camp', array('name'));
-	$query->fields('dow', array('field_day_of_week_value'));
-	$query->fields('time', array('field_time_value'));
-	$query->fields('st', array('field_status_value'));
-	$query->fields('instr', array('nid', 'title'));
-	$query->fields('ln', array('field_last_name_value'));
-	$query->fields('ce', array('field_custom_enrollment_value'));
-	$query->fields('cem', array('field_custom_enrollment_message_value'));
-
-	$query->innerJoin('field_data_field_course_reference', 'crs', 'cls.nid = crs.entity_id');
-	$query->innerJoin('field_data_field_status', 'st', 'st.entity_id = cls.nid');
-	$query->innerJoin('field_data_field_start_date', 'sd', 'sd.entity_id = cls.nid');
-	$query->innerJoin('field_data_field_day_of_week', 'dow', 'dow.entity_id = cls.nid');
-	$query->innerJoin('field_data_field_time', 'time', 'time.entity_id = cls.nid');
-	$query->innerJoin('taxonomy_index', 'ti_camp', 'cls.nid = ti_camp.nid');
-	$query->innerJoin('taxonomy_term_data', 'td_camp', 'ti_camp.tid = td_camp.tid AND td_camp.vid = 7');
-
-	$query->leftJoin('field_data_field_instructor_reference', 'ir', 'ir.entity_id = cls.nid');
-	$query->leftJoin('node', 'instr', 'instr.nid = ir.field_instructor_reference_nid');
-	$query->leftJoin('field_data_field_last_name', 'ln', 'ln.entity_id = instr.nid');
-
-	$query->leftJoin('field_data_field_custom_enrollment', 'ce', 'ce.entity_id = cls.nid');
-	$query->leftJoin('field_data_field_custom_enrollment_message', 'cem', 'cem.entity_id = cls.nid');
-
-	$query->leftJoin('field_data_field_sunrise_date', 'srd', 'srd.entity_id = cls.nid');
-	$query->leftJoin('field_data_field_sunset_date', 'ssd', 'ssd.entity_id = cls.nid');
-
-	$query->condition('crs.field_course_reference_nid', $node->nid);
-	$query->condition('srd.field_sunrise_date_value', $today, '<=');
-	$query->condition('ssd.field_sunset_date_value', $today, '>=');
-
-	$query->orderBy('sd.field_start_date_value', 'ASC');
-	$query->orderBy('dow.field_day_of_week_value', 'ASC');
-	$query->orderBy('time.field_time_value', 'ASC');
-	$query->orderBy('instr.title', 'ASC');
-
-	$results = $query->execute();
-
-	$rows = array();
-
-	foreach($results as $row) {
-	  $class = node_load($row->nid);
-	  $add_to_cart = drupal_render(field_view_field('node', $class, 'field_class_product', 'commerce_cart_add_to_cart_form'));
-		$rows[] = array(
-		  $row->field_day_of_week_value,
-		  $row->field_time_value,
-		  $row->field_start_date_value,
-		  $row->name,
-		  l($row->field_last_name_value, drupal_lookup_path('alias', 'node/'.$row->instr_nid)),
-		  $row->field_status_value,
-		  $row->field_custom_enrollment_value,
-		  $row->field_custom_enrollment_message_value,
-		  $add_to_cart,
-		);
-	}
-
-	return array(
-		'body' => $node->body['und'][0]['safe_value'],
-		'ages' => mic_implementation_get_taxonomy_term_list_string_from_array($node->field_age['und']),
-		'interests' => mic_implementation_get_taxonomy_term_list_string_from_array($node->field_program_area['und']),
-		'instruments' => mic_implementation_get_taxonomy_term_list_string_from_array($node->field_instrument['und']),
-		'requirements' => $node->field_requirements['und'][0]['safe_value'],
-		'show_semester' => $node->field_show_semester_details['und'][0]['value'],
-		'fall_price' => $node->field_fall_price['und'][0]['value'],
-		'fall_materials_fee' => $node->field_fall_materials_fees['und'][0]['value'],
-		'fall_semester_duration' => $node->field_fall_semester_duration['und'][0]['safe_value'],
-		'fall_class_duration' => $node->field_fall_class_duration['und'][0]['value'],
-		'spring_price' => $node->field_spring_price['und'][0]['value'],
-		'spring_materials_fee' => $node->field_spring_materials_fees['und'][0]['value'],
-		'spring_semester_duration' => $node->field_spring_semester_duration['und'][0]['safe_value'],
-		'spring_class_duration' => $node->field_spring_class_duration['und'][0]['value'],
-		'summer_price' => $node->field_summer_price['und'][0]['value'],
-		'summer_materials_fee' => $node->field_summer_materials_fees['und'][0]['value'],
-		'summer_semester_duration' => $node->field_summer_semester_duration['und'][0]['safe_value'],
-		'summer_class_duration' => $node->field_summer_class_duration['und'][0]['value'],
-		'signup_url' => isset($node->field_signup_url['und'][0]['attributes']) ? l('Click Here to Register!', $node->field_signup_url['und'][0]['display_url'], array('attributes' => $node->field_signup_url['und'][0]['attributes'])) : '',
-		'classes' => $rows
-	);
+  return $output;
 }
 
 function mic_implementation_theme_mic_event(&$variables) {
