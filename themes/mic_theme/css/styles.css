@@ -379,12 +379,24 @@ Header Wrapper
 	padding: 0px 0px 0px 16px;
 }
 
-.header-section .header-section-inner-wrapper {
+.header-section .header-section-inner-wrapper,
+.header-section .region {
 	font-size: .8em;
 	margin: 10px 0px 0px;
 	line-height: normal;
 	height: 86px;
 	overflow: hidden;
+}
+
+.header-section .region .mic-shopping-cart {
+  margin: 20px auto;
+  text-align: center;
+  font-weight: bold;
+}
+
+.header-section .region .mic-shopping-cart .cart-icon {
+  padding: 5px 2px;
+  vertical-align: middle;
 }
 
 .header-inner-wrapper .top div.first {
