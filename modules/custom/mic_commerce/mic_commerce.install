@@ -371,3 +371,14 @@ function mic_commerce_class_product_fields() {
     'deleted' => '0',
   ));
 }
+
+/**
+ * Configure profile_student customer profile
+ *
+ */
+function mic_commerce_update_7001(&$sandbox) {
+  commerce_customer_configure_customer_profile_type('profile_student');
+  commerce_order_configure_customer_profile_type('profile_student', 'Profile student');
+  $sandbox['#finished'] = TRUE;
+  return t('Enabled fields on the commerce customer profile type: Profile student. Configured profile reference field on commerce_order');
+}
