@@ -7,6 +7,60 @@ require_once('includes/mic_implementation.theme.inc');
 require_once('includes/mic_implementation.model.inc');
 require_once('includes/mic_implementation.helper.inc');
 
+
+function mic_implementation_page_build(&$page) {
+  global $theme;
+  $headers = array();
+
+  $headers[] = theme('links',
+    array('links' => menu_navigation_links('menu-audience-navigation'),
+			'attributes' => array(
+				'id' => 'audience-navigation',
+				'class' => array('links'),
+			),
+	  )
+	);
+	$headers[] = theme('links',
+	  array('links' => menu_navigation_links('menu-tactical-navigation'),
+			'attributes' => array(
+				'id' => 'menu-tactical-navigation-1',
+				'class' => array('links'),
+			),
+	  )
+	);
+	$headers[] = theme('links',
+	  array('links' => menu_navigation_links('menu-tactical-navigation-2'),
+			'attributes' => array(
+				'id' => 'menu-tactical-navigation-2',
+				'class' => array('links'),
+			),
+		)
+	);
+
+  switch ($theme) {
+    case 'mic_theme':
+      foreach ($headers as $key => $header) {
+        $key++;
+        $page['header' . $key]['menu'] = array(
+          '#markup' => $header,
+        );
+      }
+      break;
+  }
+}
+
+
+/**
+ * Implements hook_ctools_plugin_api().
+ * Field Group uses ctools exportables
+ */
+function mic_implementation_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "field_group" && $api == "field_group") {
+    return array("version" => 1);
+  }
+}
+
 /**
  * Implements hook_custom_theme
  *
@@ -17,6 +71,7 @@ function mic_implementation_custom_theme() {
   if (is_object($node)) {
     switch ($node->type) {
       case 'item_course':
+      case 'event':
         $theme = 'mic_theme';
         break;
     }
