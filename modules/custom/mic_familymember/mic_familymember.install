@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the mic_familymember module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function mic_familymember_field_schema($field) {
+  $columns = array(
+    'relationship' => array(
+      'description' => "Family member relationship",
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => FALSE,
+    ),
+    'name' => array(
+      'description' => "Family member name",
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => FALSE,
+    ),
+    'instrument' => array(
+      'description' => "Family member instrument",
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => FALSE,
+    ),
+  );
+  $indexes = array(
+    'name' => array('name'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
