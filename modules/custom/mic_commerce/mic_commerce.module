@@ -50,6 +50,12 @@ function mic_commerce_block_info() {
   return $blocks;
 }
 
+/**
+ * Implements hook_block_view()
+ *
+ * @param string $delta
+ * @return array
+ */
 function mic_commerce_block_view($delta = '') {
   $block = array();
 
