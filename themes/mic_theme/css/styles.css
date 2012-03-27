@@ -418,7 +418,7 @@ Header Wrapper
 MISC
 
 ********************/
-.header-inner-wrapper .search {
+.header-inner-wrapper .search, #block-search-form {
 	margin: 0px 0px 0px 16px;
 }
 
