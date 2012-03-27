@@ -67,16 +67,29 @@ function mic_implementation_ctools_plugin_api() {
  * @return string
  */
 function mic_implementation_custom_theme() {
+  $theme = 'mic_theme';
+  $switch = FALSE;
   $node = menu_get_object('node');
+  //check paths
+  $path = explode('/', current_path());
+  $paths = array(
+    'cart',
+    'checkout',
+  );
+
   if (is_object($node)) {
     switch ($node->type) {
       case 'item_course':
       case 'event':
-        $theme = 'mic_theme';
+        $switch = TRUE;
         break;
     }
-    return $theme;
   }
+  else if (in_array($path[0], $paths)) {
+    $switch = TRUE;
+  }
+
+  return ($switch) ? $theme : 'mic';
 }
 
 /**
