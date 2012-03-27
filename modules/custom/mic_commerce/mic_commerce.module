@@ -75,9 +75,11 @@ function mic_commerce_block_view($delta = '') {
  */
 function mic_commerce_cart() {
   global $user;
-  $order = commerce_cart_order_load($user->uid);
-  $num_items = field_get_items('commerce_order', $order, 'commerce_line_items');
-  $num_items = count($num_items);
+  $num_items = 0;
+  if ($order = commerce_cart_order_load($user->uid)) {
+    $num_items = field_get_items('commerce_order', $order, 'commerce_line_items');
+    $num_items = ($num_items) ? count($num_items) : 0;
+  }
   return theme('mic_commerce_cart', array('num_items' => $num_items, 'name' => $user->name));
 }
 
@@ -120,8 +122,8 @@ function mic_commerce_commerce_product_type_info() {
 
 function mic_commerce_commerce_customer_profile_type_info() {
   return array(
-    'profile_student' => array(
-      'type' => 'product_student',
+    'prof_student' => array(
+      'type' => 'prof_student',
       'name' => t('Student'),
       'description' => 'A student profile to relate to classes',
       'help' => '',
