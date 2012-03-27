@@ -12,6 +12,8 @@
 function mic_commerce_install() {
   mic_commerce_commerce_product_fields();
   mic_commerce_class_product_fields();
+  mic_commerce_event_product_fields();
+  theme_enable(array('mic_theme'));
 }
 
 /**
@@ -372,13 +374,112 @@ function mic_commerce_class_product_fields() {
   ));
 }
 
-/**
- * Configure profile_student customer profile
- *
- */
-function mic_commerce_update_7001(&$sandbox) {
-  commerce_customer_configure_customer_profile_type('profile_student');
-  commerce_order_configure_customer_profile_type('profile_student', 'Profile student');
-  $sandbox['#finished'] = TRUE;
-  return t('Enabled fields on the commerce customer profile type: Profile student. Configured profile reference field on commerce_order');
+function mic_commerce_event_product_fields() {
+  //ticket field
+  field_create_field(array(
+    'translatable' => '0',
+    'entity_types' => array(),
+    'settings' => array(),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+      'module' => 'field_sql_storage',
+      'active' => '1',
+      'details' => array(
+        'sql' => array(
+          'FIELD_LOAD_CURRENT' => array(
+            'field_data_field_event_ticket' => array(
+              'product_id' => 'field_event_ticket_product_id',
+            ),
+          ),
+          'FIELD_LOAD_REVISION' => array(
+            'field_revision_field_event_ticket' => array(
+              'product_id' => 'field_event_ticket_product_id',
+            ),
+          ),
+        ),
+      ),
+    ),
+    'foreign keys' => array(
+      'product_id' => array(
+        'table' => 'commerce_product',
+        'columns' => array(
+          'product_id' => 'product_id',
+        ),
+      ),
+    ),
+    'indexes' => array(
+      'product_id' => array(
+        'product_id',
+      ),
+    ),
+    'field_name' => 'field_event_ticket',
+    'type' => 'commerce_product_reference',
+    'module' => 'commerce_product_reference',
+    'active' => '1',
+    'locked' => '0',
+    'cardinality' => '-1',
+    'deleted' => '0',
+    'columns' => array(
+      'product_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'bundles' => array(
+      'node' => array(
+        'event',
+      ),
+    ),
+  ));
+  field_create_instance(array(
+    'label' => 'Ticket',
+    'widget' => array(
+      'weight' => '7',
+      'type' => 'options_buttons',
+      'module' => 'options',
+      'active' => 1,
+      'settings' => array(
+        'autocomplete_match' => 'contains',
+        'size' => 60,
+        'autocomplete_path' => 'commerce_product/autocomplete',
+      ),
+    ),
+    'settings' => array(
+      'field_injection' => 1,
+      'referenceable_types' => array(
+        'product_ticket' => 'product_ticket',
+        'product' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'commerce_cart_add_to_cart_form',
+        'weight' => '2',
+        'settings' => array(
+          'show_quantity' => 1,
+          'default_quantity' => '1',
+          'combine' => 1,
+          'line_item_type' => 0,
+        ),
+        'module' => 'commerce_cart',
+      ),
+      'teaser' => array(
+        'type' => 'hidden',
+        'label' => 'above',
+        'settings' => array(),
+        'weight' => 0,
+      ),
+    ),
+    'required' => 0,
+    'description' => '',
+    'default_value' => NULL,
+    'field_name' => 'field_event_ticket',
+    'entity_type' => 'node',
+    'bundle' => 'event',
+    'deleted' => '0',
+  ));
 }
