@@ -8,10 +8,18 @@
 function mic_commerce_menu() {
   $items = array();
 
-  $items['create/classes-products'] = array(
-		'title' => 'Classes to Products Bulk Update',
+	$items['create/product-classes'] = array(
+		'title' => 'Product Class creation',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_commerce_classes_products_form'),
+		'access arguments' => array('administer site configuration'),
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['create/product-classes/%node'] = array(
+		'title' => 'Product Class creation',
+		'page callback' => 'mic_commerce_class_product_save',
+    'page arguments' => array(2),
 		'access arguments' => array('administer site configuration'),
 		'type' => MENU_CALLBACK,
 	);
@@ -130,6 +138,29 @@ function mic_commerce_commerce_product_type_info() {
   );
 }
 
+/**
+ * Implements hook_commerce_line_item_type_info()
+ *
+ * @return array
+ */
+function mic_commerce_commerce_line_item_type_info() {
+  $line_item_types = array();
+  $line_item_types['product_class'] = array(
+    'name' => t('Product Class'),
+    'description' => t('Line item type for product class'),
+    'product' => TRUE,
+    'add_form_submit_value' => t('Add class'),
+    'base' => 'commerce_product_line_item',
+  );
+
+  return $line_item_types;
+}
+
+/**
+ * Implements hook_commerce_customer_profile_type_info()
+ *
+ * @return array
+ */
 function mic_commerce_commerce_customer_profile_type_info() {
   return array(
     'prof_student' => array(
@@ -148,7 +179,7 @@ function mic_commerce_commerce_customer_profile_type_info() {
  */
 function mic_commerce_admin_paths() {
   $paths = array(
-    'create/classes-products' => TRUE,
+    'create/product-classes' => TRUE,
   );
   return $paths;
 }
@@ -202,9 +233,6 @@ function mic_commerce_class_product_batch_create($class, &$context) {
   //save product
   $product = mic_commerce_class_product_save($class_node);
 
-  //save class with new product id
-  mic_commerce_class_save($class_node, $product);
-
   $context['message'] = t('Saved product %sku', array('%sku' => $product->sku));
 }
 
@@ -231,54 +259,69 @@ function mic_commerce_class_product_batch_finished($success, $results, $operatio
  * @return object
  */
 function mic_commerce_class_product_save($class_node) {
-  //check if product exists, if not, save new product
-  if ($exists = _mic_commerce_check_existing_product($class_node->nid)) {
-    $product = commerce_product_load(key($exists));
-  }
-  else {
-    $product = commerce_product_new('product');
-    $sku = strtolower(str_replace(' ', '', $class_node->title)) . '-nid' . $class_node->nid;
+  module_load_include('inc', 'mic_commerce', 'includes/transfer');
 
-    $product->uid = 1;
-    $product->sku = $sku;
-  }
-
-  $course_node = node_load(reset(field_get_items('node', $class_node, 'field_course_reference')));
-  $semester = _mic_commerce_price_reference(reset(field_get_items('node', $class_node, 'field_semester_reference')));
-  $number = reset(field_get_items('node', $course_node, 'field_' . $semester . '_price'));
-  $price = array(
-    'amount' => str_replace('.', '', $number['value']),
-    'currency_code' => 'USD',
-    'data' => array('components' => array()),
-  );
-  $number = reset(field_get_items('node', $course_node, 'field_' . $semester . '_materials_fees'));
-  $materials_fees = (isset($number['value'])) ? array(
-    'amount' => str_replace('.', '', $number['value']),
-    'currency_code' => 'USD',
-    'data' => array('components' => array()),
-  ) : NULL;
+  $price = mic_commerce_get_price($class_node);
 
   //save product
+  $product = commerce_product_new('product_class');
   $product->title = $class_node->title;
   $product->commerce_price[LANGUAGE_NONE][0] = $price;
-  $product->field_commerce_class[LANGUAGE_NONE][0]['nid'] = $class_node->nid;
-  if ($materials_fees) {
-    $product->field_commerce_materialfees[LANGUAGE_NONE][0] = $materials_fees;
+  $product->uid = 1;
+
+  $semester_string = mic_commerce_get_semester_string($class_node);
+  $instructor_string = mic_commerce_get_instructor_string($class_node);
+  $sku[] = strtolower(str_replace(' ', '', $class_node->title));
+  $sku[] = $semester_string;
+  $sku[] = $instructor_string;
+  $sku[] = $class_node->nid;
+  $sku = implode('-', $sku);
+
+  $product->sku = $sku;
+
+  //get other fields
+  foreach ($class_node as $field => $value) {
+    if (strpos($field, 'field_') === 0) {
+      $product->{$field} = $class_node->{$field};
+    }
+    else { continue; }
   }
 
   commerce_product_save($product);
 
   return $product;
 }
+
 /**
- * Save a class
+ * Create a simple add-to-cart form.
  *
- * @param object $class_node
- * @param object $product
+ * @param $product_id
+ *   The ID of the product to display.
+ * @param $quantity
+ *   The default number to be added to the cart, defaults to 1.
+ * @param $show_quantity
+ *   Boolean indicating whether or not to provide the quantity selector.
+ * @param $order_id
+ *   The order ID to be used, defaults to 0.
+ *
+ * @return
+ *   A formatted add-to-cart form.
  */
-function mic_commerce_class_save($class_node, $product) {
-  $class_node->field_class_product[LANGUAGE_NONE][0]['product_id'] = $product->product_id;
-  node_save($class_node);
+function mic_commerce_add_to_cart($product_id, $quantity = 1, $show_quantity = FALSE, $order_id = 0) {
+  // Load the product.
+  $product = commerce_product_load($product_id);
+
+  // Build the line item object.
+  $line_item = commerce_line_item_new($product->type, $order_id);
+  $line_item->data['context']['product_ids'] = array($product->product_id);
+  $line_item->quantity = $quantity;
+
+  // Get the form_id.
+  $form_id = commerce_cart_add_to_cart_form_id(array($product->product_id), $line_item->quantity, $show_quantity);
+
+  // Render the final output.
+  $render = drupal_get_form($form_id, $line_item);
+  return render($render);
 }
 
 /**
@@ -296,30 +339,3 @@ function _mic_commerce_get_classes() {
   return reset($result);
 }
 
-/**
- * Helper to get the semester the price relates to
- *
- * @param int $tid
- * @return string
- */
-function _mic_commerce_price_reference($tid) {
-  $term = taxonomy_term_load($tid['tid']);
-  $semester = strtolower(substr($term->name, 0, strpos($term->name, ' ')));
-  return $semester;
-}
-
-/**
- * Helper to see if a product exists in the system by class relationship
- *
- * @param int $nid
- * @return array
- */
-function _mic_commerce_check_existing_product($nid) {
-  $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'commerce_product')
-    ->fieldCondition('field_commerce_class', 'nid', $nid)
-    ->execute();
-
-  return reset($result);
-}

@@ -170,3 +170,7 @@ function mic_commerce_event_product_fields() {
     'deleted' => '0',
   ));
 }
+
+function mic_commerce_update_7001(&$sandbox) {
+  commerce_line_item_configure_line_item_types();
+}

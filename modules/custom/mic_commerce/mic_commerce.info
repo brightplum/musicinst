@@ -8,4 +8,6 @@ dependencies[] = commerce_checkout
 dependencies[] = commerce_product_pricing_ui
 dependencies[] = commerce_product_ui
 dependencies[] = commerce_payment_ui
+dependencies[] = commerce_customer_ui
+dependencies[] = commerce_line_item_ui
 dependencies[] = commerce_cart
