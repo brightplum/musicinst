@@ -114,8 +114,8 @@ function mic_implementation_node_view($node, $view_mode, $langcode) {
 function mic_implementation_get_course_classes($nid) {
   $query = new EntityFieldQuery();
   $query
-    ->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'item_class')
+    ->entityCondition('entity_type', 'commerce_product')
+    ->entityCondition('bundle', 'product_class')
     ->propertyCondition('status', 1)
     ->fieldCondition('field_course_reference', 'nid', $nid)
     ->fieldCondition('field_sunset_date', 'value', time(), '>=')
@@ -127,55 +127,49 @@ function mic_implementation_get_course_classes($nid) {
     $content['#markup'] = t("No classes");
   }
   else {
-    $content['nodes'] = array(
+    $content['classes'] = array(
       '#attributes' => array(
         'class' => array('course-classes-list'),
       ),
     );
-    foreach ($result['node'] as $node_class) {
-      $node = node_load($node_class->nid);
+    foreach ($result['commerce_product'] as $product_class) {
+      $pc = commerce_product_load($product_class->product_id);
       $class = array();
-      $day = field_get_items('node', $node, 'field_day_of_week');
+      $day = field_get_items('commerce_product', $pc, 'field_day_of_week');
       $day = reset($day);
       $class[] = $day['value'];
 
-      $time = field_get_items('node', $node, 'field_time');
+      $time = field_get_items('commerce_product', $pc, 'field_time');
       $time = reset($time);
       $class[] = $time['value'];
 
-      $start_date = field_get_items('node', $node, 'field_start_date');
+      $start_date = field_get_items('commerce_product', $pc, 'field_start_date');
       $start_date = reset($start_date);
       $class[] = date('n/j/Y', $start_date['value']);
 
 
-      $location = field_get_items('node', $node, 'field_location_reference');
+      $location = field_get_items('commerce_product', $pc, 'field_location_reference');
       $location = reset($location);
       $location = taxonomy_term_load($location['tid']);
-      /*
-      //move to checkout form
-      $enrollment = reset((field_get_items('node', $node, 'field_custom_enrollment')));
-      if ($enrollment['value']) {
-        $message = reset((field_get_items('node', $node, 'field_custom_enrollment_message')));
-      }
-      */
+
       $class[] = $location->name;
 
-      $instructor = field_get_items('node', $node, 'field_instructor_reference');
+      $instructor = field_get_items('commerce_product', $pc, 'field_instructor_reference');
       $instructor = reset($instructor);
       $instructor = node_load($instructor['nid']);
       $class[] = l($instructor->title, 'node/'. $instructor->nid);
 
-      $status = field_get_items('node', $node, 'field_status');
+      $status = field_get_items('commerce_product', $pc, 'field_status');
       $status = reset($status);
       if ($status['value'] == 'Open') {
-        $add_to_cart = field_view_field('node', $node, 'field_class_product', 'commerce_cart_add_to_cart_form');
-        $class[] = drupal_render($add_to_cart);
+        $add_to_cart = mic_commerce_add_to_cart($product_class->product_id);
+        $class[] = $add_to_cart;
       }
       else {
         $class[] = $status['value'];
       }
 
-      $content[$node->nid] = $class;
+      $content[$product_class->product_id] = $class;
     }
   }
 
