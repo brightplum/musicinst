@@ -3455,3 +3455,12 @@ Misc
 	background: url('../images/structure/footer/social/youtube.jpg') no-repeat;
 }
 
+/** Cart **/
+.cart-account-login {
+  text-align: right;
+}
+.cart-account-login a,
+.messages a {
+  color: #0D70A1;
+  font-weight: bold;
+}
