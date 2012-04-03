@@ -27,6 +27,15 @@ function mic_commerce_menu() {
 	return $items;
 }
 
+function mic_commerce_form_views_form_commerce_cart_form_default_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  if ($user->uid == 0) {
+    $create_account = l(t('create account'), 'user/register', array('query' => array('destination' => 'cart')));
+    $login = l(t('login'), 'user/login', array('query' => array('destination' => 'cart')));
+    $form['#suffix'] = '<div class="cart-account-login">' . t('Please !create_account or !login to checkout.', array('!create_account' => $create_account, '!login' => $login)) . '</div></div>';
+  }
+}
+
 /**
  * Implements hook_ctools_plugin_api().
  */
@@ -93,10 +102,11 @@ function mic_commerce_block_view($delta = '') {
  */
 function mic_commerce_cart() {
   global $user;
+  $user->name = ($user->uid) ? $user->name : FALSE;
   $num_items = 0;
   if ($order = commerce_cart_order_load($user->uid)) {
-    $num_items = field_get_items('commerce_order', $order, 'commerce_line_items');
-    $num_items = ($num_items) ? count($num_items) : 0;
+    $wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $num_items = commerce_line_items_quantity($wrapper->commerce_line_items, commerce_product_line_item_types());
   }
   return theme('mic_commerce_cart', array('num_items' => $num_items, 'name' => $user->name));
 }
@@ -154,22 +164,6 @@ function mic_commerce_commerce_line_item_type_info() {
   );
 
   return $line_item_types;
-}
-
-/**
- * Implements hook_commerce_customer_profile_type_info()
- *
- * @return array
- */
-function mic_commerce_commerce_customer_profile_type_info() {
-  return array(
-    'prof_student' => array(
-      'type' => 'prof_student',
-      'name' => t('Student'),
-      'description' => 'A student profile to relate to classes',
-      'help' => '',
-    )
-  );
 }
 
 /**
