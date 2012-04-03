@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Install for mic_user
+ */
+
+/**
+ * Implements hook_install()
+ *
+ */
+function mic_user_install() {
+  $bundles = mic_user_bundles();
+  mic_commerce_install_fields($bundles, 'mic_user', 'user');
+}
+
+/**
+ * Bundles to install
+ *
+ * @return array
+ */
+function mic_user_bundles() {
+  return array(
+    'user',
+  );
+}

@@ -1,0 +1,6 @@
+name = MIC User
+description = MIC User for user registration fields
+package = Music Institute of Chicago
+core = 7.x
+
+dependencies[] = mic_familymember

@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function mic_user_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "field_group" && $api == "field_group") {
+    return array("version" => "1");
+  }
+}
+
+/**
+ * Implements hook_user_insert()
+ *
+ * @param unknown_type $edit
+ * @param unknown_type $account
+ * @param unknown_type $category
+ */
+function mic_user_user_insert(&$edit, $account, $category) {
+  $profile = commerce_customer_profile_new('billing', $account->uid);
+  _mic_user_format_user_billing($account);
+  $profile->commerce_customer_address = $account->field_user_billing;
+  $profile->date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s O');
+  commerce_customer_profile_save($profile);
+}
+
+/**
+ * Implements hook_user_update()
+ *
+ * @param unknown_type $edit
+ * @param unknown_type $account
+ * @param unknown_type $category
+ */
+function mic_user_user_update(&$edit, $account, $category) {
+  if ($profile_id = _mic_user_commerce_customer_profile_by_uid($account->uid)) {
+    $profile = commerce_customer_profile_load($profile_id[0]);
+    $profile->changed = time();
+  }
+  else {
+    $profile = commerce_customer_profile_new('billing', $account->uid);
+    $profile->date = format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s O');
+  }
+  _mic_user_format_user_billing($account);
+  $profile->commerce_customer_address = $account->field_user_billing;
+
+  commerce_customer_profile_save($profile);
+}
+
+/**
+ * Helper function to get profile by user id
+ *
+ * @param unknown_type $uid
+ * @return unknown
+ */
+function _mic_user_commerce_customer_profile_by_uid($uid) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'commerce_customer_profile')
+    ->entityCondition('uid', $uid)
+    ->execute();
+  $result = reset($result);
+  return array_keys($result);
+}
+
+/**
+ * Helper function to format billing on user account with billing on customer profile
+ *
+ * @param unknown_type $account
+ */
+function _mic_user_format_user_billing(&$account) {
+  $billing = field_get_items('user', $account, 'field_user_billing');
+  foreach ($billing as $key => $value) {
+    $name_line = $value['first_name'] . ' ' . $value['last_name'];
+    $account->field_user_billing[LANGUAGE_NONE][$key]['name_line'] = $name_line;
+  }
+}
