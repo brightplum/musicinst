@@ -15,21 +15,39 @@ function mic_familymember_field_schema($field) {
       'length' => 128,
       'not null' => FALSE,
     ),
-    'name' => array(
-      'description' => "Family member name",
+    'firstname' => array(
+      'description' => "Family member first name",
       'type' => 'varchar',
-      'length' => 128,
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'lastname' => array(
+      'description' => "Family member last name",
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'email' => array(
+      'description' => "Family member email",
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'birthday' => array(
+      'description' => 'The Unix timestamp student\'s birthday.',
+      'type' => 'varchar',
+      'length' => 255,
       'not null' => FALSE,
     ),
     'instrument' => array(
       'description' => "Family member instrument",
       'type' => 'varchar',
-      'length' => 128,
+      'length' => 255,
       'not null' => FALSE,
     ),
   );
   $indexes = array(
-    'name' => array('name'),
+    'lastname' => array('lastname'),
   );
   return array(
     'columns' => $columns,

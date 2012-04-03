@@ -54,19 +54,35 @@ function mic_familymember_field_widget_form(&$form, &$form_state, $field, $insta
         '#type' => 'select',
         '#default_value' => isset($items[$delta]['relationship']) ? $items[$delta]['relationship'] : '',
         '#options' => _mic_familymember_relationship_options(),
-        '#description' => t('The relationship of the family member.'),
       );
-      $element['name'] = array(
+      $element['firstname'] = array(
         '#type' => 'textfield',
-        '#title' => t('Name'),
-        '#default_value' => isset($items[$delta]['name']) ? $items[$delta]['name'] : '',
-        '#description' => t('The name of the family member.'),
+        '#title' => t('First Name'),
+        '#default_value' => isset($items[$delta]['firstname']) ? $items[$delta]['firstname'] : '',
+      );
+      $element['lastname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Last Name'),
+        '#default_value' => isset($items[$delta]['lastname']) ? $items[$delta]['lastname'] : '',
+      );
+      $element['email'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Email'),
+        '#default_value' => isset($items[$delta]['email']) ? $items[$delta]['email'] : '',
+      );
+
+      //student specific info
+      $element['birthday'] = array(
+        '#title' => t('Birthday'),
+        '#type' => 'date_popup',
+        '#date_format' => 'm/d/Y',
+        '#date_year_range' => '-100:0',
+        '#default_value' => isset($items[$delta]['birthday']) ? $items[$delta]['birthday'] : '',
       );
       $element['instrument'] = array(
         '#title' => t('Instrument'),
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['instrument']) ? $items[$delta]['instrument'] : '',
-        '#description' => t('The instrument the family member plays.'),
       );
       break;
   }
@@ -76,8 +92,10 @@ function mic_familymember_field_widget_form(&$form, &$form_state, $field, $insta
 
 function _mic_familymember_relationship_options() {
   $relationships = array(
+    'self' => 'Self',
     'child' => 'Child',
     'parent' => 'Parent',
+    'guardian' => 'Guardian',
     'partner' => 'Partner',
     'spouse' => 'Spouse',
     'other' => 'Other',
@@ -152,12 +170,19 @@ function theme_mic_familymember_formatter($variables) {
 
   foreach ($items as $delta => $item) {
     $familymember = array();
-    $familymember[] = '<strong>Name:</strong> ' . $item['name'];
-    $familymember[] = '<strong>Relationship:</strong> ' . $item['relationship'];
+    $familymember[] = '<strong>Relationship:</strong> ' . ucfirst($item['relationship']);
+    $familymember[] = '<strong>Name:</strong> ' . $item['firstname'] . '&nbsp' . $item['lastname'];
+    $date = new DateTime($item['birthday']);
+    $familymember[] = '<strong>Birthday:</strong> ' . $date->format('m/d/Y');
+    $familymember[] = '<strong>Email:</strong> ' . $item['email'];
     $familymember[] = '<strong>Instrument:</strong> ' . $item['instrument'];
 
     $output .= '<p>' . implode('<br />', $familymember) . '</p>';
   }
 
   return '<div class="familymembers">' . $output . '</div>';
+}
+
+function mic_commerce_is_student_callback($form, $form_state) {
+  return $form['student_info'];
 }
