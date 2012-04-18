@@ -197,9 +197,9 @@ blockquote {
 }
 
 blockquote p {
-	margin: 0; 
+	margin: 0;
 }
-	
+
 /********************
 
 Anchors
@@ -318,7 +318,7 @@ Header Wrapper
 ********************/
 
 .header-wrapper {
-	margin: 5px 0px 0px 0px	
+	margin: 5px 0px 0px 0px
 	height: 157px;
 }
 
@@ -332,7 +332,7 @@ Header Wrapper
 }
 
 .header-logo {
-	float: left;	
+	float: left;
 	width: 279px;
 	height: 96px;
 }
@@ -342,7 +342,7 @@ Header Wrapper
 	display: block;
 	text-indent: -9999em;
 	width: 279px;
-	height: 96px;	
+	height: 96px;
 }
 
 .header-section-wrapper {
@@ -387,6 +387,17 @@ Header Wrapper
 	overflow: hidden;
 }
 
+.header-section .region .mic-shopping-cart {
+  margin: 20px auto;
+  text-align: center;
+  font-weight: bold;
+}
+
+.header-section .region .mic-shopping-cart .cart-icon {
+  padding: 5px 2px;
+  vertical-align: middle;
+}
+
 .header-inner-wrapper .top div.first {
 	background: none;
 	width: 138px
@@ -412,11 +423,11 @@ MISC
 
 .header-inner-wrapper .social-wrapper {
 	margin: 0px 0px 0px 16px;
+	display: inline-block;
 }
 
 .header-inner-wrapper .social-links-horizontal {
 	float: left;
-	width: 65px;
 }
 
 .header-inner-wrapper .social-links-horizontal ul {
@@ -605,7 +616,7 @@ Primary Navigation Wrapper
 .primary-navigation-wrapper li.nichols-concert-hall a.active, .primary-navigation-wrapper li.nichols-concert-hall a.active:hover {
 	background: url('../images/navigation/primary/primary-navigation.jpg') -557px -61px no-repeat;
 }
-	
+
 /* Alumni Association Link */
 
 .primary-navigation-wrapper li.alumni-association a {
@@ -705,7 +716,7 @@ Home Banner Wrapper
 }
 
 .home-banner-wrapper .calendar-wrapper .bottom div.actions ul li.first {
-	background: none;	
+	background: none;
 }
 
 .home-banner-wrapper .calendar-wrapper .bottom div.actions ul li.last {
@@ -880,7 +891,7 @@ Banner Wrapper
 	float: left;
 	height: 17px;
 	padding: 0px 6px 0px 8px;
-	margin: 0px;	
+	margin: 0px;
 	display: inline;
 }
 
@@ -1046,7 +1057,7 @@ MISC
 	float: left;
 	width: 695px;
 	height: 283px;
-	background: url('../images/structure/home-body/home-banner.jpg') no-repeat;	
+	background: url('../images/structure/home-body/home-banner.jpg') no-repeat;
 }
 
 .mBanner {
@@ -1125,7 +1136,7 @@ MISC
 .mBanner .context .box .sections .section .title {
 	font-size: 18px;
 	color: #66ccff;
-	margin: 0px 0px 20px;	
+	margin: 0px 0px 20px;
 }
 
 .mBanner .context .box .sections .section .title a {
@@ -1155,7 +1166,7 @@ MISC
 	background: #666666;
 	color: #ffffff;
 	padding: 6px 10px;
-	text-decoration: none;	
+	text-decoration: none;
 }
 
 .mBanner .context .box .pager a.active, .mBanner .context .box .pager a:hover {
@@ -1185,14 +1196,14 @@ Home-Body Wrapper
 
 .home-body-wrapper .middle-column {
 	float: left;
-	width: 376px;	
+	width: 376px;
 	margin: 0px 0px 0px 33px;
 }
 
 .home-body-wrapper .right-column {
 	float: left;
 	width: 266px;
-	margin: 0px 0px 0px 33px;	
+	margin: 0px 0px 0px 33px;
 }
 
 .home-body-wrapper .left-column .listing-block-wrapper {
@@ -1223,7 +1234,7 @@ Home-Body Wrapper
 	float: left;
 	height: 17px;
 	padding: 0px 6px 0px 8px;
-	margin: 0px;	
+	margin: 0px;
 	display: inline;
 }
 
@@ -1326,7 +1337,7 @@ Home-Body Wrapper
 }
 
 .home-body-wrapper .middle-column .listing-block-item {
-	border-top: 1px #AAAAAA solid;	
+	border-top: 1px #AAAAAA solid;
 	width: 376px;
 }
 
@@ -1481,7 +1492,7 @@ Home-Body Wrapper
 	cursor: pointer;
 	text-transform: capitalize;
 }
-	
+
 .home-body-wrapper .right-column .class-finder-inner-wrapper .class-finder label {
 	color: #FFFFFF;
 	font-weight: bold;
@@ -1523,7 +1534,7 @@ Audience Breadcrumb Wrapper
 
 .audience-breadcrumb-wrapper li.first {
 	padding: 0px 5px 0px 0px;
-	background: none;	
+	background: none;
 }
 
 .audience-breadcrumb-wrapper li a {
@@ -1700,7 +1711,7 @@ Announcements Static Block Wrapper
 
 .announcements-static-block-wrapper h2 {
 	font-size: 1.3em;
-	font-family: Arial, sans-serif, serif;	
+	font-family: Arial, sans-serif, serif;
 	margin: 0px;
 	border-bottom: 1px solid #AAAAAA;
 }
@@ -1790,7 +1801,7 @@ Breadcrumb Wrapper
 
 .breadcrumb-wrapper li.first {
 	padding: 0px 5px 0px 0px;
-	background: none;	
+	background: none;
 }
 
 .breadcrumb-wrapper li a {
@@ -1822,7 +1833,7 @@ Primary-Column Wrapper
 
 .primary-column-wrapper .secondary-navigation-wrapper {
 	width: 197px;
-	margin: 18px 0px 0px;	
+	margin: 18px 0px 0px;
 }
 
 .primary-column-wrapper .secondary-navigation-wrapper ul {
@@ -1837,7 +1848,7 @@ Primary-Column Wrapper
 .primary-column-wrapper .secondary-navigation-wrapper li {
 	padding: 6px 0px;
 	margin: 0px;
-	border-bottom: 1px #AAAAAA solid;		
+	border-bottom: 1px #AAAAAA solid;
 }
 
 .primary-column-wrapper .secondary-navigation-wrapper li.first {
@@ -2063,7 +2074,7 @@ Content-Listing Wrapper
 	border-top: 5px #000000 solid;
 	margin: 3px 0px 0px;
 	min-height: 100px;
-	
+
 }
 
 .content-listing-inner-wrapper .content-listing-top {
@@ -2089,7 +2100,7 @@ Content-Listing Wrapper
 	float: left;
 	height: 17px;
 	padding: 0px 6px 0px 8px;
-	margin: 0px;	
+	margin: 0px;
 	display: inline;
 }
 
@@ -2182,7 +2193,7 @@ Body Wrapper
 
 .body-inner-wrapper .secondary-navigation-wrapper {
 	width: 197px;
-	margin: 18px 0px 0px;	
+	margin: 18px 0px 0px;
 }
 
 .body-inner-wrapper .secondary-navigation-wrapper ul {
@@ -2193,7 +2204,7 @@ Body Wrapper
 .body-inner-wrapper .secondary-navigation-wrapper li {
 	padding: 6px 0px;
 	margin: 0px;
-	border-bottom: 1px #AAAAAA solid;		
+	border-bottom: 1px #AAAAAA solid;
 }
 
 .body-inner-wrapper .secondary-navigation-wrapper li.first {
@@ -2365,13 +2376,13 @@ Body Wrapper
 .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .listing-block-item .item-blurb span.sub-title {
     display: block;
     font-size: 12px;
-    font-weight: bold;   
+    font-weight: bold;
 }
 
 .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper {
 	margin:  0px 0px 10px;
 	padding: 0px 0px 10px;
-	border-bottom: 1px solid #AAAAAA;	
+	border-bottom: 1px solid #AAAAAA;
 }
 
 .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .age, .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .program-area, .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .instrument, .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .campus, .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .semester, .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .widget-wrapper .submit {
@@ -2401,7 +2412,7 @@ Body Wrapper
 .body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .class-finder-results .item.last {
     border-bottom: none;
 }
-    
+
 .body-inner-wrapper .right-column {
 	float: left;
 	width: 236px;
@@ -2621,7 +2632,7 @@ News Columns
     width: 13px;
 }
 
-.body-inner-wrapper .news-middle-column .main-content-wrapper .main-story-wrapper div.actions a.rss {  
+.body-inner-wrapper .news-middle-column .main-content-wrapper .main-story-wrapper div.actions a.rss {
     background: url("../images/structure/block-items/rss-icon.jpg") no-repeat 0px 1px;
     display: block;
     height: 16px;
@@ -2679,7 +2690,7 @@ News Columns
 	font-size: 12px;
 	line-height: 1.4;
 }
-  
+
 .body-inner-wrapper .news-right-column {
 	float: left;
 	width: 295px;
@@ -2717,7 +2728,7 @@ News Columns
 	float: left;
 	height: 17px;
 	padding: 0px 6px 0px 8px;
-	margin: 0px;	
+	margin: 0px;
 	display: inline;
 }
 
@@ -2827,7 +2838,7 @@ News Columns
     font-weight: bold;
     text-transform: uppercase;
 }
- 
+
 .body-inner-wrapper .news-right-column .listing-block-item-inner-wrapper .item-blurb span.sub-title {
 	font-size: 1em;
 	font-weight: bold;
@@ -2897,7 +2908,7 @@ Calendar Page
 
 **********************************/
 .body-inner-wrapper .calendar-wrapper .top {
-	
+
 }
 
 .body-inner-wrapper .calendar-wrapper .top h1 {
@@ -3052,7 +3063,7 @@ Calendar Page
 
 .body-inner-wrapper .calendar-wrapper .day-view-wrapper .header span.title {
 	font-size: 2em;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 .body-inner-wrapper .calendar-wrapper .day-view-wrapper .body {
@@ -3117,7 +3128,7 @@ Calendar Page
 
 .body-inner-wrapper .calendar-wrapper .month-view-wrapper .header .top span.title {
 	font-size: 2em;
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 .body-inner-wrapper .calendar-wrapper .month-view-wrapper .header .bottom {
@@ -3378,7 +3389,7 @@ Misc
 }
 
 .footer-navigation li.first {
-	background: none;	
+	background: none;
 }
 
 .footer-navigation li a, .footer-navigation li span {
