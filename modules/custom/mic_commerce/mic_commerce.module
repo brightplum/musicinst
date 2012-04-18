@@ -27,6 +27,43 @@ function mic_commerce_menu() {
 	return $items;
 }
 
+/**
+ * Implements hook_default_rules_configuration().
+ */
+function mic_commerce_default_rules_configuration() {
+  $rules = array();
+
+  // Add a reaction rule to send order e-mail upon checkout completion.
+  $rule = rules_reaction_rule();
+
+  $rule->label = t('Send an order notification e-mail');
+  $rule->active = TRUE;
+
+  $rule
+    ->event('commerce_checkout_complete')
+    ->action('mail', array(
+      'to:select' => 'commerce-order:mail',
+      'subject' => t('Order [commerce-order:order-number] at [site:name]'),
+      'message' => t("Thank you for participating with MIC. \r\nYour order number is [commerce-order:order-number].\r\n\r\n**Classes**\r\nPlease contact our offices at 847.905.1500 for further inquiries. \r\n\r\n**Event Tickets**\r\nTickets will be mailed to you if purchased more than 7 days in advance of the concert. \r\nOtherwise, your tickets will be available at the box office, located in the lobby of Nichols Concert Hall (open one hour before each concert). \r\nPlease bring your receipt with you.\r\n\r\n**Logging In**\r\nIf this is your first order with us, you will receive a separate e-mail with login instructions. \r\nYou can view your order history with us at any time by logging into our website at: [site:login-url]\r\nYou can find the status of your current order at: [commerce-order:customer-url]."),
+      'from' => '',
+    ));
+
+  // Adjust the weight so this rule executes after the order has been updated to
+  // the proper user account.
+  $rule->weight = 4;
+
+  $rules['mic_commerce_checkout_order_email'] = $rule;
+
+  return $rules;
+}
+
+/**
+ * Implements hook_form_views_form_commerce_cart_form_default_alter()
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
 function mic_commerce_form_views_form_commerce_cart_form_default_alter(&$form, &$form_state, $form_id) {
   global $user;
   if ($user->uid == 0) {
@@ -160,6 +197,13 @@ function mic_commerce_commerce_line_item_type_info() {
     'description' => t('Line item type for product class'),
     'product' => TRUE,
     'add_form_submit_value' => t('Add class'),
+    'base' => 'commerce_product_line_item',
+  );
+  $line_item_types['product_tkt'] = array(
+    'name' => t('Product Ticket'),
+    'description' => t('Line item type for product ticket'),
+    'product' => TRUE,
+    'add_form_submit_value' => t('Add ticket'),
     'base' => 'commerce_product_line_item',
   );
 

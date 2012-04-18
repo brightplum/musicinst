@@ -3,6 +3,213 @@
 function mic_commerce_product_class_fields() {
   $fields = array();
 
+  // Exported field: 'commerce_product-product_class-commerce_price'
+  $fields['commerce_product-product_class-commerce_price'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(
+        0 => 'commerce_product',
+      ),
+      'field_name' => 'commerce_price',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'currency_price' => array(
+          0 => 'amount',
+          1 => 'currency_code',
+        ),
+      ),
+      'module' => 'commerce_price',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'commerce_price',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_class',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'attribute_view' => array(
+          'label' => 'hidden',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '9',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => '2',
+        ),
+        'default' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => '2',
+        ),
+        'full' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+        'line_item' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => '4',
+        ),
+        'node_full' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+        'node_rss' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+        'node_search_index' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+        'node_search_result' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+        'node_teaser' => array(
+          'label' => 'hidden',
+          'module' => 'commerce_price',
+          'settings' => array(
+            'calculation' => 'calculated_sell_price',
+          ),
+          'type' => 'commerce_price_formatted_amount',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'commerce_product',
+      'field_name' => 'commerce_price',
+      'label' => 'Price',
+      'required' => TRUE,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'module' => 'commerce_price',
+        'settings' => array(
+          'currency_code' => 'default',
+        ),
+        'type' => 'commerce_price_full',
+        'weight' => '2',
+      ),
+    ),
+  );
+
+  // Exported field: 'commerce_product-product_class-field_class_student_msg'
+  $fields['commerce_product-product_class-field_class_student_msg'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_class_student_msg',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'module' => 'text',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'text_long',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_class',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'Include any helpful text the student should know when purchasing the course.',
+      'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '8',
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 17,
+        ),
+        'node_teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'commerce_product',
+      'field_name' => 'field_class_student_msg',
+      'label' => 'Student Message',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'rows' => '5',
+        ),
+        'type' => 'text_textarea',
+        'weight' => '25',
+      ),
+    ),
+  );
+
   // Exported field: 'commerce_product-product_class-field_course_reference'
   $fields['commerce_product-product_class-field_course_reference'] = array(
     'field_config' => array(
@@ -58,18 +265,30 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '10',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '3',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'node_reference',
           'settings' => array(),
           'type' => 'node_reference_default',
-          'weight' => 0,
+          'weight' => '3',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '15',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -94,7 +313,7 @@ function mic_commerce_product_class_fields() {
           'size' => '60',
         ),
         'type' => 'node_reference_autocomplete',
-        'weight' => '3',
+        'weight' => '4',
       ),
     ),
   );
@@ -138,18 +357,29 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '16',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '14',
+        ),
         'default' => array(
           'label' => 'above',
-          'module' => 'list',
           'settings' => array(),
-          'type' => 'list_default',
-          'weight' => 11,
+          'type' => 'hidden',
+          'weight' => '14',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '11',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -209,18 +439,29 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '17',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '15',
+        ),
         'default' => array(
           'label' => 'above',
-          'module' => 'text',
           'settings' => array(),
-          'type' => 'text_default',
-          'weight' => 12,
+          'type' => 'hidden',
+          'weight' => '15',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '10',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -289,18 +530,32 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => '5',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => '7',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'list',
           'settings' => array(),
           'type' => 'list_default',
-          'weight' => 4,
+          'weight' => '7',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '12',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -356,6 +611,18 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '12',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '10',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'date',
@@ -368,13 +635,13 @@ function mic_commerce_product_class_fields() {
             'show_repeat_rule' => 'show',
           ),
           'type' => 'date_default',
-          'weight' => 7,
+          'weight' => '10',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '13',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -408,7 +675,82 @@ function mic_commerce_product_class_fields() {
           'year_range' => '-3:+3',
         ),
         'type' => 'date_popup',
-        'weight' => '23',
+        'weight' => '24',
+      ),
+    ),
+  );
+
+  // Exported field: 'commerce_product-product_class-field_fee_description'
+  $fields['commerce_product-product_class-field_fee_description'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_fee_description',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_class',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '7',
+        ),
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '16',
+        ),
+        'node_teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'commerce_product',
+      'field_name' => 'field_fee_description',
+      'label' => 'Fee description',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '3',
       ),
     ),
   );
@@ -468,18 +810,32 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'node_reference',
+          'settings' => array(),
+          'type' => 'node_reference_default',
+          'weight' => '4',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'node_reference',
+          'settings' => array(),
+          'type' => 'node_reference_default',
+          'weight' => '6',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'node_reference',
           'settings' => array(),
           'type' => 'node_reference_default',
-          'weight' => 3,
+          'weight' => '6',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '14',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -504,7 +860,7 @@ function mic_commerce_product_class_fields() {
           'size' => '60',
         ),
         'type' => 'node_reference_autocomplete',
-        'weight' => '6',
+        'weight' => '7',
       ),
     ),
   );
@@ -545,25 +901,40 @@ function mic_commerce_product_class_fields() {
     'field_instance' => array(
       'bundle' => 'product_class',
       'commerce_cart_settings' => array(
-        'attribute_field' => 0,
+        'attribute_field' => 1,
         'attribute_widget' => 'select',
       ),
       'default_value' => NULL,
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'taxonomy',
+          'settings' => array(),
+          'type' => 'taxonomy_term_reference_plain',
+          'weight' => '3',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'taxonomy',
+          'settings' => array(),
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => '5',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'taxonomy',
           'settings' => array(),
-          'type' => 'taxonomy_term_reference_link',
-          'weight' => 2,
+          'type' => 'taxonomy_term_reference_plain',
+          'weight' => '5',
         ),
         'line_item' => array(
-          'label' => 'above',
+          'label' => 'hidden',
+          'module' => 'taxonomy',
           'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
+          'type' => 'taxonomy_term_reference_plain',
+          'weight' => '3',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -584,7 +955,7 @@ function mic_commerce_product_class_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '5',
+        'weight' => '6',
       ),
     ),
   );
@@ -593,7 +964,7 @@ function mic_commerce_product_class_fields() {
   $fields['commerce_product-product_class-field_semester_reference'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '-1',
+      'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_semester_reference',
@@ -632,18 +1003,32 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'taxonomy',
+          'settings' => array(),
+          'type' => 'taxonomy_term_reference_plain',
+          'weight' => '2',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'taxonomy',
+          'settings' => array(),
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => '4',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'taxonomy',
           'settings' => array(),
-          'type' => 'taxonomy_term_reference_link',
-          'weight' => 1,
+          'type' => 'taxonomy_term_reference_plain',
+          'weight' => '4',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '9',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -664,7 +1049,7 @@ function mic_commerce_product_class_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '4',
+        'weight' => '5',
       ),
     ),
   );
@@ -699,6 +1084,26 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '11',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'date',
+          'settings' => array(
+            'format_type' => 'long',
+            'fromto' => 'both',
+            'multiple_from' => '',
+            'multiple_number' => '',
+            'multiple_to' => '',
+            'show_repeat_rule' => 'show',
+          ),
+          'type' => 'date_short',
+          'weight' => '8',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'date',
@@ -711,13 +1116,21 @@ function mic_commerce_product_class_fields() {
             'show_repeat_rule' => 'show',
           ),
           'type' => 'date_default',
-          'weight' => 6,
+          'weight' => '9',
         ),
         'line_item' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
+          'label' => 'hidden',
+          'module' => 'date',
+          'settings' => array(
+            'format_type' => 'long',
+            'fromto' => 'both',
+            'multiple_from' => '',
+            'multiple_number' => '',
+            'multiple_to' => '',
+            'show_repeat_rule' => 'show',
+          ),
+          'type' => 'date_short',
+          'weight' => '2',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -751,7 +1164,7 @@ function mic_commerce_product_class_fields() {
           'year_range' => '-3:+3',
         ),
         'type' => 'date_popup',
-        'weight' => '22',
+        'weight' => '23',
       ),
     ),
   );
@@ -792,18 +1205,30 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '13',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '11',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'list',
           'settings' => array(),
           'type' => 'list_default',
-          'weight' => 8,
+          'weight' => '11',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '5',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -824,7 +1249,7 @@ function mic_commerce_product_class_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '8',
+        'weight' => '9',
       ),
     ),
   );
@@ -859,6 +1284,18 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'hidden',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '14',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '12',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'date',
@@ -871,13 +1308,13 @@ function mic_commerce_product_class_fields() {
             'show_repeat_rule' => 'show',
           ),
           'type' => 'date_default',
-          'weight' => 9,
+          'weight' => '12',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '6',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -946,6 +1383,18 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'hidden',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '15',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '13',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'date',
@@ -958,13 +1407,13 @@ function mic_commerce_product_class_fields() {
             'show_repeat_rule' => 'show',
           ),
           'type' => 'date_default',
-          'weight' => 10,
+          'weight' => '13',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '7',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -1037,18 +1486,32 @@ function mic_commerce_product_class_fields() {
       'deleted' => '0',
       'description' => '',
       'display' => array(
+        'attribute_view' => array(
+          'label' => 'inline',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '6',
+        ),
+        'commerce_line_item_display' => array(
+          'label' => 'hidden',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => '9',
+        ),
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 5,
+          'weight' => '8',
         ),
         'line_item' => array(
           'label' => 'above',
           'settings' => array(),
           'type' => 'hidden',
-          'weight' => 0,
+          'weight' => '8',
         ),
         'node_teaser' => array(
           'label' => 'above',
@@ -1084,11 +1547,15 @@ function mic_commerce_product_class_fields() {
   t('Custom Enrollment Status');
   t('Day of the Week');
   t('End Date');
+  t('Fee description');
+  t('Include any helpful text the student should know when purchasing the course.');
   t('Instructor');
   t('Location');
+  t('Price');
   t('Semester');
   t('Start Date');
   t('Status Message');
+  t('Student Message');
   t('Sunrise Date');
   t('Sunset Date');
   t('Time');

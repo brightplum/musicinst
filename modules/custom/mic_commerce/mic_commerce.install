@@ -15,6 +15,18 @@ function mic_commerce_install() {
   mic_commerce_event_product_fields();
   theme_enable(array('mic_theme'));
   variable_set('admin_theme', 'seven');
+  variable_set('site_mail', 'noreply@musicinst.org');
+  variable_set('user_register', 1);
+  variable_set('commerce_checkout_completion_message_override', 1);
+  $data = array(
+    'value' => 'Your order is number [commerce-order:order-number].
+
+You can <a href="[commerce-order:url]">view your order</a> on your account page when logged in.
+
+<a href="[site:url]">Return to the front page</a> or <a href="[site:url]user/logout">Sign Out.</a>',
+    'format' => 'filtered_html',
+  );
+  variable_set('commerce_checkout_completion_message', $data);
   cache_clear_all();
 }
 
