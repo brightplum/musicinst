@@ -1,0 +1,273 @@
+<?php
+
+/**
+ * @file
+ * Implement a family member field.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function mic_student_field_info() {
+  return array(
+    'mic_student' => array(
+      'label' => t('Student'),
+      'description' => t('This field stores student info.'),
+      'settings' => array(),
+      'instance_settings' => array(),
+      'default_widget' => 'mic_student_standard',
+      'default_formatter' => 'mic_student_default',
+    ),
+    /**
+    'mic_student_reference' => array(
+      'label' => t('Student Reference'),
+      'description' => t('This field references student info.'),
+      'settings' => array(),
+      'instance_settings' => array(),
+      'default_widget' => 'mic_student_reference',
+      'default_formatter' => 'mic_student_reference_default',
+    ),
+    **/
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function mic_student_field_is_empty($item, $field) {
+  // Every student field must have at least a relationship value or it is considered
+  // empty, even if it has name information.
+  return empty($item['relationship']);
+}
+
+/**
+ * Implements hook_field_widget_info()
+ */
+function mic_student_field_widget_info() {
+  return array(
+    'mic_student_standard' => array(
+      'label' => t('Student form'),
+      'field types' => array('mic_student'),
+    ),
+    'mic_student_reference' => array(
+      'label' => t('Student Reference'),
+      'field types' => array('mic_student_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  switch ($instance['widget']['type']) {
+    case 'mic_student_standard':
+      // Add the relationship, name, and instrument fields.
+      $element['relationship'] = array(
+        '#title' => t('Relationship'),
+        '#type' => 'select',
+        '#default_value' => isset($items[$delta]['relationship']) ? $items[$delta]['relationship'] : '',
+        '#options' => _mic_student_relationship_options(),
+      );
+      $element['firstname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('First Name'),
+        '#default_value' => isset($items[$delta]['firstname']) ? $items[$delta]['firstname'] : '',
+      );
+      $element['lastname'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Last Name'),
+        '#default_value' => isset($items[$delta]['lastname']) ? $items[$delta]['lastname'] : '',
+      );
+      $element['email'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Email'),
+        '#default_value' => isset($items[$delta]['email']) ? $items[$delta]['email'] : '',
+      );
+
+      //student specific info
+      $element['gender'] = array(
+        '#title' => t('Gender'),
+        '#type' => 'select',
+        '#options' => array('' => 'N/A', 'male' => 'Male', 'female' => 'Female'),
+        '#default_value' => isset($items[$delta]['gender']) ? $items[$delta]['gender'] : '',
+      );
+      $element['ethnicity'] = array(
+        '#title' => t('Ethnicity'),
+        '#type' => 'select',
+        '#options' => drupal_map_assoc(array('N/A', 'Asian', 'Pacific Islander', 'Black/African-American', 'Caucasion/European-American', 'Eurasian', 'Hispanic or Latino', 'Native-American or Indigenous', 'Other')),
+        '#default_value' => isset($items[$delta]['ethnicity']) ? $items[$delta]['ethnicity'] : '',
+      );
+      $element['birthday'] = array(
+        '#title' => t('Birthday'),
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['birthday']) ? $items[$delta]['birthday'] : '',
+        '#attributes' => array(
+          'class' => array('form-date'),
+        ),
+      );
+      $element['school'] = array(
+        '#title' => t('School'),
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['school']) ? $items[$delta]['school'] : '',
+      );
+      $element['grade'] = array(
+        '#title' => t('Grade'),
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['grade']) ? $items[$delta]['grade'] : '',
+      );
+      $element['instrument'] = array(
+        '#title' => t('Instrument'),
+        '#type' => 'textfield',
+        '#default_value' => isset($items[$delta]['instrument']) ? $items[$delta]['instrument'] : '',
+      );
+      break;
+    case 'mic_student_reference':
+      $element['student_reference'] = array(
+        '#title' => t('Student'),
+        '#type' => 'select',
+        '#default_value' => isset($items[$delta]['student_reference']) ? $items[$delta]['student_reference'] : '',
+        '#options' => _mic_student_reference_options(),
+      );
+      break;
+  }
+
+  return $element;
+}
+
+function _mic_student_relationship_options() {
+  $relationships = array(
+    'child' => 'Child',
+    'grandchild' => 'Grandchild',
+    'partner_spouse' => 'Partner / Spouse',
+  );
+
+  return $relationships;
+}
+
+function _mic_student_reference_options() {
+  global $user;
+  $students = array();
+  $result = db_select('field_data_field_user_students', 'f')
+    ->fields('f', array('field_user_students_firstname', 'field_user_students_lastname', 'field_user_students_instrument'))
+    ->condition('entity_id', $user->uid)
+    ->execute()
+    ->fetchAll();
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function mic_student_field_formatter_info() {
+  $formatters = array(
+    'mic_student_default' => array(
+      'label' => t('Default'),
+      'field types' => array('mic_student'),
+    ),
+    'mic_student_reference_default' => array(
+      'label' => t('Default'),
+      'field types' => array('mic_student_reference'),
+    ),
+  );
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function mic_student_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $settings = $display['settings'];
+  $settings += array(
+    'entity_type' => $entity_type,
+    'entity' => $entity,
+  );
+
+  switch($display['type']) {
+    case 'mic_student_default':
+      $element[] = array(
+        '#theme' => 'mic_student_formatter',
+        '#items' => $items,
+        '#settings' => $settings,
+      );
+      break;
+    case 'mic_student_reference_default':
+      $element[] = array(
+        '#theme' => 'mic_student_reference_formatter',
+        '#items' => $items,
+        '#settings' => $settings,
+      );
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function mic_student_theme() {
+  return array(
+    'mic_student_formatter' => array(
+      'variables' => array(
+        'items' => NULL,
+        'settings' => array(),
+      ),
+    ),
+    'mic_student_reference_formatter' => array(
+      'variables' => array(
+        'items' => NULL,
+        'settings' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns HTML for a family member.
+ *
+ * @param $variables
+ *
+ * @ingroup themeable
+ */
+function theme_mic_student_formatter($variables) {
+  $items = $variables['items'];
+  $settings = $variables['settings'];
+  $output = '';
+
+  foreach ($items as $delta => $item) {
+    $student = array();
+    $student[] = '<strong>Relationship:</strong> ' . ucfirst($item['relationship']);
+    $student[] = '<strong>Name:</strong> ' . $item['firstname'] . '&nbsp' . $item['lastname'];
+    $date = new DateTime($item['birthday']);
+    $student[] = '<strong>Birthday:</strong> ' . $date->format('m/d/Y');
+    $student[] = '<strong>Email:</strong> ' . $item['email'];
+    $student[] = '<strong>Instrument:</strong> ' . $item['instrument'];
+
+    $output .= '<p>' . implode('<br />', $student) . '</p>';
+  }
+
+  return '<div class="students">' . $output . '</div>';
+}
+
+/**
+ * Returns HTML for a family member.
+ *
+ * @param $variables
+ *
+ * @ingroup themeable
+ */
+function theme_mic_student_reference_formatter($variables) {
+  $items = $variables['items'];
+  $settings = $variables['settings'];
+  $output = '';
+
+  foreach ($items as $delta => $item) {
+    $student = array();
+
+    $output .= '<p>' . implode('<br />', $item) . '</p>';
+  }
+
+  return '<div class="students">' . $output . '</div>';
+}

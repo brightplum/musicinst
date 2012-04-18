@@ -1,0 +1,94 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the mic_student module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function mic_student_field_schema($field) {
+  switch ($field['type']) {
+    case 'mic_student':
+      $columns = array(
+        'student_id' => array(
+          'type' => 'serial',
+          'not null' => TRUE,
+        ),
+        'relationship' => array(
+          'description' => "Student relationship",
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => FALSE,
+        ),
+        'firstname' => array(
+          'description' => "Student first name",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'lastname' => array(
+          'description' => "Student last name",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'email' => array(
+          'description' => "Student email",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'birthday' => array(
+          'description' => 'The Unix timestamp student\'s birthday.',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'instrument' => array(
+          'description' => "Student instrument",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'gender' => array(
+          'description' => "Student gender",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'ethnicity' => array(
+          'description' => "Student ethnicity",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'school' => array(
+          'description' => "Student school",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'grade' => array(
+          'description' => "Student grade",
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      );
+      break;
+    case 'mic_student_reference':
+      $columns = array(
+        'student_id' => array(
+          'description' => "Student id",
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+      );
+      break;
+  }
+
+  return array(
+    'columns' => $columns,
+  );
+}
