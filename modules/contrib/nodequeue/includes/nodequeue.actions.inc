@@ -15,8 +15,9 @@ function nodequeue_action_info() {
       'label' => t('Add to Nodequeues'),
       'configurable' => TRUE,
       'triggers' => array(
-        'nodeapi_insert',
-        'nodeapi_update',
+        'node_presave',
+        'node_insert',
+        'node_update',
       ),
     ),
     'nodequeue_remove_action' => array(
@@ -24,8 +25,7 @@ function nodequeue_action_info() {
       'label' => t('Remove from Nodequeues'),
       'configurable' => TRUE,
       'triggers' => array(
-        'nodeapi_insert',
-        'nodeapi_update',
+        'node_delete',
       ),
     ),
   );
@@ -40,7 +40,7 @@ function nodequeue_add_action_form($context) {
     $context['qids'] = '';
   }
 
-  $queues = nodequeue_load_queues(nodequeue_get_all_qids(500, TRUE), TRUE);
+  $queues = nodequeue_load_queues(nodequeue_get_all_qids(0, 0, TRUE), TRUE);
   foreach ($queues as $qid => $queue) {
     $options[$qid] = $queue->title;
   }
@@ -58,7 +58,7 @@ function nodequeue_add_action_form($context) {
     );
   }
   else {
-    drupal_set_message(t('Please <a href="!url">create</a> a nodequeue first.', array('!url' => url('admin/structure/nodequeue'))));
+    drupal_set_message(t('Please <a href="@url">create</a> a nodequeue first.', array('@url' => url('admin/structure/nodequeue'))));
   }
   return $form;
 }
@@ -108,8 +108,8 @@ function action_nodequeue_add($op, $edit = array(), $node) {
       return array(
         'description' => t('Add to Nodequeues'),
         'type' => t('node'),
-        'batchable' => true,
-        'configurable' => true,
+        'batchable' => TRUE,
+        'configurable' => TRUE,
       );
       break;
 
@@ -143,7 +143,7 @@ function action_nodequeue_add($op, $edit = array(), $node) {
       if (!isset($edit['qids'])) {
         $edit['qids'] = '';
       }
-      $queues = nodequeue_load_queues(nodequeue_get_all_qids(500, TRUE), TRUE);
+      $queues = nodequeue_load_queues(nodequeue_get_all_qids(0, 0, TRUE), TRUE);
       foreach ($queues as $qid => $queue) {
         $options[$qid] = $queue->title;
       }
@@ -161,7 +161,7 @@ function action_nodequeue_add($op, $edit = array(), $node) {
           );
       }
       else {
-        drupal_set_message(t('Please <a href="!url">create</a> a nodequeue first.', array('!url' => url('admin/structure/nodequeue'))));
+        drupal_set_message(t('Please <a href="@url">create</a> a nodequeue first.', array('@url' => url('admin/structure/nodequeue'))));
       }
       return $form;
 
@@ -186,7 +186,7 @@ function nodequeue_remove_action_form($context) {
     $context['qids'] = array();
   }
 
-  $queues = nodequeue_load_queues(nodequeue_get_all_qids(500, TRUE), TRUE);
+  $queues = nodequeue_load_queues(nodequeue_get_all_qids(0, 0, TRUE), TRUE);
   foreach ($queues as $qid => $queue) {
     $options[$qid] = $queue->title;
   }
@@ -216,10 +216,14 @@ function nodequeue_remove_action_submit($form, &$form_state) {
 function nodequeue_remove_action($node, $context) {
   $qids = $context['qids'];
   // If a node is being deleted, ensure it's also removed from any queues.
-  $placeholders = implode(',', array_fill(0, count($qids), '%d'));
   $args = $qids;
-  $args[] = $node->nid;
-  $result = db_query("SELECT * FROM {nodequeue_nodes} WHERE qid IN ($placeholders) AND nid = %d", $args);
+  $result = db_select('nodequeue_nodes', 'n')
+    ->fields('n')
+    ->condition('nid', $node->nid)
+    ->condition('qid', $args)
+    ->execute()
+    ->fetchAll();
+
   foreach ($result as $obj) {
     // This removes by nid, not position, because if we happen to have a
     // node in a queue twice, the 2nd position would be wrong.
@@ -236,18 +240,22 @@ function action_nodequeue_remove($op, $edit = array(), $node) {
       return array(
         'description' => t('Remove from Nodequeues'),
         'type' => t('node'),
-        'batchable' => true,
-        'configurable' => true,
+        'batchable' => TRUE,
+        'configurable' => TRUE,
       );
       break;
 
     case 'do':
       $qids = $edit['qids'];
       // If a node is being deleted, ensure it's also removed from any queues.
-      $placeholders = implode(',', array_fill(0, count($qids), '%d'));
       $args = $qids;
-      $args[] = $node->nid;
-      $result = db_query("SELECT * FROM {nodequeue_nodes} WHERE qid IN ($placeholders) AND nid = %d", $args);
+      $result = db_select('nodequeue_nodes', 'n')
+        ->fields('n')
+        ->condition('nid', $node->nid)
+        ->condition('qid', $args)
+        ->execute()
+        ->fetchAll();
+
       foreach ($result as $obj) {
         // This removes by nid, not position, because if we happen to have a
         // node in a queue twice, the 2nd position would be wrong.
@@ -262,7 +270,7 @@ function action_nodequeue_remove($op, $edit = array(), $node) {
         $edit['qids'] = array();
       }
 
-      $queues = nodequeue_load_queues(nodequeue_get_all_qids(500, TRUE), TRUE);
+      $queues = nodequeue_load_queues(nodequeue_get_all_qids(0, 0, TRUE), TRUE);
       foreach ($queues as $qid => $queue) {
         $options[$qid] = $queue->title;
       }
