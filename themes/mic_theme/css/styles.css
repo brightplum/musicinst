@@ -428,7 +428,7 @@ MISC
 
 .header-inner-wrapper .social-links-horizontal {
 	float: left;
-	width: 65px;
+	width: 135px;
 }
 
 .header-inner-wrapper .social-links-horizontal ul {
@@ -3460,7 +3460,8 @@ Misc
   text-align: right;
 }
 .cart-account-login a,
-.messages a {
+.messages a,
+#commerce-checkout-form-complete a {
   color: #0D70A1;
   font-weight: bold;
 }

@@ -105,14 +105,14 @@ table {
 	background: none;
 }
 
-*:first-child+html #calendar_div, .calendar_control, .calendar_links, .calendar_header, .calendar { 
+*:first-child+html #calendar_div, .calendar_control, .calendar_links, .calendar_header, .calendar {
 	width: 125px;
 }
 
-#calendar_div, .calendar_control, .calendar_links, .calendar_header, .calendar { 
+#calendar_div, .calendar_control, .calendar_links, .calendar_header, .calendar {
 	width: inherit;
 }
- 
+
 .exposed-filters li, table li, ul.tabs li, #toolbar-menu li, #toolbar-home li, #toolbar-user li, .toolbar-shortcuts ul.menu li {
 	background: none;
 	padding: 0px;

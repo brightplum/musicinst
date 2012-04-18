@@ -41,4 +41,5 @@ stylesheets[all][] = css/implementation.css
 
 scripts[] = js/jquery-OOP.js
 scripts[] = js/jquery.mbanner.js
+scripts[] = js/jquery.maskedinput-1.3.min.js
 scripts[] = js/master.js
