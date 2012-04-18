@@ -11,6 +11,21 @@ function mic_user_ctools_plugin_api() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
+function mic_user_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  $form['field_user_students'][LANGUAGE_NONE]['add_more']['#value'] = t('Create additional student');
+  $form['field_user_guardian'][LANGUAGE_NONE]['add_more']['#value'] = t('Create additional guardian');
+  unset($form['field_user_students'][LANGUAGE_NONE][1]);
+  $form['field_user_phonenumber'][LANGUAGE_NONE][0]['value']['#attributes']['class'][] = 'form-phone';
+  $form['field_user_secondary_phone'][LANGUAGE_NONE][0]['value']['#attributes']['class'][] = 'form-phone';
+}
+
+/**
  * Implements hook_user_insert()
  *
  * @param unknown_type $edit
@@ -57,7 +72,7 @@ function _mic_user_commerce_customer_profile_by_uid($uid) {
   $query = new EntityFieldQuery();
   $result = $query
     ->entityCondition('entity_type', 'commerce_customer_profile')
-    ->entityCondition('uid', $uid)
+    ->propertyCondition('uid', $uid)
     ->execute();
   $result = reset($result);
   return array_keys($result);

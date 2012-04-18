@@ -10,50 +10,50 @@
 function mic_user_field_group_info() {
   $export = array();
 
-  $field_group = new stdClass;
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
-  $field_group->identifier = 'group_user_basic|user|user|form';
-  $field_group->group_name = 'group_user_basic';
-  $field_group->entity_type = 'user';
-  $field_group->bundle = 'user';
-  $field_group->mode = 'form';
-  $field_group->parent_name = 'group_user_profileinformation';
-  $field_group->data = array(
-    'label' => 'Basic Info',
-    'weight' => '5',
-    'children' => array(
-      0 => 'field_user_firstname',
-      1 => 'field_user_lastname',
-      2 => 'field_user_phonenumber',
-      3 => 'field_user_hearaboutmic',
-    ),
-    'format_type' => 'tab',
-    'format_settings' => array(
-      'formatter' => 'closed',
-      'instance_settings' => array(
-        'description' => '',
-        'classes' => '',
-        'required_fields' => 1,
-      ),
-    ),
-  );
-  $export['group_user_basic|user|user|form'] = $field_group;
+  $export = array();
 
   $field_group = new stdClass;
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_user_billingdisplay|user|user|default';
-  $field_group->group_name = 'group_user_billingdisplay';
+  $field_group->identifier = 'group_user_additional_guardians|user|user|form';
+  $field_group->group_name = 'group_user_additional_guardians';
+  $field_group->entity_type = 'user';
+  $field_group->bundle = 'user';
+  $field_group->mode = 'form';
+  $field_group->parent_name = 'group_user_takingclass';
+  $field_group->data = array(
+    'label' => 'Additional Guardians',
+    'weight' => '9',
+    'children' => array(
+      0 => 'field_user_guardian',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Additional Guardians',
+      'instance_settings' => array(
+        'required_fields' => 0,
+        'classes' => '',
+        'description' => '',
+      ),
+      'formatter' => 'collapsible',
+    ),
+  );
+  $export['group_user_additional_guardians|user|user|form'] = $field_group;
+
+  $field_group = new stdClass;
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_user_additionalguardian|user|user|default';
+  $field_group->group_name = 'group_user_additionalguardian';
   $field_group->entity_type = 'user';
   $field_group->bundle = 'user';
   $field_group->mode = 'default';
   $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Billing',
+    'label' => 'Additional Guardians',
     'weight' => '4',
     'children' => array(
-      0 => 'field_user_billing',
+      0 => 'field_user_guardian',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -64,34 +64,97 @@ function mic_user_field_group_info() {
       ),
     ),
   );
-  $export['group_user_billingdisplay|user|user|default'] = $field_group;
+  $export['group_user_additionalguardian|user|user|default'] = $field_group;
 
   $field_group = new stdClass;
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_user_billing|user|user|form';
-  $field_group->group_name = 'group_user_billing';
+  $field_group->identifier = 'group_user_additionalinfo|user|user|default';
+  $field_group->group_name = 'group_user_additionalinfo';
   $field_group->entity_type = 'user';
   $field_group->bundle = 'user';
-  $field_group->mode = 'form';
-  $field_group->parent_name = 'group_user_profileinformation';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Billing',
-    'weight' => '6',
+    'label' => 'Additional Info',
+    'weight' => '1',
     'children' => array(
-      0 => 'field_user_billing',
+      0 => 'field_user_hearaboutmic',
+      1 => 'field_user_occupation',
+      2 => 'field_user_company',
     ),
-    'format_type' => 'tab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
-      'formatter' => 'closed',
+      'formatter' => 'collapsible',
       'instance_settings' => array(
         'description' => '',
         'classes' => '',
-        'required_fields' => 1,
       ),
     ),
   );
-  $export['group_user_billing|user|user|form'] = $field_group;
+  $export['group_user_additionalinfo|user|user|default'] = $field_group;
+
+  $field_group = new stdClass;
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_user_additionalinfo|user|user|form';
+  $field_group->group_name = 'group_user_additionalinfo';
+  $field_group->entity_type = 'user';
+  $field_group->bundle = 'user';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Additional Info',
+    'weight' => '5',
+    'children' => array(
+      0 => 'field_user_hearaboutmic',
+      1 => 'field_user_occupation',
+      2 => 'field_user_company',
+      3 => 'field_user_mailinglist',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Additional Info',
+      'instance_settings' => array(
+        'required_fields' => 0,
+        'classes' => '',
+        'description' => '',
+      ),
+      'formatter' => 'collapsible',
+    ),
+  );
+  $export['group_user_additionalinfo|user|user|form'] = $field_group;
+
+  $field_group = new stdClass;
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_user_basic|user|user|form';
+  $field_group->group_name = 'group_user_basic';
+  $field_group->entity_type = 'user';
+  $field_group->bundle = 'user';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Primary Account Holder',
+    'weight' => '4',
+    'children' => array(
+      0 => 'field_user_firstname',
+      1 => 'field_user_lastname',
+      2 => 'field_user_phonenumber',
+      3 => 'field_user_secondary_phone',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Primary Account Holder',
+      'instance_settings' => array(
+        'required_fields' => 1,
+        'classes' => '',
+        'description' => '',
+      ),
+      'formatter' => 'collapsible',
+    ),
+  );
+  $export['group_user_basic|user|user|form'] = $field_group;
 
   $field_group = new stdClass;
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -109,6 +172,7 @@ function mic_user_field_group_info() {
       0 => 'field_user_firstname',
       1 => 'field_user_lastname',
       2 => 'field_user_phonenumber',
+      3 => 'field_user_secondary_phone',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -132,7 +196,7 @@ function mic_user_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Students',
-    'weight' => '5',
+    'weight' => '3',
     'children' => array(
       0 => 'field_user_students',
     ),
@@ -150,56 +214,59 @@ function mic_user_field_group_info() {
   $field_group = new stdClass;
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_user_profileinformation|user|user|form';
-  $field_group->group_name = 'group_user_profileinformation';
-  $field_group->entity_type = 'user';
-  $field_group->bundle = 'user';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'Profile Information',
-    'weight' => '4',
-    'children' => array(
-      0 => 'group_user_basic',
-      1 => 'group_user_billing',
-      2 => 'group_user_studentinfo',
-    ),
-    'format_type' => 'tabs',
-    'format_settings' => array(
-      'formatter' => '',
-      'instance_settings' => array(
-        'classes' => '',
-      ),
-    ),
-  );
-  $export['group_user_profileinformation|user|user|form'] = $field_group;
-
-  $field_group = new stdClass;
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_user_studentinfo|user|user|form';
   $field_group->group_name = 'group_user_studentinfo';
   $field_group->entity_type = 'user';
   $field_group->bundle = 'user';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_user_profileinformation';
+  $field_group->parent_name = 'group_user_takingclass';
   $field_group->data = array(
-    'label' => 'Student Info',
-    'weight' => '7',
+    'label' => 'Students',
+    'weight' => '8',
     'children' => array(
       0 => 'field_user_students',
     ),
-    'format_type' => 'tab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
-      'formatter' => 'closed',
+      'label' => 'Students',
       'instance_settings' => array(
-        'description' => '',
+        'required_fields' => 0,
         'classes' => '',
-        'required_fields' => 1,
+        'description' => '',
       ),
+      'formatter' => 'collapsible',
     ),
   );
   $export['group_user_studentinfo|user|user|form'] = $field_group;
+
+  $field_group = new stdClass;
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_user_takingclass|user|user|form';
+  $field_group->group_name = 'group_user_takingclass';
+  $field_group->entity_type = 'user';
+  $field_group->bundle = 'user';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Taking a class?',
+    'weight' => '7',
+    'children' => array(
+      0 => 'group_user_studentinfo',
+      1 => 'group_user_additional_guardians',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Taking a class?',
+      'instance_settings' => array(
+        'required_fields' => 0,
+        'classes' => '',
+        'description' => '',
+      ),
+      'formatter' => 'collapsed',
+    ),
+  );
+  $export['group_user_takingclass|user|user|form'] = $field_group;
 
   return $export;
 }
