@@ -75,6 +75,7 @@ function mic_implementation_custom_theme() {
   $paths = array(
     'cart',
     'checkout',
+    'user'
   );
 
   if (is_object($node)) {
@@ -118,7 +119,7 @@ function mic_implementation_get_course_classes($nid) {
     ->entityCondition('bundle', 'product_class')
     ->propertyCondition('status', 1)
     ->fieldCondition('field_course_reference', 'nid', $nid)
-    ->fieldCondition('field_sunset_date', 'value', time(), '>=')
+    //->fieldCondition('field_sunset_date', 'value', time(), '>=')
     ->fieldOrderBy('field_start_date', 'value');
 
   $result = $query->execute();
