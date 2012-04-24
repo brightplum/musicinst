@@ -11,10 +11,6 @@ function mic_student_field_schema($field) {
   switch ($field['type']) {
     case 'mic_student':
       $columns = array(
-        'student_id' => array(
-          'type' => 'serial',
-          'not null' => TRUE,
-        ),
         'relationship' => array(
           'description' => "Student relationship",
           'type' => 'varchar',
@@ -78,13 +74,7 @@ function mic_student_field_schema($field) {
       );
       break;
     case 'mic_student_reference':
-      $columns = array(
-        'student_id' => array(
-          'description' => "Student id",
-          'type' => 'int',
-          'not null' => TRUE,
-        ),
-      );
+      $columns = array();
       break;
   }
 
