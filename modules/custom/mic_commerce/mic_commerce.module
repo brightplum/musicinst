@@ -44,7 +44,7 @@ function mic_commerce_default_rules_configuration() {
     ->action('mail', array(
       'to:select' => 'commerce-order:mail',
       'subject' => t('Order [commerce-order:order-number] at [site:name]'),
-      'message' => t("Thank you for participating with MIC. \r\nYour order number is [commerce-order:order-number].\r\n\r\n**Classes**\r\nPlease contact our offices at 847.905.1500 for further inquiries. \r\n\r\n**Event Tickets**\r\nTickets will be mailed to you if purchased more than 7 days in advance of the concert. \r\nOtherwise, your tickets will be available at the box office, located in the lobby of Nichols Concert Hall (open one hour before each concert). \r\nPlease bring your receipt with you.\r\n\r\n**Logging In**\r\nIf this is your first order with us, you will receive a separate e-mail with login instructions. \r\nYou can view your order history with us at any time by logging into our website at: [site:login-url]\r\nYou can find the status of your current order at: [commerce-order:customer-url]."),
+      'message' => t("Thank you for participating with MIC. \r\nYour order number is [commerce-order:order-number].\r\n\r\n**Classes**\r\nPlease contact our offices at 847.905.1500 for further inquiries. \r\n\r\n**Event Tickets**\r\nTickets will be mailed to you if purchased more than 7 days in advance of the concert. \r\nOtherwise, your tickets will be available at the box office, located in the lobby of Nichols Concert Hall (open one hour before each concert). \r\nPlease bring your receipt with you.\r\n\r\n**Logging In**\r\nYou can view your order history with us at any time by logging into our website at: [site:login-url]\r\nYou can find the status of your current order at: [commerce-order:customer-url]."),
       'from' => '',
     ));
 
