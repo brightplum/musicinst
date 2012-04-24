@@ -58,6 +58,22 @@ function mic_commerce_default_rules_configuration() {
 }
 
 /**
+ * Implements hook_form_BASE_FORM_ID_alter
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
+function mic_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_state, $form_id) {
+  $node = menu_get_object();
+  //if event, set the event name as the event detail in the line item
+  if ($node->type == 'event') {
+    $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#default_value'] = $node->title;
+    $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#type'] = 'hidden';
+  }
+}
+
+/**
  * Implements hook_form_views_form_commerce_cart_form_default_alter()
  *
  * @param unknown_type $form
