@@ -99,7 +99,7 @@ function mic_commerce_form_views_form_commerce_cart_form_default_alter(&$form, &
   global $user;
   if ($user->uid == 0) {
     $create_account = l(t('create account'), 'user/register', array('query' => array('destination' => 'cart')));
-    $login = l(t('login'), 'user/login', array('query' => array('destination' => 'cart')));
+    $login = l(t('login'), 'user/login', array('query' => array('destination' => 'checkout')));
     $form['#suffix'] = '<div class="cart-account-login">' . t('Please !create_account or !login to checkout.', array('!create_account' => $create_account, '!login' => $login)) . '</div></div>';
   }
 }
@@ -139,7 +139,6 @@ function mic_commerce_block_info() {
   $blocks['mic_commerce_cart'] = array(
     'info' => t('MIC: Cart'),
     'cache' => DRUPAL_NO_CACHE,
-    'region' => 'header5',
   );
 
   return $blocks;
@@ -171,12 +170,25 @@ function mic_commerce_block_view($delta = '') {
 function mic_commerce_cart() {
   global $user;
   $user->name = ($user->uid) ? $user->name : FALSE;
-  $num_items = 0;
+  $num_items = mic_commerce_num_items_cart();
+  return theme('mic_commerce_cart', array('num_items' => $num_items, 'name' => $user->name));
+}
+
+/**
+ * Return number of items in user's cart
+ *
+ * @param unknown_type $user
+ * @return unknown
+ */
+function mic_commerce_num_items_cart() {
+  global $user;
   if ($order = commerce_cart_order_load($user->uid)) {
     $wrapper = entity_metadata_wrapper('commerce_order', $order);
     $num_items = commerce_line_items_quantity($wrapper->commerce_line_items, commerce_product_line_item_types());
+    return $num_items;
   }
-  return theme('mic_commerce_cart', array('num_items' => $num_items, 'name' => $user->name));
+
+  return 0;
 }
 
 /**
