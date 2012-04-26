@@ -14,3 +14,4 @@ dependencies[] = commerce_cart
 dependencies[] = commerce_authnet
 dependencies[] = commerce_product_attributes
 dependencies[] = commerce_extra_panes
+dependencies[] = dialog

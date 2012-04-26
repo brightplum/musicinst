@@ -8,21 +8,28 @@
 function mic_commerce_menu() {
   $items = array();
 
-	$items['create/product-classes'] = array(
-		'title' => 'Product Class creation',
-		'page callback' => 'drupal_get_form',
+  $items['create/product-classes'] = array(
+  	'title' => 'Product Class creation',
+  	'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_commerce_classes_products_form'),
-		'access arguments' => array('administer site configuration'),
-		'type' => MENU_CALLBACK,
-	);
+  	'access arguments' => array('administer site configuration'),
+  	'type' => MENU_CALLBACK,
+  );
 
-	$items['create/product-classes/%node'] = array(
-		'title' => 'Product Class creation',
-		'page callback' => 'mic_commerce_class_product_save',
+  $items['create/product-classes/%node'] = array(
+  	'title' => 'Product Class creation',
+  	'page callback' => 'mic_commerce_class_product_save',
     'page arguments' => array(2),
-		'access arguments' => array('administer site configuration'),
-		'type' => MENU_CALLBACK,
-	);
+  	'access arguments' => array('administer site configuration'),
+  	'type' => MENU_CALLBACK,
+  );
+
+  $items['addtocart/%dialog_js/%'] = array(
+    'page callback' => 'mic_commerce_cart_ajax_callback',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
 
 	return $items;
 }
@@ -70,6 +77,14 @@ function mic_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_s
   if ($node->type == 'event') {
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#default_value'] = $node->title;
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#type'] = 'hidden';
+  }
+  if ($form_state['line_item']->type == 'product_class' && $form_state['submitted'] == FALSE) {
+    $product = commerce_product_load($form['product_id']['#value']);
+    $message = field_get_items('commerce_product', $product, 'field_class_student_msg');
+    $message = (is_array($message)) ? $message[0]['value'] : 'Enter your Student Name';
+    $title = 'Step 1. ' . $message;
+    $form['line_item_fields']['field_class_lineitem_detail'][LANGUAGE_NONE][0]['value']['#title'] = $title;
+    $form['submit']['#prefix'] = '<strong>' . t('Step 2.') . '</strong>&nbsp;';
   }
 }
 
@@ -376,6 +391,56 @@ function mic_commerce_add_to_cart($product_id, $quantity = 1, $show_quantity = F
   // Render the final output.
   $render = drupal_get_form($form_id, $line_item);
   return render($render);
+}
+
+/**
+ * Ajax callback to load add-to-cart display in dialog
+ *
+ * @param string $js
+ * @param int $product_id
+ */
+function mic_commerce_cart_ajax_callback($js, $product_id) {
+  if ($js) {
+    dialog_display(TRUE);
+    $content = mic_commerce_add_to_cart($product_id);
+    $output[] = dialog_command_display($content, array('title' => 'Add to Cart'));
+    ajax_deliver(array('#type' => 'ajax', '#commands' => $output));
+  }
+  else {
+    drupal_set_message('Unable to add item to your cart. Please contact us by phone.');
+    drupal_goto('cart');
+  }
+}
+
+/**
+ * Implements hook_form_alter
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
+function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
+  if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
+    $form['submit']['#ajax'] = array(
+      'callback' => 'mic_commerce_ajax_callback_submit',
+      'wrapper' => 'dialog-form-wrapper',
+    );
+
+    $form['#process'][] = 'dialog_process_ajax_form';
+  }
+}
+
+/**
+ * Submit ajax callback for dialogs
+ *
+ * @return unknown
+ */
+function mic_commerce_ajax_callback_submit() {
+  $commands = array();
+  $commands[] = dialog_command_dismiss();
+  $commands[] = dialog_command_reload();
+
+  return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
