@@ -72,9 +72,9 @@ function mic_commerce_default_rules_configuration() {
  * @param unknown_type $form_id
  */
 function mic_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_state, $form_id) {
-  $node = menu_get_object();
   //if event, set the event name as the event detail in the line item
-  if ($node->type == 'event') {
+  if ($form_state['line_item']->type == 'product_tkt' && $form_state['submitted'] == FALSE) {
+    $node = menu_get_object();
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#default_value'] = $node->title;
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#type'] = 'hidden';
   }
@@ -112,6 +112,15 @@ function mic_commerce_ctools_plugin_api() {
   if ($module == "field_group" && $api == "field_group") {
     return array("version" => "1");
   }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function mic_commerce_views_api() {
+  return array(
+    'api' => 3,
+  );
 }
 
 /**
@@ -249,8 +258,148 @@ function mic_commerce_commerce_line_item_type_info() {
     'add_form_submit_value' => t('Add ticket'),
     'base' => 'commerce_product_line_item',
   );
+  $line_item_types['mic_fee'] = array(
+    'name' => t('MIC Fee'),
+    'description' => t('A MIC fee.'),
+    'product' => FALSE,
+    'add_form_submit_value' => t('Add fee'),
+    'callbacks' => array(
+      'configuration' => 'mic_commerce_fee_configuration',
+      'title' => 'mic_commerce_fee_title',
+      'add_form' => 'mic_commerce_fee_add_form',
+      'add_form_submit' => 'mic_commerce_fee_add_form_submit',
+    ),
+  );
 
   return $line_item_types;
+}
+
+function mic_commerce_fee_configuration($line_item_type) {
+  $type = $line_item_type['type'];
+}
+
+function mic_commerce_fee_title($line_item) {
+  return(t('Additional Fee'));
+}
+
+function mic_commerce_fee_add_form($element, &$form_state) {
+  $form = array();
+  return $form;
+}
+
+/**
+ * Adds the selected product information to a line item added via a line item
+ *   manager widget (on the admin order page).
+ *
+ * @param $line_item
+ *   The newly created line item object.
+ * @param $element
+ *   The array representing the widget form element.
+ * @param $form_state
+ *   The present state of the form upon the latest submission.
+ * @param $form
+ *   The actual form array.
+ *
+ * @return
+ *   NULL if all is well or an error message if something goes wrong.
+ */
+function mic_commerce_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
+  $line_item->line_item_label = t('Additional Fee');
+
+  // Wrap the line item and product to easily set field information.
+  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+  // Provide a default price.
+  $amount = 2000;
+  $currency_code = 'USD';
+
+  $line_item->commerce_unit_price = array('und' => array(
+    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
+  ));
+
+  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
+    // Add the base price to the components array.
+    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
+      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
+        $line_item_wrapper->commerce_unit_price->value(),
+        'base_price',
+        $line_item_wrapper->commerce_unit_price->value(),
+        TRUE
+      );
+    }
+  }
+}
+
+/**
+ * Utility function which creates a new line item populated with the
+ * a price of $5.00, etc..
+ *
+ * @param $order_id
+ *   The ID of the order the line item belongs to (if available).
+ *
+ * @return
+ *   The fully loaded line item..
+ */
+function mic_commerce_fee_line_item_new($order_id = 0) {
+  $type = 'mic_fee';
+
+  // Create the new line item.
+  $line_item = entity_create('commerce_line_item', array(
+    'type' => $type,
+    'order_id' => $order_id,
+    'quantity' => 1,
+  ));
+
+  $amount = 2000;
+  $currency_code = 'USD';
+
+  $line_item->commerce_unit_price = array('und' => array(
+    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
+  ));
+
+  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
+    // Add the base price to the components array.
+    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
+      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
+        $line_item_wrapper->commerce_unit_price->value(),
+        'base_price',
+        $line_item_wrapper->commerce_unit_price->value(),
+        TRUE
+      );
+    }
+  }
+  // Return the line item.
+  return $line_item;
+}
+
+/**
+ * Implements hook_commerce_order_presave
+ *
+ * @param unknown_type $order
+ */
+function mic_commerce_commerce_order_presave($order) {
+  // Find out if our order already has an mic_fee line item.
+  $type_exists = FALSE;
+  if (!empty($order->commerce_line_items['und'])) {
+    foreach($order->commerce_line_items['und'] as $delta => $line_item_entry) {
+      if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
+        if ($line_item->type == 'mic_fee') {
+          $type_exists = TRUE;
+          break;
+        }
+      }
+    }
+  }
+
+  // If our line item is not yet in the order and the order has an ID,
+  // create a line item to add to the order.
+  if (!$type_exists && $order->order_id > 0) {
+    $line_item = mic_commerce_fee_line_item_new($order->order_id);
+    commerce_line_item_save($line_item);
+    $order->commerce_line_items['und'][] = array('line_item_id' => $line_item->line_item_id);
+  }
 }
 
 /**
@@ -433,12 +582,15 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
  */
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
-    $form['submit']['#ajax'] = array(
-      'callback' => 'mic_commerce_ajax_callback_submit',
-      'wrapper' => 'dialog-form-wrapper',
-    );
+    //only do ajax for class forms
+    if (!isset($form['line_item_fields']['field_lineitem_tkt_eventname'])) {
+      $form['submit']['#ajax'] = array(
+        'callback' => 'mic_commerce_ajax_callback_submit',
+        'wrapper' => 'dialog-form-wrapper',
+      );
 
-    $form['#process'][] = 'dialog_process_ajax_form';
+      $form['#process'][] = 'dialog_process_ajax_form';
+    }
   }
 }
 

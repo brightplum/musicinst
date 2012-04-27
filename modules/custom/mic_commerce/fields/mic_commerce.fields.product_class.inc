@@ -1,6 +1,6 @@
 <?php
 
-function mic_commerce_product_class_fields() {
+function mic_commerce_commerce_product_product_class_fields() {
   $fields = array();
 
   // Exported field: 'commerce_product-product_class-commerce_price'
@@ -1559,6 +1559,210 @@ function mic_commerce_product_class_fields() {
   t('Sunrise Date');
   t('Sunset Date');
   t('Time');
+
+  return $fields;
+}
+
+function mic_commerce_commerce_line_item_product_class_fields() {
+  $fields = array();
+
+  // Exported field: 'commerce_line_item-product_class-field_class_lineitem_detail'
+  $fields['commerce_line_item-product_class-field_class_lineitem_detail'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_class_lineitem_detail',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'module' => 'text',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'text_long',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_class',
+      'commerce_cart_settings' => array(
+        'field_access' => 1,
+      ),
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 4,
+        ),
+      ),
+      'entity_type' => 'commerce_line_item',
+      'field_name' => 'field_class_lineitem_detail',
+      'label' => 'Additional Details',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'rows' => '2',
+        ),
+        'type' => 'text_textarea',
+        'weight' => '7',
+      ),
+    ),
+  );
+
+  // Exported field: 'commerce_line_item-product_class-field_class_lineitem_newstud'
+  $fields['commerce_line_item-product_class-field_class_lineitem_newstud'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_class_lineitem_newstud',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          1 => 'Yes',
+          0 => 'No',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_integer',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_class',
+      'commerce_cart_settings' => array(
+        'field_access' => 1,
+      ),
+      'default_value' => array(
+        0 => array(
+          'value' => '1',
+        ),
+      ),
+      'deleted' => '0',
+      'description' => 'If this is the second or more class for a new student in your cart, select \'No\'.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 5,
+        ),
+      ),
+      'entity_type' => 'commerce_line_item',
+      'field_name' => 'field_class_lineitem_newstud',
+      'label' => 'New Student?',
+      'required' => 1,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_buttons',
+        'weight' => '6',
+      ),
+    ),
+  );
+
+  // Exported field: 'commerce_line_item-product_tkt-field_lineitem_tkt_eventname'
+  $fields['commerce_line_item-product_tkt-field_lineitem_tkt_eventname'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_lineitem_tkt_eventname',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'product_tkt',
+      'commerce_cart_settings' => array(
+        'field_access' => 1,
+      ),
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'commerce_line_item',
+      'field_name' => 'field_lineitem_tkt_eventname',
+      'label' => 'Event Name',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '-4',
+      ),
+    ),
+  );
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Additional Details');
+  t('Event Name');
+  t('If this is the second or more class for a new student in your cart, select \'No\'.');
+  t('New Student?');
 
   return $fields;
 }

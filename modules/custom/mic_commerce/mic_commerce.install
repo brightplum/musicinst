@@ -11,7 +11,8 @@
  */
 function mic_commerce_install() {
   $bundles = mic_commerce_bundles();
-  mic_commerce_install_fields($bundles);
+  mic_commerce_install_fields($bundles, 'mic_commerce', 'commerce_product');
+  mic_commerce_install_fields($bundles, 'mic_commerce', 'commerce_line_item');
   mic_commerce_event_product_fields();
   theme_enable(array('mic_theme'));
   variable_set('admin_theme', 'seven');
@@ -50,7 +51,7 @@ function mic_commerce_install_fields($bundles, $module = 'mic_commerce', $entity
   foreach ($bundles as $bundle) {
     $bundle = str_replace('-', '_', $bundle);
     module_load_include('inc', $module, "fields/${module}.fields." . $bundle);
-    $fields_function = "${module}_${bundle}_fields";
+    $fields_function = "${module}_${entity}_${bundle}_fields";
     foreach ($fields_function() as $field) {
       // create the field if it doesn't exist
       if (!field_info_field($field['field_config']['field_name'])) {
