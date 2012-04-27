@@ -119,7 +119,7 @@ function mic_implementation_get_course_classes($nid) {
     ->entityCondition('bundle', 'product_class')
     ->propertyCondition('status', 1)
     ->fieldCondition('field_course_reference', 'nid', $nid)
-    //->fieldCondition('field_sunset_date', 'value', time(), '>=')
+    ->fieldCondition('field_sunset_date', 'value', time(), '>=')
     ->fieldOrderBy('field_start_date', 'value');
 
   $result = $query->execute();
@@ -283,7 +283,7 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 	);
 
 	$theme['mic_course'] = array(
-		'arguments' => array('data' => null),
+		'variables' => array('classes' => null),
 		'function' => 'mic_implementation_theme_mic_course',
 		'path' => $path,
 	);

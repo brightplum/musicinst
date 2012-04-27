@@ -174,7 +174,6 @@ function mic_implementation_theme_mic_profile(&$variables) {
 function mic_implementation_theme_mic_course(&$variables) {
   $header = $rows = array();
   $variables = reset($variables);
-	$classes = isset($variables['#classes']) ? $variables['#classes'] : array();
 
 	$header = array(
     t('Day'),
@@ -185,7 +184,7 @@ function mic_implementation_theme_mic_course(&$variables) {
     '',
   );
 
-  foreach ($classes as $key => $class) {
+  foreach ($variables as $key => $class) {
     if (is_numeric($key)) {
       $row = array();
       foreach ($class as $value) {
