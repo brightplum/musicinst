@@ -116,7 +116,11 @@
 
 		    						<div class="header-section-inner-wrapper region">
 
+		    						<?php if (module_exists('mic_commerce')): ?>
+
 		    						<?php print mic_commerce_cart(); ?>
+
+		    						<?php endif; ?>
 
 		    						</div>
 
