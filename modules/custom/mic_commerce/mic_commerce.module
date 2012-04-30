@@ -380,11 +380,14 @@ function mic_commerce_fee_line_item_new($order_id = 0) {
  * @param unknown_type $order
  */
 function mic_commerce_commerce_order_presave($order) {
-  // Find out if our order already has an mic_fee line item.
-  $type_exists = FALSE;
+  // Find out if our order already has an mic_fee line item and if new student was checked.
+  $type_exists = $new_student = FALSE;
   if (!empty($order->commerce_line_items['und'])) {
     foreach($order->commerce_line_items['und'] as $delta => $line_item_entry) {
       if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
+        if ($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] == 1) {
+          $new_student = TRUE;
+        }
         if ($line_item->type == 'mic_fee') {
           $type_exists = TRUE;
           break;
@@ -396,9 +399,11 @@ function mic_commerce_commerce_order_presave($order) {
   // If our line item is not yet in the order and the order has an ID,
   // create a line item to add to the order.
   if (!$type_exists && $order->order_id > 0) {
-    $line_item = mic_commerce_fee_line_item_new($order->order_id);
-    commerce_line_item_save($line_item);
-    $order->commerce_line_items['und'][] = array('line_item_id' => $line_item->line_item_id);
+    if ($new_student) {
+      $line_item = mic_commerce_fee_line_item_new($order->order_id);
+      commerce_line_item_save($line_item);
+      $order->commerce_line_items['und'][] = array('line_item_id' => $line_item->line_item_id);
+    }
   }
 }
 
@@ -583,7 +588,7 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
-    if (!isset($form['line_item_fields']['field_lineitem_tkt_eventname'])) {
+    if (isset($form['line_item_fields']['field_class_lineitem_detail']) && isset($form['line_item_fields']['field_class_lineitem_newstud'])) {
       $form['submit']['#ajax'] = array(
         'callback' => 'mic_commerce_ajax_callback_submit',
         'wrapper' => 'dialog-form-wrapper',
@@ -617,6 +622,8 @@ function _mic_commerce_get_classes() {
   $result = $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'item_class')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('field_sunset_date', 'value', time(), '>=')
     ->execute();
 
   return reset($result);
