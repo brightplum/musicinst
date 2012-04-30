@@ -1,6 +1,6 @@
 <?php
 
-function mic_user_user_fields() {
+function mic_user_user_user_fields() {
   $fields = array();
 
   // Exported field: 'user-user-field_user_billing'
