@@ -151,15 +151,23 @@ function mic_implementation_get_course_classes($nid) {
 
 
       $location = field_get_items('commerce_product', $pc, 'field_location_reference');
-      $location = reset($location);
-      $location = taxonomy_term_load($location['tid']);
+      if (is_array($location)) {
+        $location = reset($location);
+        $location = taxonomy_term_load($location['tid']);
+        $location = $location->name;
+      }
 
-      $class[] = $location->name;
+      $class[] = $location;
 
       $instructor = field_get_items('commerce_product', $pc, 'field_instructor_reference');
-      $instructor = reset($instructor);
-      $instructor = node_load($instructor['nid']);
-      $class[] = l($instructor->title, 'node/'. $instructor->nid);
+      $instructor_nid = $instructor_title = '';
+      if (is_array($instructor)) {
+        $instructor = reset($instructor);
+        $instructor = node_load($instructor['nid']);
+        $instructor_nid = $instructor->nid;
+        $instructor_title = $instructor->title;
+      }
+      $class[] = l($instructor_title, 'node/'. $instructor_nid);
 
       $status = field_get_items('commerce_product', $pc, 'field_status');
       $status = reset($status);
