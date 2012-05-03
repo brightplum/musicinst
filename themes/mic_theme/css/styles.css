@@ -140,6 +140,10 @@ body {
 	border-top: 1px #AAAAAA solid;
 }
 
+.block {
+  margin-bottom: 35px;
+}
+
 /********************
 
 Text
