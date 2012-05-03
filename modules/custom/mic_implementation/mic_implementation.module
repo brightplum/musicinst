@@ -174,7 +174,7 @@ function mic_implementation_get_course_classes($nid) {
       if ($status['value'] == 'Open') {
         //$add_to_cart = mic_commerce_add_to_cart($product_class->product_id);
         $add_to_cart = l('Add to Cart', 'addtocart/nojs/' . $product_class->product_id, array('attributes' => array('class' => array('use-dialog', 'use-ajax'))));
-        $class[] = $add_to_cart;
+        //$class[] = $add_to_cart;
       }
       else {
         $class[] = $status['value'];
