@@ -427,11 +427,11 @@ MISC
 }
 
 .header-inner-wrapper .social-links-horizontal {
-	float: left;
 	width: 135px;
+	margin: 20px;
 }
 
-.header-inner-wrapper .social-links-horizontal ul {
+.header-inner-wrapper ul.social-links-horizontal {
 	list-style: none;
 	margin: 8px 0px 0px 0px;
 	padding: 0px;
@@ -448,6 +448,10 @@ MISC
 
 .header-inner-wrapper .social-links-horizontal li a {
 	padding: 0px;
+}
+
+.header-inner-wrapper .social-links-horizontal li a span {
+  display: none;
 }
 
 .header-inner-wrapper .social-links-horizontal li.last {
