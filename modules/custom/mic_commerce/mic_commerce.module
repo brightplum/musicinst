@@ -339,7 +339,7 @@ function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$fo
  *   The fully loaded line item..
  */
 function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
-  $type = 'mic_fee';
+  $type = 'mic_newstudent_fee';
 
   // Create the new line item.
   $line_item = entity_create('commerce_line_item', array(
