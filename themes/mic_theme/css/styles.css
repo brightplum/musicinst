@@ -426,14 +426,10 @@ MISC
 	margin: 0px 0px 0px 16px;
 }
 
-.header-inner-wrapper .social-links-horizontal {
-	width: 135px;
-	margin: 20px;
-}
-
 .header-inner-wrapper ul.social-links-horizontal {
 	list-style: none;
-	margin: 8px 0px 0px 0px;
+	width: 135px;
+	margin: 20px;
 	padding: 0px;
 }
 

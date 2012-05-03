@@ -86,6 +86,7 @@
 									<li class="flickr"><a href="<?php echo $settings['flickr_url']; ?>"><span>Flickr</span></a></li>
 							    <li class="linkedin last"><a href="<?php echo $settings['linkedin_url']; ?>"><span>LinkedIn</span></a></li>
 								</ul>
+								<br />
     					  <?php print render($page['header4']); ?>
     					</div>
     					<div class="header-section last">
