@@ -378,7 +378,7 @@ function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
  * @param unknown_type $order
  */
 function mic_commerce_commerce_order_presave($order) {
-  // Find out if our order already has an mic_fee line item and if new student was checked.
+  // Find out if our order already has an mic_student_fee line item and if new student was checked.
   $type_exists = $new_student = FALSE;
   if (!empty($order->commerce_line_items['und'])) {
     foreach($order->commerce_line_items['und'] as $delta => $line_item_entry) {

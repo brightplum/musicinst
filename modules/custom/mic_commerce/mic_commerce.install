@@ -187,3 +187,11 @@ function mic_commerce_event_product_fields() {
 function mic_commerce_update_7001(&$sandbox) {
   commerce_line_item_configure_line_item_types();
 }
+
+/**
+ * Fix line_item_types
+ *
+ */
+function mic_commerce_update_7002(&$sandbox) {
+  commerce_line_item_configure_line_item_types();
+}
