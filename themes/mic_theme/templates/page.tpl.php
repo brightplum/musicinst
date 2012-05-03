@@ -78,6 +78,16 @@
     					  <?php print render($page['header3']); ?>
     					</div>
     					<div class="header-section">
+    					  <div class="social-links-horizontal">
+    					    <?php $settings = variable_get('miscellaneous_settings', null); ?>
+							    <ul>
+									  <li class="facebook"><a href="<?php echo $settings['facebook_url']; ?>">FaceBook</a></li>
+								    <li class="youtube"><a href="<?php echo $settings['youtube_url']; ?>">YouTube</a></li>
+								    <li class="twitter"><a href="<?php echo $settings['twitter_url']; ?>">Twitter</a></li>
+										<li class="flickr"><a href="<?php echo $settings['flickr_url']; ?>">Flickr</a></li>
+								    <li class="linkedin last"><a href="<?php echo $settings['linkedin_url']; ?>">LinkedIn</a></li>
+									</ul>
+								</div>
     					  <?php print render($page['header4']); ?>
     					</div>
     					<div class="header-section last">
