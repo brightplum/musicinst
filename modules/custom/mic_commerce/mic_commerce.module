@@ -627,3 +627,10 @@ function _mic_commerce_get_classes() {
   return reset($result);
 }
 
+/**
+ * Rules action: displays a the default translatable Add to Cart message.
+ */
+function mic_commerce_cart_rules_add_to_cart_message($product) {
+  drupal_set_message(t('%title added to your cart. <a href="!cart-url">Check out now</a>.', array('%title' => $product->title, '!cart-url' => url('cart'))));
+}
+
