@@ -448,6 +448,9 @@ MISC
 
 .header-inner-wrapper .social-links-horizontal li a {
 	padding: 0px;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
 }
 
 .header-inner-wrapper .social-links-horizontal li a span {
