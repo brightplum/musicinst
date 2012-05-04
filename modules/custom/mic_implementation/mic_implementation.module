@@ -177,7 +177,7 @@ function mic_implementation_get_course_classes($nid) {
         //temporary hack until we fully launch
         $node = menu_get_object('node');
         $allowed = array(1729, 1731);
-        if (is_object($node) && in_array($node->nid, $allowed) {
+        if (is_object($node) && in_array($node->nid, $allowed)) {
           $class[] = $add_to_cart;
         }
       }
