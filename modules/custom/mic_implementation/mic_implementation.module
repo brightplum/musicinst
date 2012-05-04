@@ -176,7 +176,7 @@ function mic_implementation_get_course_classes($nid) {
         $add_to_cart = l('Add to Cart', 'addtocart/nojs/' . $product_class->product_id, array('attributes' => array('class' => array('use-dialog', 'use-ajax'))));
         //temporary hack until we fully launch
         $node = menu_get_object('node');
-        $allowed = array(1729, 1731);
+        $allowed = array(1729, 422);
         if (is_object($node) && in_array($node->nid, $allowed)) {
           $class[] = $add_to_cart;
         }
