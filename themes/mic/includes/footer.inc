@@ -60,6 +60,6 @@
 
 <div class="bottom">												
     	
-    <div class="footer-copyright">&copy; 2010 Music Institute of Chicago</div>					
+    <div class="footer-copyright">&copy; 2012 Music Institute of Chicago</div>					
     
 </div>

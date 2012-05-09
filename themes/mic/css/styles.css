@@ -739,33 +739,40 @@ Home Banner Wrapper
 	margin: 0px auto;
 }
 
-.home-banner-wrapper .date-nav-wrapper div.date-prev {
+.home-banner-wrapper .date-nav-wrapper .date-prev {
 	width: 20px;
 	height: 38px;
 }
 
-.home-banner-wrapper .date-nav-wrapper div.date-prev a {
+.home-banner-wrapper .date-nav-wrapper .date-prev a {
 	background: url('../images/structure/calendar/widget/date-prev.jpg') no-repeat 0px 16px;
 	width: 20px;
 	height: 38px;
 	display: block;
 	text-indent: -9999em;
+	margin: 0px;
 }
 
-.home-banner-wrapper .date-nav-wrapper div.date-next {
+.home-banner-wrapper .date-nav-wrapper .date-next {
 	width: 20px;
 	height: 38px;
 }
 
-.home-banner-wrapper .date-nav-wrapper div.date-next a {
+.home-banner-wrapper .date-nav-wrapper .item-list ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.home-banner-wrapper .date-nav-wrapper .date-next a {
 	background: url('../images/structure/calendar/widget/date-next.jpg') no-repeat 0px 16px;
 	width: 20px;
 	height: 38px;
 	display: block;
-	text-indent: -9999em;
+	text-indent: 9999em;
+	margin-top: -19px;
 }
 
-.home-banner-wrapper .date-nav-wrapper div.date-heading {
+.home-banner-wrapper .date-nav-wrapper .date-heading {
 	width: 204px;
 	height: 38px;
 	text-align: center;
@@ -774,6 +781,10 @@ Home Banner Wrapper
 	font-weight: bold;
 	line-height: 52px;
 	overflow: hidden;
+}
+
+.home-banner-wrapper .date-nav-wrapper .date-heading h3 {
+  margin: 5px 0px 0px 35px;
 }
 
 .home-banner-wrapper .calendar-widget-wrapper {
@@ -794,7 +805,7 @@ Home Banner Wrapper
     float: left;
 }
 
-.home-banner-wrapper .calendar-widget-wrapper div.row-wrapper {
+.home-banner-wrapper .calendar-widget-wrapper .row-wrapper {
 	width: 245px;
 }
 
@@ -803,7 +814,7 @@ Home Banner Wrapper
     width: 33px;
     margin: 0px 2px 1px 0px;
 }
-.home-banner-wrapper .calendar-widget-wrapper div.empty div.calendar-empty {
+.home-banner-wrapper .calendar-widget-wrapper .empty div.calendar-empty {
 	background: url('../images/structure/calendar/widget/day-off-bg.jpg') no-repeat;
 	border: none;/*1px solid #e3e4e6;*/
 	width: 33px;
@@ -811,7 +822,7 @@ Home Banner Wrapper
     margin: 0px 2px 1px 0px;
 }
 
-.home-banner-wrapper .calendar-widget-wrapper div.mini div.mini-day-on {
+.home-banner-wrapper .calendar-widget-wrapper .mini .mini-day-on {
 	background: url('../images/structure/calendar/widget/day-on-bg.jpg') no-repeat;
 	border: none;/*1px solid #e3e4e6;*/
 	width: 33px;
@@ -2958,7 +2969,7 @@ Calendar Page
 	text-indent: -9999em;
 }
 
-.body-inner-wrapper .calendar-wrapper .top .middle-column .date-nav-wrapper div.date-heading {
+.body-inner-wrapper .calendar-wrapper .top .middle-column .date-nav-wrapper .date-heading {
 	width: 204px;
 	height: 52px;
 	text-align: center;

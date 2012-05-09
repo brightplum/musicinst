@@ -30,7 +30,7 @@
  */
 ?>
 
-	
+
 <?php if ($admin_links): ?>
     <?php print $admin_links; ?>
 <?php endif; ?>
@@ -84,28 +84,28 @@
 <?php endif; ?>
 
 <?php if(arg(0) == 'node'): ?>
-	
+
 	<div class="bottom">
 		<?php $year = date('Y'); $week = date("W")+1; ?>
 	    <div class="button left">
-	    	<a href="<?php echo base_path(); ?>calendar/<?php echo $year; ?>-W<?php echo $week; ?>">View full calendar</a>
+	    	<a href="<?php echo base_path(); ?>calendar/week/<?php echo $year; ?>-W<?php echo $week; ?>">View full calendar</a>
 	    </div>
-	
+
 	    <div class="actions right">
-	    	
+
 	    	<ul>
 	    		<li class="last"><a class="rss" href="<?php echo base_path(); ?>rss">Rss</a></li>
 	    		<!--<li class="first"><?php print $feed_icon; ?></li>-->
 	    		<!--<li><a href="#">Outlook</a></li>-->
-	    		
+
 	    	</ul>
-	    	
+
 	    </div>
-	
+
 	    <div class="clear"></div>
-	    
+
 	</div>
-	
+
 <?php endif; ?>
 
 
