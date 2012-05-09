@@ -71,7 +71,7 @@ function theme_commerce_extra_panes_settings_list($element) {
   foreach ($extra_panes as $extra_pane) {
     $entity = entity_load_single($extra_pane->extra_type, $extra_pane->extra_id);
     $row = array();
-    $row[] = array('data' => check_plain($entity->title));
+    $row[] = array('data' => $entity->title);
     $row[] = array('data' => $extra_pane->extra_type);
     $status = ($extra_pane->status) ? t('Enabled') : t('Disabled');
     $row[] = array('data' => $status);
@@ -111,10 +111,9 @@ function commerce_extra_panes_commerce_checkout_pane_info() {
         if (module_exists('translation') && !empty($entity->tnid)) {
           $translations = translation_node_get_translations($entity->tnid);
           $title = isset($translations[$language->language]->title) ? $translations[$language->language]->title : $entity->title;
-          $title = check_plain($title);
         }
         $checkout_panes['extra_pane__' . $extra_pane->extra_type . '__' . $extra_pane->extra_id] = array(
-          'title' => !empty($title) ? $title : check_plain($entity->title),
+          'title' => !empty($title) ? $title : $entity->title,
           'file' => 'includes/commerce_extra_panes.checkout_pane.inc',
           'base' => 'commerce_extra_panes_contents',
         );
