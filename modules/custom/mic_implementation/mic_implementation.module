@@ -7,6 +7,12 @@ require_once('includes/mic_implementation.theme.inc');
 require_once('includes/mic_implementation.model.inc');
 require_once('includes/mic_implementation.helper.inc');
 
+/**
+ * Implements hook_views_api().
+ */
+function mic_implementation_views_api() {
+  return array("version" => "3.0");
+}
 
 function mic_implementation_page_build(&$page) {
   global $theme;
