@@ -34,13 +34,13 @@ function mic_user_form_user_register_form_alter(&$form, &$form_state, $form_id) 
  */
 function mic_user_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   // hide the profile fields that are meant for customers on certain roles
-  global $user;
   $hide = FALSE;
   $roles_skip = array(
     'Administrator'
   );
-  foreach ($roles_skip as $role_skip) {
-    if (in_array($role_skip, $user->roles)) {
+  $roles = $form['#user']->roles;
+  foreach ($roles as $role) {
+    if (in_array($role, $roles_skip)) {
       $hide = TRUE;
       break;
     }
