@@ -1,27 +1,25 @@
-Description:
+Commerce Addressbook is a module that allows authenticated customers to reuse
+previously entered addresses during checkout.
+They can manage all entered addresses in their user panel (user/%user/addressbook).
+
+Note that for data consistency reasons editing a previously entered address
+won't change it on previously made orders.
+
+Installation
 ============
-
-The Commerce Addressbook module provides a dropdown field that can be attached to customer profile entities.
-It allows customers to select a previously entered profile upon checkout, so they don't have to reenter the same information all the time.
-
-Upon selecting an existing address, the selected customer profile entity gets referenced by the order entity, instead of creating a new customer profile entity.
-Upon submitting the form, a new customer profile entity is created anyway when the customer updated the information. If the information was not updated, no new customer profile is created (in contrary to standard Drupal Commerce behavior)
-This allows for cleaner administration of customer profiles, since it avoids lots of duplicates from recurring clients to your shop.
-
-The dropdown field to select previously entered addresses will be attached by default to customer profile entity types,
-such as the default "Billing" profile, or the "Shipping" profile as provided by http://drupal.org/project/commerce_shipping
-
-Installation:
-=============
-
 * Enable the Commerce Addresbook module
-* Go to admin/commerce/config/addressbook to set options
-* Upon activating a new customer profile entity type, the "Saved addresses" field should automatically be attached.
-  In case it is not, or you want to attach this field to other entity types (WARNING: untested functionality), you can do so through the normal Field UI.
+* Visit the admin/commerce/config/checkout page and configure any customer
+  profile checkout panes (such as "Billing information") to use the addressbook.
+* The "Addresses on File" select list should now automatically be attached to the checkout form.
 
-Developer information:
-=======================
-Hooks:
+Updating from Addressbook 1.x
+=============================
+Don't try to disable the module. Keep it enabled and follow the next steps:
+1. Replace the 1.x files with the 2.x files.
+2. Run update.php to install the "7200" update.
+3. Go to admin/commerce/config/checkout and enable the addressbook for the
+desired checkout panes.
 
-hook_commerce_addressbook_label_alter(&$label, $entity)
-  This hook allows you to alter the label that is shown in the dropdown list.
+Note that the information on which user profile is the default will be lost.
+The user will need to go to his addressbook (user/%user/addressbook) and set
+the default again.
