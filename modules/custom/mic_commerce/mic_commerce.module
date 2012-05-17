@@ -584,18 +584,54 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
  * @param unknown_type $form_id
  */
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
+  //dialog for add_to_cart; breaks of JS compression is turned on
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
     if (isset($form['line_item_fields']['field_class_lineitem_detail']) && isset($form['line_item_fields']['field_class_lineitem_newstud'])) {
-      //$form['submit']['#attributes'] = array('class' => array('use-ajax-submit'));
       $form['submit']['#ajax'] = array(
         'callback' => 'mic_commerce_ajax_callback_submit',
         'wrapper' => 'dialog-form-wrapper',
       );
 
       $form['#process'][] = 'dialog_process_ajax_form';
-      //$form['#submit'][] = 'mic_commerce_ajax_callback_submit';
     }
+  }
+
+  //add filter options to orders overview on view
+  if ($form_id == 'commerce_order_ui_redirect_form') {
+    $options = array('' => '- All -');
+    if ($vocabulary = taxonomy_vocabulary_machine_name_load('campus')) {
+      if ($terms = taxonomy_get_tree($vocabulary->vid)) {
+        foreach ($terms as $term) {
+          $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
+        }
+      }
+    }
+    $semester_options = array('' => '- All -');
+    if ($vocabulary = taxonomy_vocabulary_machine_name_load('semester')) {
+      if ($terms = taxonomy_get_tree($vocabulary->vid)) {
+        foreach ($terms as $term) {
+          $semester_options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
+        }
+      }
+    }
+    $default = drupal_get_query_parameters();
+    $form['location'] = array(
+      '#title' => t('Campus'),
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => $default['location'],
+    );
+    $form['semester'] = array(
+      '#title' => t('Semester'),
+      '#type' => 'select',
+      '#options' => $semester_options,
+      '#default_value' => $default['semester'],
+    );
+    //use different validate
+    $form['#validate'][0] = 'mic_commerce_admin_commerce_orders_filter_validate';
+    $form['#submit'][] = 'mic_commerce_admin_commerce_orders_filter_submit';
+    $form['submit']['#value'] = t('Filter');
   }
 }
 
@@ -610,8 +646,6 @@ function mic_commerce_ajax_callback_submit($form, &$form_state) {
   $commands[] = dialog_command_reload();
 
   return array('#type' => 'ajax', '#commands' => $commands);
-  //drupal_static_reset('dialog_display');
-  //$form_state['no_redirect'] = true;
 }
 
 /**
@@ -638,3 +672,123 @@ function mic_commerce_cart_rules_add_to_cart_message($product) {
   drupal_set_message(t('%title added to your cart. <a href="!cart-url">Check out now</a>.', array('%title' => $product->title, '!cart-url' => url('cart'))));
 }
 
+/**
+ * Implements hook_views_query_alter
+ *
+ * @param unknown_type $view
+ * @param unknown_type $query
+ */
+function mic_commerce_views_query_alter(&$view, &$query) {
+  //add a tag to filter commerce_orders
+  if ($view->name == 'commerce_orders') {
+    $filters = drupal_get_query_parameters();
+    if (!empty($filters)) {
+      $query->add_tag('commerce_orders_filter');
+    }
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter
+ * Join line items, products for filtering of orders
+ *
+ * @param QueryAlterableInterface $query
+ */
+function mic_commerce_query_commerce_orders_filter_alter(QueryAlterableInterface $query) {
+  $filters = drupal_get_query_parameters();
+  $query
+    ->leftJoin('commerce_line_item', 'cli', 'commerce_order.order_id = cli.order_id');
+  $query
+    ->leftJoin('commerce_product', 'cp', 'cli.line_item_label = cp.sku');
+  if (isset($filters['location'])) {
+    $tid = check_plain($filters['location']);
+    $query
+      ->leftJoin('field_data_field_location_reference', 'fdflr', 'fdflr.entity_id = cp.product_id');
+    $query
+      ->condition('fdflr.field_location_reference_tid', array($tid));
+  }
+  if (isset($filters['semester'])) {
+    $tid = check_plain($filters['semester']);
+    $query
+      ->leftJoin('field_data_field_semester_reference', 'fdfsr', 'fdfsr.entity_id = cp.product_id');
+    $query
+      ->condition('fdfsr.field_semester_reference_tid', array($tid));
+  }
+  $query->distinct();
+}
+
+/**
+ * Implements hook_views_pre_render
+ *
+ * @param unknown_type $view
+ */
+function mic_commerce_views_pre_render(&$view) {
+  //change title based on filters; drupal_set_title doesn't seem to work
+  if ($view->name == 'commerce_orders' && $view->current_display == 'admin_page') {
+    //set page title
+    $filters = drupal_get_query_parameters();
+    $title = array();
+    if (isset($filters['location'])) {
+      $tid = check_plain($filters['location']);
+      $location = taxonomy_term_load($tid);
+      $title[] = $location->name;
+    }
+    if (isset($filters['semester'])) {
+      $tid = check_plain($filters['semester']);
+      $semester = taxonomy_term_load($tid);
+      $title[] = $semester->name;
+    }
+    $title = implode(', ', $title);
+    $view->build_info['title'] = t('Orders at @title', array('@title' => $title));
+  }
+}
+
+/**
+ * Custom validate callback for orders filter
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
+function mic_commerce_admin_commerce_orders_filter_validate($form, &$form_state) {
+  $order = FALSE;
+
+  // Attempt to load the specified order.
+  if ($form_state['values']['identifier'] == 'order_number') {
+    $order = commerce_order_load_by_number($form_state['values']['order_identifier']);
+  }
+  elseif ($form_state['values']['identifier'] == 'order_id') {
+    $order = commerce_order_load($form_state['values']['order_identifier']);
+  }
+
+  // If the order could not be loaded by ID or number or the user does not have
+  // view access for the order, throw an error.
+  if ($order) {
+    form_set_value($form['order'], $order, $form_state);
+  }
+}
+
+/**
+ * Custom submit callback for orders filter
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
+function mic_commerce_admin_commerce_orders_filter_submit($form, &$form_state) {
+  $location = $form_state['values']['location'];
+  $semester = $form_state['values']['semester'];
+  $order = $form_state['values']['order'];
+  $current_filter = array();
+  if (!$order) {
+    if (!empty($location)) {
+      $location_term = taxonomy_term_load($location);
+      drupal_set_message(t('Filter: @location Campus', array('@location' => $location_term->name)));
+      $current_filter['location'] = $location;
+    }
+    if (!empty($semester)) {
+      $semester_term = taxonomy_term_load($semester);
+      drupal_set_message(t('Filter: @semester', array('@semester' => $semester_term->name)));
+      $current_filter['semester'] = $semester;
+    }
+    drupal_goto(current_path(), array('query' => array($current_filter)));
+  }
+}
