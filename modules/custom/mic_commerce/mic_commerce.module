@@ -582,7 +582,7 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
  * @param unknown_type $form
  * @param unknown_type $form_state
  * @param unknown_type $form_id
- *
+ */
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
@@ -597,7 +597,7 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       //$form['#submit'][] = 'mic_commerce_ajax_callback_submit';
     }
   }
-}*/
+}
 
 /**
  * Submit ajax callback for dialogs
