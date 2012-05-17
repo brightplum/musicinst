@@ -582,32 +582,36 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
  * @param unknown_type $form
  * @param unknown_type $form_state
  * @param unknown_type $form_id
- */
+ *
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
     if (isset($form['line_item_fields']['field_class_lineitem_detail']) && isset($form['line_item_fields']['field_class_lineitem_newstud'])) {
+      //$form['submit']['#attributes'] = array('class' => array('use-ajax-submit'));
       $form['submit']['#ajax'] = array(
         'callback' => 'mic_commerce_ajax_callback_submit',
         'wrapper' => 'dialog-form-wrapper',
       );
 
       $form['#process'][] = 'dialog_process_ajax_form';
+      //$form['#submit'][] = 'mic_commerce_ajax_callback_submit';
     }
   }
-}
+}*/
 
 /**
  * Submit ajax callback for dialogs
  *
  * @return unknown
  */
-function mic_commerce_ajax_callback_submit() {
+function mic_commerce_ajax_callback_submit($form, &$form_state) {
   $commands = array();
   $commands[] = dialog_command_dismiss();
   $commands[] = dialog_command_reload();
 
   return array('#type' => 'ajax', '#commands' => $commands);
+  //drupal_static_reset('dialog_display');
+  //$form_state['no_redirect'] = true;
 }
 
 /**
