@@ -697,20 +697,20 @@ function mic_commerce_views_query_alter(&$view, &$query) {
 function mic_commerce_query_commerce_orders_filter_alter(QueryAlterableInterface $query) {
   $filters = drupal_get_query_parameters();
   $query
-    ->leftJoin('commerce_line_item', 'cli', 'commerce_order.order_id = cli.order_id');
+    ->join('commerce_line_item', 'cli', 'commerce_order.order_id = cli.order_id');
   $query
-    ->leftJoin('commerce_product', 'cp', 'cli.line_item_label = cp.sku');
+    ->join('commerce_product', 'cp', 'cli.line_item_label = cp.sku');
   if (isset($filters['location'])) {
     $tid = check_plain($filters['location']);
     $query
-      ->leftJoin('field_data_field_location_reference', 'fdflr', 'fdflr.entity_id = cp.product_id');
+      ->join('field_data_field_location_reference', 'fdflr', 'fdflr.entity_id = cp.product_id');
     $query
       ->condition('fdflr.field_location_reference_tid', array($tid));
   }
   if (isset($filters['semester'])) {
     $tid = check_plain($filters['semester']);
     $query
-      ->leftJoin('field_data_field_semester_reference', 'fdfsr', 'fdfsr.entity_id = cp.product_id');
+      ->join('field_data_field_semester_reference', 'fdfsr', 'fdfsr.entity_id = cp.product_id');
     $query
       ->condition('fdfsr.field_semester_reference_tid', array($tid));
   }
