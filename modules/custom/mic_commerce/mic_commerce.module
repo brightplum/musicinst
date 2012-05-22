@@ -231,7 +231,7 @@ function mic_commerce_commerce_product_type_info() {
       'name' => t('Class'),
       'description' => 'A class product to relate to courses',
       'help' => '',
-    )
+    ),
   );
 }
 
@@ -267,6 +267,13 @@ function mic_commerce_commerce_line_item_type_info() {
       'add_form' => 'mic_commerce_newstudent_fee_add_form',
       'add_form_submit' => 'mic_commerce_newstudent_fee_add_form_submit',
     ),
+  );
+  $line_item_types['product_pi'] = array(
+    'name' => t('Product Private Instruction'),
+    'description' => t('Line item type for product Private Instruction'),
+    'product' => TRUE,
+    'add_form_submit_value' => t('Add Details'),
+    'base' => 'commerce_product_line_item',
   );
 
   return $line_item_types;
@@ -308,7 +315,7 @@ function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$fo
   $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
   // Provide a default price.
-  $amount = 2000;
+  $amount = 2500;
   $currency_code = 'USD';
 
   $line_item->commerce_unit_price = array('und' => array(
@@ -348,7 +355,7 @@ function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
     'quantity' => 1,
   ));
 
-  $amount = 2000;
+  $amount = 2500;
   $currency_code = 'USD';
 
   $line_item->commerce_unit_price = array('und' => array(

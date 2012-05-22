@@ -195,3 +195,13 @@ function mic_commerce_update_7001(&$sandbox) {
 function mic_commerce_update_7002(&$sandbox) {
   commerce_line_item_configure_line_item_types();
 }
+
+/**
+ * Update product, line item for PI
+ *
+ */
+function mic_commerce_update_7003(&$sandbox) {
+  commerce_line_item_configure_line_item_types();
+  cache_clear_all();
+  mic_commerce_install_fields(array('product-pi'), 'mic_commerce', 'commerce_line_item');
+}
