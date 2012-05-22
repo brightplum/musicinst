@@ -739,7 +739,9 @@ function mic_commerce_views_pre_render(&$view) {
       $title[] = $semester->name;
     }
     $title = implode(', ', $title);
-    $view->build_info['title'] = t('Orders at @title', array('@title' => $title));
+    if ($title) {
+      $view->build_info['title'] = t('Orders at @title', array('@title' => $title));
+    }
   }
 }
 
