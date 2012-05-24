@@ -1,7 +1,7 @@
 <form method="GET" accept-charset="UTF-8" action="<?php base_path(); ?>class-finder">
 
     <div class="left col">
-    	
+
     	<div class="age">
     		<div class="left">
 	    		<span class="bold-font">Age:</span>
@@ -16,23 +16,23 @@
     		</div>
     		<div class="clear"></div>
     	</div>
-    	
-    	
+
+
     	<div class="program-area">
     		<div class="left">
 	    		<span class="bold-font">Program Area:</span>
     		</div>
     		<div class="right">
-	    		<select name="interest">
+	    		<select name="program_area">
     				<option value="">Select one</option>
     				<?php foreach($filters['program_areas'] as $tid => $term): ?>
-    					<option value="<?php echo $tid; ?>" <?php echo $_GET['interest'] == $tid ? 'selected' : ''; ?>><?php echo $term; ?></option>
+    					<option value="<?php echo $tid; ?>" <?php echo $_GET['program_area'] == $tid ? 'selected' : ''; ?>><?php echo $term; ?></option>
     				<?php endforeach; ?>
 	    		</select>
     		</div>
     		<div class="clear"></div>
     	</div>
-    	
+
     	<div class="instrument">
     		<div class="left">
     			<span class="bold-font">Instrument:</span>
@@ -47,11 +47,11 @@
     		</div>
     		<div class="clear"></div>
     	</div>
-    
+
     </div>
-    
+
     <div class="right col">
-    
+
     	<div class="campus">
 			<div class="left">
 				<span class="bold-font">Campus:</span>
@@ -65,9 +65,9 @@
     	   		</select>																																									</div>
 			<div class="clear"></div>
 		</div>
-    	   
+
     	<div class="semester">
-			
+
 			<div class="left">
 				<span class="bold-font">Semester:</span>
 			</div>
@@ -79,16 +79,15 @@
 					<?php endforeach; ?>
 				</select>
     	  	</div>
-    		<div class="clear"></div>   
+    		<div class="clear"></div>
 		</div>
-    	   
+
     	<div class="submit right clear">
     	   <input class="form-submit" type="submit" value="submit" name="submit" />
     	</div>
-    
+
     </div>
-    
-    <div class="clear"></div>																	
-    
+
+    <div class="clear"></div>
+
 </form>
-    		

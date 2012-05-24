@@ -109,11 +109,16 @@ function mic_implementation_custom_theme() {
 function mic_implementation_node_view($node, $view_mode, $langcode) {
   switch ($node->type) {
     case 'item_course':
-      $node->content['classes'] = array(
-        '#classes' => mic_implementation_get_course_classes($node->nid),
-        '#weight' => 10,
-        '#theme' => 'mic_course',
-      );
+      if ($view_mode == 'full') {
+        $node->content['classes'] = array(
+          '#classes' => mic_implementation_get_course_classes($node->nid),
+          '#weight' => 10,
+          '#theme' => 'mic_course',
+        );
+      }
+      if ($view_mode == 'teaser') {
+        unset($node->content['links']);
+      }
       break;
   }
 }

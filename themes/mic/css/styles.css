@@ -2408,20 +2408,22 @@ Body Wrapper
 	width: 120px;
 }
 
-.body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .class-finder-results span.liven-up {
+.class-finder-results span.liven-up {
 	color: #666655;
 	font-weight: bold;
 	margin: 5px 0px;
 	display: block;
 }
 
-.body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .class-finder-results .item {
+.class-finder-results .item,
+.class-finder-results .node-teaser {
     border-bottom: 1px solid #AAAAAA;
     padding: 15px 0px;
 }
 
-.body-inner-wrapper .middle-column .main-content-wrapper .listings-wrapper .class-finder-results .item.last {
-    border-bottom: none;
+.class-finder-results h2 {
+  font-size: 1.1em;
+  margin: 5px 0px;
 }
 
 .body-inner-wrapper .right-column {

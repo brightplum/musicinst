@@ -71,28 +71,25 @@ function mic_implementation_preprocess_page(&$variables) {
     	}
     }
 
-    if(arg(0) == 'class-finder') {
+  //@TODO: this is awful
+  if(arg(0) == 'class-finder') {
 
-    	$variables['theme_hook_suggestions'][] = 'page__class_finder';
+    $variables['theme_hook_suggestions'][] = 'page__class_finder';
 
-		$classes = mic_implementation_model('classes', 'homepage_classfinder', $_GET);
+    $courses = mic_implementation_model('classes', 'homepage_classfinder', $_GET);
 
-		foreach($classes as $class) {
-			$variables['class_listings'][] = theme('mic_class_listing', array('data' => $class));
-		}
+    $variables['courses'] = $courses;
 
-		$variables['pager'] = theme('pager');
+    // class finder widget
+    $ages = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'ages'));
+    $program_areas = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'program_areas'));
+    $instruments = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'instruments'));
+    $campuses = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'campuses'));
+    $semesters = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'semesters'));
 
-    	// class finder widget
-    	$ages = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'ages'));
-    	$program_areas = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'program_areas'));
-    	$instruments = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'instruments'));
-    	$campuses = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'campuses'));
-    	$semesters = mic_implementation_model('taxonomy-terms', 'homepage_classfinder', array('type'=>'semesters'));
+    $variables['classfinder_widget'] = theme('mic_classfinder_widget', array('ages'=>$ages, 'program_areas'=>$program_areas, 'instruments'=>$instruments, 'campuses'=>$campuses, 'semesters'=>$semesters));
 
-		$variables['classfinder_widget'] = theme('mic_classfinder_widget', array('ages'=>$ages, 'program_areas'=>$program_areas, 'instruments'=>$instruments, 'campuses'=>$campuses, 'semesters'=>$semesters));
-
-    }
+  }
 
     if(arg(0) == 'news-events' && arg(1) == '') {
         $settings = variable_get('news_events_settings', null);
