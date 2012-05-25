@@ -1,0 +1,18 @@
+.header-section .region .mic-shopping-cart {
+  margin: 20px auto;
+  text-align: center;
+  font-weight: bold;
+}
+
+.header-section .region .mic-shopping-cart .green {
+  color: #00cc66;
+}
+
+.header-section .region .mic-shopping-cart .items {
+  font-size: 1.3em;
+}
+
+.header-section .region .mic-shopping-cart .cart-icon {
+  padding: 5px 2px;
+  vertical-align: middle;
+}

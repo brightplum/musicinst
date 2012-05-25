@@ -392,17 +392,6 @@ Header Wrapper
 	overflow: hidden;
 }
 
-.header-section .region .mic-shopping-cart {
-  margin: 20px auto;
-  text-align: center;
-  font-weight: bold;
-}
-
-.header-section .region .mic-shopping-cart .cart-icon {
-  padding: 5px 2px;
-  vertical-align: middle;
-}
-
 .header-inner-wrapper .top div.first {
 	background: none;
 	width: 138px
