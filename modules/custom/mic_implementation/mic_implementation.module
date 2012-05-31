@@ -131,6 +131,7 @@ function mic_implementation_get_course_classes($nid) {
     ->propertyCondition('status', 1)
     ->fieldCondition('field_course_reference', 'nid', $nid)
     ->fieldCondition('field_sunset_date', 'value', time(), '>=')
+    ->fieldCondition('field_sunrise_date', 'value', time(), '<=')
     ->fieldOrderBy('field_start_date', 'value');
 
   $result = $query->execute();
