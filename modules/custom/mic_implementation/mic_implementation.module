@@ -43,6 +43,26 @@ function mic_implementation_page_build(&$page) {
 		)
 	);
 
+	$footer_left = '<div class="footer-logo"><a href="/">Music Institute of Chicago</a></div>';
+  $footer_nav = theme('links',
+	  array('links' => menu_navigation_links('menu-footer-menu'),
+			'attributes' => array(
+				'id' => 'menu-footer-menu',
+				'class' => array('links'),
+			),
+		)
+	);
+	$footer_social = '<div class="social-links-horizontal">
+    			<ul>
+    			    <li class="facebook"><a href="http://www.facebook.com/event.php?eid=248352321856849#!/pages/Music-Institute-of-Chicago/122556627793586">FaceBook</a></li>
+    			    <li class="youtube"><a href="http://www.youtube.com/MusicInstChicago/">YouTube</a></li>
+    			    <li class="twitter"><a href="http://twitter.com/#!/miccommunity">Twitter</a></li>
+    			    <li class="flickr"><a href="http://www.flickr.com/photos/musicinstitute/">Flickr</a></li>
+    			    <li class="linkedin last"><a href="http://www.flickr.com/photos/musicinstitute/">LinkedIn</a></li>
+    			</ul>
+    		</div>';
+  $footer_bottom = '<div class="footer-copyright">&copy; 2012 Music Institute of Chicago</div>';
+
   switch ($theme) {
     case 'mic_theme':
       foreach ($headers as $key => $header) {
@@ -51,6 +71,18 @@ function mic_implementation_page_build(&$page) {
           '#markup' => $header,
         );
       }
+      $page['footer_left'] = array(
+        '#markup' => $footer_left,
+      );
+      $page['footer_nav'] = array(
+        '#markup' => $footer_nav,
+      );
+      $page['footer_social'] = array(
+        '#markup' => $footer_social,
+      );
+      $page['footer_bottom'] = array(
+        '#markup' => $footer_bottom,
+      );
       break;
   }
 }
