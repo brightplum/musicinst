@@ -4,8 +4,8 @@
   font-weight: bold;
 }
 
-.header-section .region .mic-shopping-cart .green {
-  color: #00cc66;
+.header-section .region .mic-shopping-cart .red {
+  color: #F73833;
 }
 
 .header-section .region .mic-shopping-cart .items {
@@ -13,6 +13,6 @@
 }
 
 .header-section .region .mic-shopping-cart .cart-icon {
-  padding: 5px 2px;
+  padding: 5px;
   vertical-align: middle;
 }

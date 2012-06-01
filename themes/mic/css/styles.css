@@ -387,17 +387,6 @@ Header Wrapper
 	overflow: hidden;
 }
 
-.header-section .region .mic-shopping-cart {
-  margin: 20px auto;
-  text-align: center;
-  font-weight: bold;
-}
-
-.header-section .region .mic-shopping-cart .cart-icon {
-  padding: 5px 2px;
-  vertical-align: middle;
-}
-
 .header-inner-wrapper .top div.first {
 	background: none;
 	width: 138px
@@ -422,7 +411,7 @@ MISC
 }
 
 .header-inner-wrapper .social-wrapper {
-	margin: 0px 0px 0px 16px;
+	margin: 0px 5px 10px 20px;
 	display: inline-block;
 }
 
@@ -432,7 +421,6 @@ MISC
 
 .header-inner-wrapper .social-links-horizontal ul {
 	list-style: none;
-	margin: 8px 0px 0px 0px;
 	padding: 0px;
 }
 
