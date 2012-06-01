@@ -30,28 +30,36 @@ function mic_commerce_get_price($class_node) {
   return $price;
 }
 
-function mic_commerce_get_field_value($class_node, $field_name) {
-  $value = field_get_items('node', $class_node, $field_name);
+function mic_commerce_get_field_value($class_node, $field_name, $entity = 'node') {
+  $value = field_get_items($entity, $class_node, $field_name);
   $value = reset($value);
   return $value;
 }
 
-function mic_commerce_get_semester($class_node) {
-  $semester = mic_commerce_get_field_value($class_node, 'field_semester_reference');
+function mic_commerce_get_semester($class_node, $entity = 'node') {
+  $semester = mic_commerce_get_field_value($class_node, 'field_semester_reference', $entity);
   $semester = mic_commerce_price_reference($semester);
   return $semester;
 }
 
-function mic_commerce_get_semester_string($class_node) {
-  $semester = mic_commerce_get_field_value($class_node, 'field_semester_reference');
+function mic_commerce_get_semester_string($class_node, $entity = 'node') {
+  $semester = mic_commerce_get_field_value($class_node, 'field_semester_reference', $entity);
   $tid = $semester['tid'];
   $term = taxonomy_term_load($tid);
   $semester = strtolower(str_replace(' ', '', $term->name));
   return $semester;
 }
 
-function mic_commerce_get_instructor_string($class_node) {
-  $instructor = mic_commerce_get_field_value($class_node, 'field_instructor_reference');
+function mic_commerce_get_location_string($class_node, $entity = 'node') {
+  $location = mic_commerce_get_field_value($class_node, 'field_location_reference', $entity);
+  $tid = $location['tid'];
+  $term = taxonomy_term_load($tid);
+  $location = strtolower(str_replace(' ', '', $term->name));
+  return $location;
+}
+
+function mic_commerce_get_instructor_string($class_node, $entity = 'node') {
+  $instructor = mic_commerce_get_field_value($class_node, 'field_instructor_reference', $entity);
   if ($nid = $instructor['nid']) {
     $node = node_load($nid);
     $instructor = strtolower(str_replace(' ', '', $node->title));
