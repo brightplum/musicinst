@@ -586,12 +586,12 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
 /**
  * Implements hook_form_alter
  *
- * @param unknown_type $form
- * @param unknown_type $form_state
- * @param unknown_type $form_id
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
  */
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
-  //dialog for add_to_cart; breaks of JS compression is turned on
+  //dialog for add_to_cart; breaks if JS compression is turned on
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
     if (isset($form['line_item_fields']['field_class_lineitem_detail']) && isset($form['line_item_fields']['field_class_lineitem_newstud'])) {
@@ -639,6 +639,15 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
     $form['#validate'][0] = 'mic_commerce_admin_commerce_orders_filter_validate';
     $form['#submit'][] = 'mic_commerce_admin_commerce_orders_filter_submit';
     $form['submit']['#value'] = t('Filter');
+  }
+
+  //add checkout button to redirect to login for non logged-in users
+  if (strpos($form_id, 'views_form_commerce_cart_form_') === 0) {
+    $form['actions']['checkout_redirect'] = array(
+      '#markup' => '<span class="anonymous-checkout">' . l('Checkout', 'user/login', array('query' => array('destination' => 'cart'))) . '</span>',
+      '#weight' => 5,
+      '#access' => !(user_access('access checkout')),
+    );
   }
 }
 

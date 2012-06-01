@@ -3453,7 +3453,10 @@ Misc
 
 /** Cart **/
 .cart-account-login {
-  text-align: right;
+  text-align: left;
+}
+.anonymous-checkout {
+  margin-left: 5px;
 }
 .cart-account-login a,
 .messages a,
