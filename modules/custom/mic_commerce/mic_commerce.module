@@ -649,6 +649,12 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       '#access' => !(user_access('access checkout')),
     );
   }
+
+  //generate auto-sku for class forms
+  if (($form_id == 'commerce_product_ui_product_form') && ($form_state['commerce_product']->type == 'product_class')) {
+    $sku = 'autosku-' . mt_rand(1, 999999999);
+    $form['sku']['#value'] = (empty($form['sku']['#default_value'])) ? $sku : $form['sku']['#default_value'];
+  }
 }
 
 /**
