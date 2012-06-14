@@ -395,6 +395,10 @@ function mic_commerce_commerce_order_presave($order) {
         }
         if ($line_item->type == 'mic_newstudent_fee') {
           $type_exists = TRUE;
+          $line_item_fee_id = array(
+            'delta' => $delta,
+            'id' => $line_item->line_item_id
+          );
           break;
         }
       }
@@ -407,8 +411,14 @@ function mic_commerce_commerce_order_presave($order) {
     if ($new_student) {
       $line_item = mic_commerce_newstudent_fee_line_item_new($order->order_id);
       commerce_line_item_save($line_item);
-      $order->commerce_line_items['und'][] = array('line_item_id' => $line_item->line_item_id);
+      $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
     }
+  }
+  // If a new student was added, then removed and the fee remained, need to remove fee
+  // if a continuing student is added to same order later
+  else if ($type_exists && ($order->order_id > 0) && !$new_student) {
+    commerce_line_item_delete($line_item_fee_id['id']);
+    unset($order->commerce_line_items[LANGUAGE_NONE][$line_item_fee_id['delta']]);
   }
 }
 
