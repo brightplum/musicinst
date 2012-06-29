@@ -100,7 +100,6 @@ function mic_commerce_form_views_form_commerce_cart_form_default_alter(&$form, &
   if ($user->uid == 0) {
     $create_account = l(t('create account'), 'user/register', array('query' => array('destination' => 'cart')));
     $login = l(t('login'), 'user/login', array('query' => array('destination' => 'checkout')));
-    $form['#suffix'] = '<div class="cart-account-login">' . t('Please !create_account or !login to checkout.', array('!create_account' => $create_account, '!login' => $login)) . '</div></div>';
   }
 }
 
