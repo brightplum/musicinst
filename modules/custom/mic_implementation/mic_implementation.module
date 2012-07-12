@@ -120,6 +120,7 @@ function mic_implementation_custom_theme() {
     switch ($node->type) {
       case 'item_course':
       case 'event':
+      case 'profile':
         $switch = TRUE;
         break;
     }
@@ -267,7 +268,7 @@ function mic_implementation_menu() {
 	$items['admin/build/news-events'] = array(
 		'title' => 'News & Events Settings',
 		'page callback' => 'news_events_admin',
-		'page arguments' => array('form_type' => 'edit', null),
+		'page arguments' => array('form_type' => 'edit', NULL),
 		'access arguments' => array('administer news and events page'),
 		'description' => 'Configure the settings for the news and events page.',
 		'type' => MENU_NORMAL_ITEM,
@@ -276,7 +277,7 @@ function mic_implementation_menu() {
 	$items['admin/build/homepage'] = array(
 		'title' => 'Homepage Settings',
 		'page callback' => 'homepage_admin',
-		'page arguments' => array('form_type' => 'edit', null),
+		'page arguments' => array('form_type' => 'edit', NULL),
 		'access arguments' => array('administer homepage'),
 		'description' => 'Configure the settings for the homepage.',
 		'type' => MENU_NORMAL_ITEM,
@@ -285,7 +286,7 @@ function mic_implementation_menu() {
 	$items['admin/build/miscellaneous'] = array(
 		'title' => 'Miscellaneous Settings',
 		'page callback' => 'miscellaneous_admin',
-		'page arguments' => array('form_type' => 'edit', null),
+		'page arguments' => array('form_type' => 'edit', NULL),
 		'access arguments' => array('administer miscellaneous'),
 		'description' => 'Configure the miscellaneous settings.',
 		'type' => MENU_NORMAL_ITEM,
@@ -310,133 +311,133 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 	$path = drupal_get_path('module', 'mic_implementation') .'/theme';
 
 	$theme['mic_banner'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_banner',
 		'path' => $path,
 	);
 
 	$theme['mic_feature_story'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_feature_story',
 		'path' => $path,
 	);
 
 	$theme['mic_feature_video'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_feature_video',
 		'path' => $path,
 	);
 
 	$theme['mic_news_article'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_news_article',
 		'path' => $path,
 	);
 
 	$theme['mic_profile'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_profile',
 		'path' => $path,
 	);
 
 	$theme['mic_course'] = array(
-		'variables' => array('classes' => null),
+		'variables' => array('classes' => NULL),
 		'function' => 'mic_implementation_theme_mic_course',
 		'path' => $path,
 	);
 
 	$theme['mic_event'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'function' => 'mic_implementation_theme_mic_event',
 		'path' => $path,
 	);
 
 	$theme['mic_slideshow'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-slideshow',
 		'path' => $path,
 	);
 
 	$theme['mic_news_list'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-news-list',
 		'path' => $path,
 	);
 
 	$theme['mic_events_list'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-events-list',
 		'path' => $path,
 	);
 
 	$theme['mic_related_links'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-related-links',
 		'path' => $path,
 	);
 
 	$theme['mic_gateway_links'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-gateway-links',
 		'path' => $path,
 	);
 
 	$theme['mic_events_block'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-events-block',
 		'path' => $path,
 	);
 
 	$theme['mic_feature_story_block'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-feature-story-block',
 		'path' => $path,
 	);
 
 	$theme['mic_feature_video_block'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-feature-video-block',
 		'path' => $path,
 	);
 
 	$theme['mic_news_articles_block'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-news-articles-block',
 		'path' => $path,
 	);
 
 	$theme['mic_homepage_slideshow'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-homepage-slideshow',
 		'path' => $path,
 	);
 
 	$theme['mic_homepage_news_list'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-homepage-news-list',
 		'path' => $path,
 	);
 
 	$theme['mic_homepage_feature_list'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-homepage-feature-list',
 		'path' => $path,
 	);
 
 	$theme['mic_homepage_classfinder'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-homepage-classfinder',
 		'path' => $path,
 	);
 
 	$theme['mic_class_listing'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-class-listing',
 		'path' => $path,
 	);
 
 	$theme['mic_classfinder_widget'] = array(
-		'arguments' => array('data' => null),
+		'arguments' => array('data' => NULL),
 		'template' => 'mic-classfinder-widget',
 		'path' => $path,
 	);
@@ -500,13 +501,18 @@ function mic_implementation_block_view($delta = '') {
 			$block['content'] = t($content);
 			break;
 		case 'profile_courses':
-		  $block['subject'] = t('My Courses');
+		  $block['subject'] = t('Instructor\'s Courses');
 		  $block['content'] = mic_implementation_profile_courses();
 		  break;
 	}
 	return $block;
 }
 
+/**
+ * List of Instructor's Courses
+ *
+ * @return null|string
+ */
 function mic_implementation_profile_courses() {
   $node = menu_get_object();
   $courses = array();
@@ -514,17 +520,18 @@ function mic_implementation_profile_courses() {
   if ($node->type == 'profile') {
     $query = new EntityFieldQuery();
     $query
-      ->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'item_class')
+      ->entityCondition('entity_type', 'commerce_product')
+      ->entityCondition('bundle', 'product_class')
       ->propertyCondition('status', '1')
       ->fieldCondition('field_instructor_reference', 'nid', $node->nid);
 
     $result = $query->execute();
-
-    foreach ($result['node'] as $class) {
-      $class_node = node_load($class->nid);
-      $course = reset(field_get_items('node', $class_node, 'field_course_reference'));
-      $courses[$course['nid']] = l(_mic_implementation_course_title($course['nid']), 'node/' . $course['nid']);
+    $classes = (!empty($result['commerce_product'])) ? commerce_product_load_multiple(array_keys($result['commerce_product'])) : array();
+    foreach ($classes as $class) {
+      $course = field_get_items('commerce_product', $class, 'field_course_reference');
+      $course = reset($course);
+      $course = node_load($course['nid']);
+      $courses[$course->nid] = l($course->title, 'node/' . $course->nid);
     }
   }
 

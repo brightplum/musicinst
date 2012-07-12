@@ -3464,3 +3464,11 @@ Misc
   color: #0D70A1;
   font-weight: bold;
 }
+
+/** Profile **/
+#block-mic-implementation-profile-courses h4 {
+    font-size: 1.3em;
+    border-bottom: 1px solid #AAAAAA;
+    padding-bottom: 6px;
+    margin-bottom: 0px;
+}
