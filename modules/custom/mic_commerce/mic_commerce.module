@@ -863,3 +863,33 @@ function mic_commerce_admin_commerce_orders_filter_submit($form, &$form_state) {
     drupal_goto(current_path(), array('query' => array($current_filter)));
   }
 }
+
+/**
+ * Implements hook_entity_view
+ *
+ * @param $entity
+ * @param $type
+ * @param $view_mode
+ * @param $langcode
+ */
+function mic_commerce_entity_view($entity, $type, $view_mode, $langcode) {
+  switch ($type) {
+    case 'commerce_order':
+      //additional profile details on order view
+      if ($view_mode == 'administrator') {
+        if ($customer = user_load($entity->uid)) {
+          $email = '<p><strong>Email: </strong>' . $customer->mail . '</p>';
+          $details = '<h5>Additional Details</h5>' . drupal_render(user_view($customer));
+
+          //cleanup
+          unset($customer->field_user_billing);
+
+          $entity->content['customer_profile_details'] = array(
+            '#markup' => $email . $details,
+            '#weight' => 99,
+          );
+        }
+      }
+      break;
+  }
+}
