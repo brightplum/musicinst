@@ -234,17 +234,27 @@ function mic_student_theme() {
  */
 function theme_mic_student_formatter($variables) {
   $items = $variables['items'];
-  $settings = $variables['settings'];
   $output = '';
 
   foreach ($items as $delta => $item) {
     $student = array();
-    $student[] = '<strong>Relationship:</strong> ' . ucfirst($item['relationship']);
+
+    //pull out special fields
+    $student[] = '<strong>Relationship: </strong> ' . ucfirst($item['relationship']);
     $student[] = '<strong>Name:</strong> ' . $item['firstname'] . '&nbsp' . $item['lastname'];
     $date = new DateTime($item['birthday']);
     $student[] = '<strong>Birthday:</strong> ' . $date->format('m/d/Y');
-    $student[] = '<strong>Email:</strong> ' . $item['email'];
-    $student[] = '<strong>Instrument:</strong> ' . $item['instrument'];
+
+    unset($item['relationship']);
+    unset($item['firstname']);
+    unset($item['lastname']);
+    unset($item['birthday']);
+
+    foreach ($item as $key => $value) {
+      if ($value) {
+        $student[] = '<strong>' . ucfirst($key) . ':</strong> ' . ucfirst($value);
+      }
+    }
 
     $output .= '<p>' . implode('<br />', $student) . '</p>';
   }
