@@ -879,11 +879,9 @@ function mic_commerce_entity_view($entity, $type, $view_mode, $langcode) {
       if ($view_mode == 'administrator') {
         if ($customer = user_load($entity->uid)) {
           $email = '<p><strong>Email: </strong>' . $customer->mail . '</p>';
-          $details = '<h5>Additional Details</h5>' . drupal_render(user_view($customer));
-
           //cleanup
           unset($customer->field_user_billing);
-
+          $details = '<h5>Additional Details</h5>' . drupal_render(user_view($customer));
           $entity->content['customer_profile_details'] = array(
             '#markup' => $email . $details,
             '#weight' => 99,
