@@ -702,6 +702,15 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
     $form['sku']['#disabled'] = TRUE;
     $form['sku']['#description'] = t('SKU will be automatically generated.');
   }
+
+  //show log messages
+  if ($form_id == 'commerce_order_ui_order_form') {
+    $log = mic_commerce_order_log_history($form['#entity']->order_number);
+    $form['order_status']['history'] = array(
+      '#markup' => $log,
+      '#weight' => 99,
+    );
+  }
 }
 
 /**
@@ -913,4 +922,29 @@ function mic_commerce_commerce_order_status_info() {
   );
 
   return $order_statuses;
+}
+
+function mic_commerce_order_log_history($order_id) {
+  $results = db_select('commerce_order_revision', 'cor')
+    ->fields('cor', array('revision_timestamp', 'status', 'revision_uid', 'log'))
+    ->condition('order_id', $order_id)
+    ->execute()
+    ->fetchAll();
+  if (!empty($results)) {
+    $header = array('Date', 'Status', 'User', 'Log');
+    $rows = array();
+    foreach ($results as $result) {
+      $row = array();
+      $row = (array) $result;
+      //grab user details
+      $user = user_load($row['revision_uid']);
+      $row['revision_uid'] = $user->name;
+      //format time
+      $date = new DateObject($row['revision_timestamp']);
+      $row['revision_timestamp'] = date_format_date($date, 'short_non_military');
+      $rows[] = $row;
+    }
+    return theme('table', array('header' => $header, 'rows' => array_reverse($rows)));
+  }
+  return NULL;
 }
