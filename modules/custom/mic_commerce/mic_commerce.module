@@ -891,3 +891,26 @@ function mic_commerce_entity_view($entity, $type, $view_mode, $langcode) {
       break;
   }
 }
+
+/**
+ * Implements hook_commerce_order_status_info().
+ */
+function mic_commerce_commerce_order_status_info() {
+  $order_statuses = array();
+
+  $order_statuses['install_plan_req'] = array(
+    'name' => 'install_plan_req',
+    'title' => t('Install Plan Req'),
+    'state' => 'pending',
+    'weight' => 7,
+  );
+
+  $order_statuses['financial_aid_req'] = array(
+    'name' => 'financial_aid_req',
+    'title' => t('Financial Aid Req'),
+    'state' => 'pending',
+    'weight' => 9,
+  );
+
+  return $order_statuses;
+}
