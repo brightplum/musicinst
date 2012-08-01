@@ -389,7 +389,8 @@ function mic_commerce_commerce_order_presave($order) {
   if (!empty($order->commerce_line_items['und'])) {
     foreach($order->commerce_line_items['und'] as $delta => $line_item_entry) {
       if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
-        if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value']) && $line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] >= 1) {
+        if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
+          //&& $line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] == 1) {
           $new_student = TRUE;
         }
         if ($line_item->type == 'mic_newstudent_fee') {
