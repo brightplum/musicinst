@@ -531,7 +531,10 @@ function mic_implementation_profile_courses() {
       $course = field_get_items('commerce_product', $class, 'field_course_reference');
       $course = reset($course);
       $course = node_load($course['nid']);
-      $courses[$course->nid] = l($course->title, 'node/' . $course->nid);
+      //skip if node isn't published
+      if ($course->status == 1) {
+        $courses[$course->nid] = l($course->title, 'node/' . $course->nid);
+      }
     }
   }
 
