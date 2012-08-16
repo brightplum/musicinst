@@ -1,0 +1,4 @@
+name = MIC Profile
+description = Custom, key-required form for creating profiles in MIC
+package = Music Institute of Chicago
+core = 7.x

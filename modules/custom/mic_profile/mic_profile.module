@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ * Custom, key-required form to create user profiles
+ */
+
+function mic_profile_menu() {
+  $items = array();
+
+  $items['add/profile'] = array(
+    'title' => 'Add New Profile',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_profile_add_profile_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function mic_profile_add_profile_form($form, &$form_state) {
+  drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
+
+  //name
+  $form['name'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Name'),
+    '#description' => t('Please type your name as you wish it to appear to the public including prefix/suffix as applicable.
+Example:  Dr. Jonathan S. Smith'),
+  );
+  $form['name']['title'] = array(
+    '#prefix' => '<div class="inline">',
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#size' => 15,
+  );
+  $form['name']['first'] = array(
+    '#type' => 'textfield',
+    '#title' => t('First'),
+    '#size' => 30,
+  );
+  $form['name']['last'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Last'),
+    '#size' => 30,
+  );
+  $form['name']['suffix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Suffix'),
+    '#size' => 15,
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
