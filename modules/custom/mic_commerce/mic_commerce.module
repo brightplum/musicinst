@@ -256,7 +256,7 @@ function mic_commerce_commerce_line_item_type_info() {
     'base' => 'commerce_product_line_item',
   );
   $line_item_types['mic_newstudent_fee'] = array(
-    'name' => t('MIC New Student Fee'),
+    'name' => t('MIC Registration Fee'),
     'description' => t('A MIC fee for new students.'),
     'product' => FALSE,
     'add_form_submit_value' => t('Add fee'),
@@ -283,7 +283,7 @@ function mic_commerce_newstudent_fee_configuration($line_item_type) {
 }
 
 function mic_commerce_newstudent_fee_title($line_item) {
-  return(t('New Student Fee'));
+  return(t('Registration Fee'));
 }
 
 function mic_commerce_newstudent_fee_add_form($element, &$form_state) {
@@ -308,7 +308,7 @@ function mic_commerce_newstudent_fee_add_form($element, &$form_state) {
  *   NULL if all is well or an error message if something goes wrong.
  */
 function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
-  $line_item->line_item_label = t('New Student Fee');
+  $line_item->line_item_label = t('Registration Fee');
 
   // Wrap the line item and product to easily set field information.
   $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
