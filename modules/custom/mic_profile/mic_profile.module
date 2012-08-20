@@ -38,11 +38,13 @@ Example:  Dr. Jonathan S. Smith'),
     '#type' => 'textfield',
     '#title' => t('First'),
     '#size' => 30,
+    '#required' => TRUE,
   );
   $form['name']['last'] = array(
     '#type' => 'textfield',
     '#title' => t('Last'),
     '#size' => 30,
+    '#required' => TRUE,
   );
   $form['name']['suffix'] = array(
     '#type' => 'textfield',
@@ -51,5 +53,47 @@ Example:  Dr. Jonathan S. Smith'),
     '#suffix' => '</div>',
   );
 
+  //titles
+  $form['titles'] = array(
+    '#type' => 'textfield',
+    '#title' => t('MIC Title(s)'),
+    '#description' => t('Are you a department head, or Program Director?
+Please indicate your faculty titles here.  If you also have an administrative role at MIC, that information will be handled elsewhere.'),
+  );
+
+  //headshot
+  $form['headshot'] = array(
+    '#type' => 'file',
+    '#title' => t('Attach your photo here'),
+    '#description' => t('Upload a file, allowed extensions: jpg, jpeg, png, gif'),
+  );
+
+  //program areas
+  $form['program_areas'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Program Area(s)'),
+    '#options' => mic_profile_get_taxonomy_options('program_area'),
+    '#description' => t('Please select the program areas with which you are affiliated.  Only include areas for which you have been hired to teach at MIC.'),
+  );
+
+  //instrument
+  $form['instrument'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Instrument(s)'),
+    '#options' => mic_profile_get_taxonomy_options('instrument'),
+    '#description' => t('Please select your instrument affiliations (include only the instruments for which you have been hired to teach at MIC.'),
+  );
+
   return $form;
+}
+
+function mic_profile_get_taxonomy_options($vocabulary_machine_name) {
+  $vocab = taxonomy_vocabulary_machine_name_load($vocabulary_machine_name);
+  $terms = taxonomy_get_tree($vocab->vid);
+  $options = array();
+  foreach ($terms as $term) {
+    $options[$term->tid] = $term->name;
+  }
+
+  return $options;
 }

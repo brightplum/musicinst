@@ -1,3 +1,13 @@
 #mic-profile-add-profile-form div.inline div.form-item {
   display: inline-block;
 }
+
+#mic-profile-add-profile-form #edit-program-areas div.form-item,
+#mic-profile-add-profile-form #edit-instrument div.form-item {
+  float: left;
+  width: 50%;
+}
+
+.clear {
+  clear: both;
+}
