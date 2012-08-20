@@ -647,6 +647,12 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
         'wrapper' => 'dialog-form-wrapper',
       );
 
+      //set node id for redirect
+      list($callback, $type, $product_id, $nid) = explode('/', current_path());
+      $form['nid'] = array(
+        '#type' => 'value',
+        '#value' => $nid,
+      );
       $form['#process'][] = 'dialog_process_ajax_form';
     }
   }
@@ -722,7 +728,12 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
 function mic_commerce_ajax_callback_submit($form, &$form_state) {
   $commands = array();
   $commands[] = dialog_command_dismiss();
-  $commands[] = dialog_command_reload();
+  if (isset($form_state['values']['nid'])) {
+    $commands[] = dialog_command_redirect('node/' . $form_state['values']['nid']);
+  }
+  else {
+    $commands[] = dialog_command_reload();
+  }
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }
