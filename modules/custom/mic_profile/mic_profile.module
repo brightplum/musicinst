@@ -20,7 +20,12 @@ function mic_profile_menu() {
 
 function mic_profile_add_profile_form($form, &$form_state) {
   $parameters = drupal_get_query_parameters();
-  if (!isset($parameters['auth']) && ($parameters['auth'] != 'foo')) {
+  if (isset($parameters['auth'])) {
+    if (!mic_profile_salt($parameters['auth'])) {
+      return drupal_not_found();
+    }
+  }
+  else {
     return drupal_not_found();
   }
 
@@ -81,13 +86,49 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#description' => t('Please select the program areas with which you are affiliated.  Only include areas for which you have been hired to teach at MIC.'),
   );
 
-  //instrument
-  $form['instrument'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Instrument(s)'),
-    '#options' => mic_profile_get_taxonomy_options('instrument'),
-    '#description' => t('Please select your instrument affiliations (include only the instruments for which you have been hired to teach at MIC.'),
+  $instruments = array(
+    'strings' => array(
+      'label' => t('String(s)'),
+      'term' => 'Strings',
+    ),
+    'guitar' => array(
+      'label' => t('Guitar'),
+      'term' => 'Guitar',
+    ),
+    'woodwinds' => array(
+      'label' => t('Woodwinds'),
+      'term' => 'Woodwinds',
+    ),
+    'voice' => array(
+      'label' => t('Voice'),
+      'term' => 'Voice',
+    ),
+    'brass' => array(
+      'label' => t('Brass'),
+      'term' => 'Brass',
+    ),
+    'percussion' => array(
+      'label' => t('Percussion'),
+      'term' => 'Percussion',
+    ),
+    'keyboard' => array(
+      'label' => t('Keyboard Instruments'),
+      'term' => 'Keyboard Instruments',
+    ),
+    'other' => array(
+      'label' => t('Other'),
+      'term' => 'Other',
+    ),
   );
+
+  foreach ($instruments as $key => $instrument) {
+    $form[$key] = array(
+      '#type' => 'checkboxes',
+      '#title' => $instrument['label'],
+      '#options' => mic_profile_get_taxonomy_options('instrument', $instrument['term']),
+      '#description' => t('Please select your instrument affiliations (include only the instruments for which you have been hired to teach at MIC.'),
+    );
+  }
 
   //campus
   $form['campus'] = array(
@@ -181,13 +222,22 @@ Please indicate your faculty titles here.  If you also have an administrative ro
   return $form;
 }
 
-function mic_profile_get_taxonomy_options($vocabulary_machine_name) {
+function mic_profile_get_taxonomy_options($vocabulary_machine_name, $term_name = NULL) {
+  $term = (isset($term_name)) ? taxonomy_get_term_by_name($term_name, $vocabulary_machine_name) : NULL;
+  $parent = (isset($term)) ? array_keys($term) : 0;
+  $parent = (is_array($parent)) ? reset($parent) : $parent;
   $vocab = taxonomy_vocabulary_machine_name_load($vocabulary_machine_name);
-  $terms = taxonomy_get_tree($vocab->vid);
+  $terms = taxonomy_get_tree($vocab->vid, $parent);
   $options = array();
   foreach ($terms as $term) {
     $options[$term->tid] = $term->name;
   }
 
   return $options;
+}
+
+function mic_profile_salt($phrase) {
+  $pass = crypt('foo', 'salt');
+  $test = crypt($phrase, 'salt');
+  return ($pass == $test) ? TRUE : FALSE;
 }
