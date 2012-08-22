@@ -8,7 +8,7 @@ function mic_profile_menu() {
   $items = array();
 
   $items['add/profile'] = array(
-    'title' => 'Add New Profile',
+    'title' => 'Add a New Profile',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_profile_add_profile_form'),
     'access arguments' => array('access content'),
@@ -19,6 +19,11 @@ function mic_profile_menu() {
 }
 
 function mic_profile_add_profile_form($form, &$form_state) {
+  $parameters = drupal_get_query_parameters();
+  if (!isset($parameters['auth']) && ($parameters['auth'] != 'foo')) {
+    return drupal_not_found();
+  }
+
   drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
 
   //name
@@ -82,6 +87,95 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#title' => t('Instrument(s)'),
     '#options' => mic_profile_get_taxonomy_options('instrument'),
     '#description' => t('Please select your instrument affiliations (include only the instruments for which you have been hired to teach at MIC.'),
+  );
+
+  //campus
+  $form['campus'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Campus(es)'),
+    '#options' => mic_profile_get_taxonomy_options('campus'),
+    '#description' => t('At which MIC campus or campuses do you currently teach.'),
+  );
+
+  //education
+  $form['education'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Education'),
+    '#description' => t('Please list your degrees (highest degree first).  Use abbreviations for degree type followed by college or university from with degree was received.
+(e.g.  MM, Northwestern University).'),
+    '#required' => TRUE,
+  );
+
+  //hire date
+  $form['hire_date'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('MIC Hire Date'),
+    '#date_label_position' => 'none',
+    '#date_type' => DATE_DATETIME,
+    '#date_timezone' => date_default_timezone(),
+    '#date_format' => 'm/d/Y',
+    '#date_year_range' => '-20:+0',
+    '#required' => TRUE,
+  );
+
+  //study
+  $form['study'] = array(
+    '#type' => 'textarea',
+    '#title' => t('With whom did you study?'),
+    '#required' => TRUE,
+  );
+
+  //awards
+  $form['teaching'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Professional Affiliations & Activities'),
+  );
+
+  //teaching
+  $form['teaching'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Basic Teaching Philosophy or Special Music Interests/Specialties'),
+    '#required' => TRUE,
+  );
+
+  //interests
+  $form['interests'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Interests Outside of Music'),
+    '#description' => t('Musicians are multi-faceted!  Tell us about your "facets" !  Are you writing a novel?  Are you a marathon runner? Do you also play nose flute???'),
+  );
+
+  //quote
+  $form['quote'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Favorite Quote'),
+    '#description' => t('Optional.  We are collecting favorite music / inspirational quotes for use on the new website.'),
+  );
+
+  //practice
+  $form['practice'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Favorite Practice Tip'),
+    '#description' => t('Optional.  We are collecting tips to rotate through appropriate areas of the website.  Your tip will be properly credited.'),
+  );
+
+  //composer
+  $form['composer'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Favorite Composer or piece to play'),
+    '#description' => t('Optional.  We are collecting bits of trivia for the new website.'),
+  );
+
+  //personal
+  $form['personal'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Favorite Personal Musical Moment'),
+    '#description' => t('Last one!  Again, this is optional.  We are collecting interesting info for our website/facebook, etc.  Please share your favorite musical moment...going to hear the symphony for the first time...performing at Carnegie Hall...debuting your new composition...meeting a musical hero.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
   );
 
   return $form;
