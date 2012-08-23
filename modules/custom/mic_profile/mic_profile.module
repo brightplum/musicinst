@@ -4,6 +4,8 @@
  * Custom, key-required form to create user profiles
  */
 
+define(MIC_PROFILE_PASS, crypt('micadmin', 'salt'));
+
 /**
  * Implements hook_menu
  *
@@ -148,7 +150,7 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     $form[$key] = array(
       '#type' => 'textarea',
       '#title' => $textarea['title'],
-      '#description' => (isset($textarea['description'])) ?: '',
+      '#description' => (isset($textarea['description'])) ? $textarea['description']: '',
       '#required' => (isset($textarea['required'])) ? TRUE : FALSE,
     );
   }
@@ -161,14 +163,48 @@ Please indicate your faculty titles here.  If you also have an administrative ro
   return $form;
 }
 
+/**
+ * Validate profile form
+ * Grab uploaded headshot file
+ *
+ * @param $form
+ * @param $form_state
+ */
+function mic_profile_add_profile_form_validate($form, &$form_state) {
+  $file = file_save_upload('headshot', array(
+    'file_validate_is_image' => array(), // Validates file is really an image.
+    'file_validate_extensions' => array('png gif jpg jpeg'), // Validate extensions.
+  ));
+  // If the file passed validation:
+  if ($file) {
+    // Move the file, into the Drupal file system
+    if ($file = file_move($file, 'public://')) {
+      // Save the file for use in the submit handler.
+      $form_state['storage']['file'] = $file;
+    }
+    else {
+      form_set_error('file', t('Failed to write the uploaded file the site\'s file folder.'));
+    }
+  }
+  else {
+    form_set_error('file', t('No file was uploaded.'));
+  }
+}
+
+/**
+ * Save profile from form
+ *
+ * @param $form
+ * @param $form_state
+ */
 function mic_profile_add_profile_form_submit($form, &$form_state) {
   $firstname = $form_state['values']['first'];
   $lastname = $form_state['values']['last'];
   $name = $firstname . ' ' . $lastname;
 
   //save headshot
-  if ($file = $form_state['values']['headshot']) {
-    unset($form_state['values']['headshot']);
+  if ($file = $form_state['storage']['file']) {
+    unset($form_state['storage']['file']);
     $file->status = FILE_STATUS_PERMANENT;
     file_save($file);
   }
@@ -195,21 +231,21 @@ function mic_profile_add_profile_form_submit($form, &$form_state) {
 
   //headshot
   if (isset($file->fid)) {
-    $node->field_image[LANGUAGE_NONE][0]['fid'] = $file->fid;
+    $node->field_image[LANGUAGE_NONE][0] = (array) $file;
   }
 
   //program areas
-  $node->field_profile_program_area[LANGUAGE_NONE] = $form_state['values']['program_areas'];
+  $node->field_profile_program_area[LANGUAGE_NONE] = mic_profile_terms($form_state['values']['program_areas']);
 
   //campus
-  $node->field_profile_campus[LANGUAGE_NONE] = $form_state['values']['campus'];
+  $node->field_profile_campus[LANGUAGE_NONE] = mic_profile_terms($form_state['values']['campus']);
 
   //instruments
   $instruments = array();
   foreach (mic_profile_instruments() as $key => $instrument) {
-    $instruments[] = $form_state['values'][$key];
+    $instruments += $form_state['values'][$key];
   }
-  $node->field_profile_instrument[LANGUAGE_NONE] = $instruments;
+  $node->field_profile_instruments[LANGUAGE_NONE] = mic_profile_terms($instruments);
 
   //body
   $body = array();
@@ -260,9 +296,7 @@ function mic_profile_get_taxonomy_options($vocabulary_machine_name, $term_name =
  * @return bool
  */
 function mic_profile_salt($phrase) {
-  $pass = crypt('foo', 'salt');
-  $test = crypt($phrase, 'salt');
-  return ($pass == $test) ? TRUE : FALSE;
+  return (MIC_PROFILE_PASS == $phrase) ? TRUE : FALSE;
 }
 
 /**
@@ -365,4 +399,21 @@ function mic_profile_namelookup($name) {
     ->execute()
     ->fetchCol();
   return reset($result);
+}
+
+/**
+ * Format form values for term saving
+ *
+ * @param $form_values
+ * @return array
+ */
+function mic_profile_terms($form_values) {
+  $terms = array();
+  foreach ($form_values as $term) {
+    if ($term != 0) {
+      $terms[]['tid'] = $term;
+    }
+  }
+
+  return $terms;
 }
