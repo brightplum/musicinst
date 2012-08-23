@@ -4,6 +4,11 @@
  * Custom, key-required form to create user profiles
  */
 
+/**
+ * Implements hook_menu
+ *
+ * @return array
+ */
 function mic_profile_menu() {
   $items = array();
 
@@ -14,10 +19,25 @@ function mic_profile_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+  $items['add/profile/%node/thankyou'] = array(
+    'title' => 'Thank-you for Adding a Profile',
+    'page callback' => 'mic_profile_add_profile_thankyou',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
 
+/**
+ * Custom profile add form
+ * Requires auth code match to be visible
+ *
+ * @param $form
+ * @param $form_state
+ * @return array|void
+ */
 function mic_profile_add_profile_form($form, &$form_state) {
   $parameters = drupal_get_query_parameters();
   if (isset($parameters['auth'])) {
@@ -86,42 +106,7 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#description' => t('Please select the program areas with which you are affiliated.  Only include areas for which you have been hired to teach at MIC.'),
   );
 
-  $instruments = array(
-    'strings' => array(
-      'label' => t('String(s)'),
-      'term' => 'Strings',
-    ),
-    'guitar' => array(
-      'label' => t('Guitar'),
-      'term' => 'Guitar',
-    ),
-    'woodwinds' => array(
-      'label' => t('Woodwinds'),
-      'term' => 'Woodwinds',
-    ),
-    'voice' => array(
-      'label' => t('Voice'),
-      'term' => 'Voice',
-    ),
-    'brass' => array(
-      'label' => t('Brass'),
-      'term' => 'Brass',
-    ),
-    'percussion' => array(
-      'label' => t('Percussion'),
-      'term' => 'Percussion',
-    ),
-    'keyboard' => array(
-      'label' => t('Keyboard Instruments'),
-      'term' => 'Keyboard Instruments',
-    ),
-    'other' => array(
-      'label' => t('Other'),
-      'term' => 'Other',
-    ),
-  );
-
-  foreach ($instruments as $key => $instrument) {
+  foreach (mic_profile_instruments() as $key => $instrument) {
     $form[$key] = array(
       '#type' => 'checkboxes',
       '#title' => $instrument['label'],
@@ -159,60 +144,14 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#required' => TRUE,
   );
 
-  //study
-  $form['study'] = array(
-    '#type' => 'textarea',
-    '#title' => t('With whom did you study?'),
-    '#required' => TRUE,
-  );
-
-  //awards
-  $form['teaching'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Professional Affiliations & Activities'),
-  );
-
-  //teaching
-  $form['teaching'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Basic Teaching Philosophy or Special Music Interests/Specialties'),
-    '#required' => TRUE,
-  );
-
-  //interests
-  $form['interests'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Interests Outside of Music'),
-    '#description' => t('Musicians are multi-faceted!  Tell us about your "facets" !  Are you writing a novel?  Are you a marathon runner? Do you also play nose flute???'),
-  );
-
-  //quote
-  $form['quote'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Favorite Quote'),
-    '#description' => t('Optional.  We are collecting favorite music / inspirational quotes for use on the new website.'),
-  );
-
-  //practice
-  $form['practice'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Favorite Practice Tip'),
-    '#description' => t('Optional.  We are collecting tips to rotate through appropriate areas of the website.  Your tip will be properly credited.'),
-  );
-
-  //composer
-  $form['composer'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Favorite Composer or piece to play'),
-    '#description' => t('Optional.  We are collecting bits of trivia for the new website.'),
-  );
-
-  //personal
-  $form['personal'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Favorite Personal Musical Moment'),
-    '#description' => t('Last one!  Again, this is optional.  We are collecting interesting info for our website/facebook, etc.  Please share your favorite musical moment...going to hear the symphony for the first time...performing at Carnegie Hall...debuting your new composition...meeting a musical hero.'),
-  );
+  foreach (mic_profile_textareas() as $key => $textarea) {
+    $form[$key] = array(
+      '#type' => 'textarea',
+      '#title' => $textarea['title'],
+      '#description' => (isset($textarea['description'])) ?: '',
+      '#required' => (isset($textarea['required'])) ? TRUE : FALSE,
+    );
+  }
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -222,6 +161,84 @@ Please indicate your faculty titles here.  If you also have an administrative ro
   return $form;
 }
 
+function mic_profile_add_profile_form_submit($form, &$form_state) {
+  $firstname = $form_state['values']['first'];
+  $lastname = $form_state['values']['last'];
+  $name = $firstname . ' ' . $lastname;
+
+  //save headshot
+  if ($file = $form_state['values']['headshot']) {
+    unset($form_state['values']['headshot']);
+    $file->status = FILE_STATUS_PERMANENT;
+    file_save($file);
+  }
+
+  //check if profile exists
+  $nid = mic_profile_namelookup($name);
+  if ($nid) {
+    $node = node_load($nid);
+  }
+  else {
+    $node = new stdClass();
+    $node->type = 'profile';
+    $node->language = LANGUAGE_NONE;
+    node_object_prepare($node);
+  }
+
+  $node->title = $name;
+  $node->uid = 4;
+  $node->field_prefix[LANGUAGE_NONE][0]['value'] = $form_state['values']['title'];
+  $node->field_first_name[LANGUAGE_NONE][0]['value'] = $firstname;
+  $node->field_last_name[LANGUAGE_NONE][0]['value'] = $lastname;
+  $node->field_suffix[LANGUAGE_NONE][0]['value'] = $form_state['values']['suffix'];
+  $node->field_job_title[LANGUAGE_NONE][0]['value'] = $form_state['values']['titles'];
+
+  //headshot
+  if (isset($file->fid)) {
+    $node->field_image[LANGUAGE_NONE][0]['fid'] = $file->fid;
+  }
+
+  //program areas
+  $node->field_profile_program_area[LANGUAGE_NONE] = $form_state['values']['program_areas'];
+
+  //campus
+  $node->field_profile_campus[LANGUAGE_NONE] = $form_state['values']['campus'];
+
+  //instruments
+  $instruments = array();
+  foreach (mic_profile_instruments() as $key => $instrument) {
+    $instruments[] = $form_state['values'][$key];
+  }
+  $node->field_profile_instrument[LANGUAGE_NONE] = $instruments;
+
+  //body
+  $body = array();
+  $body[] = 'Education<br />' . $form_state['values']['education'];
+  $body[] = 'Hire Date<br />' . $form_state['values']['hire_date'];
+  foreach (mic_profile_textareas() as $key => $textarea) {
+    $body[] = $textarea['title'] . '<br />' . $form_state['values'][$key];
+  }
+  $body = implode('<br /><hr><br />', $body);
+  $node->body[LANGUAGE_NONE][0]['value'] = $body;
+  $node->body[LANGUAGE_NONE][0]['format'] = 'full_html';
+
+  node_save($node);
+
+  drupal_goto("add/profile/$node->nid/thankyou");
+}
+
+function mic_profile_add_profile_thankyou($node) {
+  drupal_set_message('Thank-you. Your profile has been created.');
+  return node_view($node, 'full');
+}
+
+/**
+ * Return list of taxonomy terms
+ *
+ * @param $vocabulary_machine_name
+ * @param null $term_name
+ * @return array
+ */
 function mic_profile_get_taxonomy_options($vocabulary_machine_name, $term_name = NULL) {
   $term = (isset($term_name)) ? taxonomy_get_term_by_name($term_name, $vocabulary_machine_name) : NULL;
   $parent = (isset($term)) ? array_keys($term) : 0;
@@ -236,8 +253,116 @@ function mic_profile_get_taxonomy_options($vocabulary_machine_name, $term_name =
   return $options;
 }
 
+/**
+ * Auth check function
+ *
+ * @param $phrase
+ * @return bool
+ */
 function mic_profile_salt($phrase) {
   $pass = crypt('foo', 'salt');
   $test = crypt($phrase, 'salt');
   return ($pass == $test) ? TRUE : FALSE;
+}
+
+/**
+ * List of instruments
+ *
+ * @return array
+ */
+function mic_profile_instruments() {
+  return array(
+    'strings' => array(
+      'label' => t('String(s)'),
+      'term' => 'Strings',
+    ),
+    'guitar' => array(
+      'label' => t('Guitar'),
+      'term' => 'Guitar',
+    ),
+    'woodwinds' => array(
+      'label' => t('Woodwinds'),
+      'term' => 'Woodwinds',
+    ),
+    'voice' => array(
+      'label' => t('Voice'),
+      'term' => 'Voice',
+    ),
+    'brass' => array(
+      'label' => t('Brass'),
+      'term' => 'Brass',
+    ),
+    'percussion' => array(
+      'label' => t('Percussion'),
+      'term' => 'Percussion',
+    ),
+    'keyboard' => array(
+      'label' => t('Keyboard Instruments'),
+      'term' => 'Keyboard Instruments',
+    ),
+    'other' => array(
+      'label' => t('Other'),
+      'term' => 'Other',
+    ),
+  );
+}
+
+/**
+ * List of textarea questions
+ *
+ * @return array
+ */
+function mic_profile_textareas() {
+  return array(
+    'study' => array(
+      'title' => t('With whom did you study?'),
+      'required' => TRUE,
+    ),
+    'teaching' => array(
+      'title' => t('Basic Teaching Philosophy or Special Music Interests/Specialties'),
+      'required' => TRUE,
+    ),
+    'awards' => array(
+      'title' => t('Additional Studies / Recent Awards / Recordings'),
+    ),
+    'activity' => array(
+      'title' => t('Professional Affiliations & Activities'),
+    ),
+    'interests' => array(
+      'title' => t('Interests Outside of Music'),
+      'description' => t('Musicians are multi-faceted!  Tell us about your "facets" !  Are you writing a novel?  Are you a marathon runner? Do you also play nose flute???'),
+    ),
+    'quote' => array(
+      'title' => t('Favorite Quote'),
+      'description' => t('Optional.  We are collecting favorite music / inspirational quotes for use on the new website.'),
+    ),
+    'practice' => array(
+      'title' => t('Favorite Practice Tip'),
+      'description' => t('Optional.  We are collecting tips to rotate through appropriate areas of the website.  Your tip will be properly credited.'),
+    ),
+    'composer' => array(
+      'title' => t('Favorite Composer or piece to play'),
+      'description' => t('Optional.  We are collecting bits of trivia for the new website.'),
+    ),
+    'personal' => array(
+      'title' => t('Favorite Personal Musical Moment'),
+      'description' => t('Last one!  Again, this is optional.  We are collecting interesting info for our website/facebook, etc.  Please share your favorite musical moment...going to hear the symphony for the first time...performing at Carnegie Hall...debuting your new composition...meeting a musical hero.'),
+    ),
+  );
+}
+
+/**
+ * Helper to lookup if profile with name already exists
+ * Returns the nid if found
+ *
+ * @param string $name
+ * @return int
+ */
+function mic_profile_namelookup($name) {
+  $result = db_select('node', 'n')
+    ->fields('n', array('nid'))
+    ->condition('title', $name)
+    ->execute()
+    ->fetchCol();
+  return reset($result);
 }
