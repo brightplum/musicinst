@@ -213,4 +213,15 @@ function mic_calendar_time_row_heading($vars) {
 	return array('hour' => $hour, 'ampm' => $ampm);
 }
 
-?>
+function mic_preprocess_date_views_pager(&$vars) {
+  //fix urls to pager
+  $urls = array(
+    'next_url',
+    'prev_url',
+  );
+
+  foreach ($urls as $url) {
+    $fixed_url = explode('?mini=', $vars[$url]);
+    $vars[$url] = url(NULL, array('query' => array('mini' => $fixed_url[1]), 'absolute' => TRUE));
+  }
+}
