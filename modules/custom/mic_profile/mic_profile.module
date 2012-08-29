@@ -68,7 +68,13 @@ function mic_profile_instrument() {
     $instruments = field_get_items('node', $node, 'field_standard_instruments');
     if (is_array($instruments)) {
       foreach ($instruments as $instrument) {
-        $term_name = $instrument['taxonomy_term']->name;
+        if (!isset($instrument['taxonomy_term'])) {
+          $full_term = taxonomy_term_load($instrument['tid']);
+          $term_name = $full_term->name;
+        }
+        else {
+          $term_name = $instrument['taxonomy_term']->name;
+        }
         $terms = mic_profile_get_taxonomy('instrument', $term_name);
         foreach ($terms as $term) {
           $output[] = '<strong>' . $term->name . '</strong>';
