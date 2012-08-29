@@ -54,37 +54,43 @@ function mic_profile_block_view($delta = '') {
   switch ($delta) {
     case 'mic_profile_instrument':
       $block['subject'] = '';
-      $block['content'] = mic_profile_instrument();
+      $block['content'] = mic_profile_instrument_program_area();
       break;
   }
   return $block;
 }
 
-function mic_profile_instrument() {
+function mic_profile_instrument_program_area() {
   $node = menu_get_object('node');
   $output = array();
   if (isset($node) && is_object($node)) {
-    //grab instrument
-    $instruments = field_get_items('node', $node, 'field_standard_instruments');
-    if (is_array($instruments)) {
-      foreach ($instruments as $instrument) {
-        if (!isset($instrument['taxonomy_term'])) {
-          $full_term = taxonomy_term_load($instrument['tid']);
-          $term_name = $full_term->name;
-        }
-        else {
-          $term_name = $instrument['taxonomy_term']->name;
-        }
-        $terms = mic_profile_get_taxonomy('instrument', $term_name);
-        foreach ($terms as $term) {
-          $output[] = '<strong>' . $term->name . '</strong>';
-          $profile = mic_profile_get_profiles_by_taxonomy($term->tid);
-          if ($profile) {
-            $node = node_load(array_keys($profile));
-            $output[] = l($node->title, 'node/' . $profile->nid);
+    $fields = array(
+      'instrument' => 'field_standard_instruments',
+      'program_area' => 'field_standard_program_area',
+    );
+    foreach ($fields as $key => $field) {
+      $field_values = field_get_items('node', $node, $field);
+      if (is_array($field_values)) {
+        foreach ($field_values as $field_value) {
+          if (!isset($field_value['taxonomy_term'])) {
+            $full_term = taxonomy_term_load($field_value['tid']);
+            $term_name = $full_term->name;
+          }
+          else {
+            $term_name = $field_value['taxonomy_term']->name;
+          }
+          $terms = mic_profile_get_taxonomy($key, $term_name);
+          foreach ($terms as $term) {
+            $output[] = '<strong>' . $term->name . '</strong>';
+            $profile = mic_profile_get_profiles_by_taxonomy($term->tid);
+            if ($profile) {
+              $nodes = node_load_multiple(array_keys($profile));
+              foreach ($nodes as $node) {
+                $output[] = l($node->title, 'node/' . $node->nid);
+              }
+            }
           }
         }
-
       }
     }
   }
