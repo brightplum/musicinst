@@ -1,5 +1,4 @@
 <?php
-// $Id: logintoboggan.install,v 1.21 2010/02/07 01:25:58 thehunmonkgroup Exp $
 
 /**
 * @file
@@ -55,6 +54,7 @@ function logintoboggan_uninstall() {
     'logintoboggan_minimum_password_length',
     'logintoboggan_immediate_login_on_register',
     'logintoboggan_override_destination_parameter',
+    'logintoboggan_denied_remove_sidebars',
   );
   foreach ($variables as $variable) {
   	variable_del($variable);
