@@ -84,6 +84,7 @@ function mic_profile_node_view($node, $view_mode, $langcode) {
  * @return string
  */
 function mic_profile_instrument_program_area() {
+  drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
   $node = menu_get_object('node');
   $output = array();
   if (isset($node) && is_object($node)) {
@@ -104,20 +105,24 @@ function mic_profile_instrument_program_area() {
           }
           $terms = mic_profile_get_taxonomy($key, $term_name);
           foreach ($terms as $term) {
-            $output[] = '<strong>' . $term->name . '</strong>';
             $profile = mic_profile_get_profiles_by_taxonomy($term->tid);
             if ($profile) {
+              $term_output = '<div id="' . strtolower($term->name) . '" class="instrument-programarea"><strong>' . $term->name . '</strong><br />';
+              $profile_output = array();
               $nodes = node_load_multiple(array_keys($profile));
               foreach ($nodes as $node) {
-                $output[] = l($node->title, 'node/' . $node->nid);
+                $profile_output[] = l($node->title, 'node/' . $node->nid);
               }
+              $term_output .= implode("<br />", $profile_output);
             }
+            $term_output .= '</div>';
+            $output[] = $term_output;
           }
         }
       }
     }
   }
-  return implode("<br />", $output);
+  return implode("", $output);
 }
 
 /**

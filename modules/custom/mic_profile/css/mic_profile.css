@@ -24,3 +24,10 @@
   float: left;
   margin: 0px 20px 0px 0px;
 }
+
+.instrument-programarea {
+  display: inline-block;
+  width: 240px;
+  float: left;
+  margin-bottom: 15px;
+}
