@@ -232,7 +232,7 @@ function mic_profile_add_profile_form_submit($form, &$form_state) {
   );
   $textareas += mic_profile_textareas();
   foreach ($textareas as $key => $textarea) {
-    if (isset($form_state['values'][$key])) {
+    if (isset($form_state['values'][$key]) && !empty($form_state['values'][$key])) {
       $body[] = $textarea['title'] . '<br />' . $form_state['values'][$key];
     }
   }

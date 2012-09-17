@@ -47,7 +47,12 @@ function mic_profile_block_info() {
   return $blocks;
 }
 
-
+/**
+ * Implements hook_block_view().
+ *
+ * @param string $delta
+ * @return array
+ */
 function mic_profile_block_view($delta = '') {
   $block = array();
 
@@ -60,6 +65,11 @@ function mic_profile_block_view($delta = '') {
   return $block;
 }
 
+/**
+ * Display related instruments and program areas.
+ *
+ * @return string
+ */
 function mic_profile_instrument_program_area() {
   $node = menu_get_object('node');
   $output = array();
