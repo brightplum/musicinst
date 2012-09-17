@@ -158,9 +158,6 @@ function mic_profile_add_profile_form_validate($form, &$form_state) {
       form_set_error('file', t('Failed to write the uploaded file the site\'s file folder.'));
     }
   }
-  else {
-    form_set_error('file', t('No file was uploaded.'));
-  }
 }
 
 /**
