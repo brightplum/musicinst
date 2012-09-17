@@ -109,7 +109,7 @@ Please indicate your faculty titles here.  If you also have an administrative ro
   //hire date
   $form['hire_date'] = array(
     '#type' => 'date_popup',
-    '#title' => t('MIC Hire Date'),
+    '#title' => t('With Music Institute of Chicago since'),
     '#date_label_position' => 'none',
     '#date_type' => DATE_DATETIME,
     '#date_timezone' => date_default_timezone(),
@@ -292,37 +292,37 @@ function mic_profile_instruments() {
 function mic_profile_textareas() {
   return array(
     'study' => array(
-      'title' => t('With whom did you study?'),
+      'title' => t('Music teachers and mentors'),
       'required' => TRUE,
     ),
     'teaching' => array(
-      'title' => t('Basic Teaching Philosophy or Special Music Interests/Specialties'),
+      'title' => t('Teaching philosophies and areas of expertise'),
       'required' => TRUE,
     ),
     'awards' => array(
-      'title' => t('Additional Studies / Recent Awards / Recordings'),
+      'title' => t('Additional studies, recent awards or recordings'),
     ),
     'activity' => array(
-      'title' => t('Professional Affiliations & Activities'),
+      'title' => t('Professional affiliations &amp; activities'),
     ),
     'interests' => array(
-      'title' => t('Interests Outside of Music'),
+      'title' => t('Interests outside of music'),
       'description' => t('Musicians are multi-faceted!  Tell us about your "facets" !  Are you writing a novel?  Are you a marathon runner? Do you also play nose flute???'),
     ),
     'quote' => array(
-      'title' => t('Favorite Quote'),
+      'title' => t('Favorite quote'),
       'description' => t('Optional.  We are collecting favorite music / inspirational quotes for use on the new website.'),
     ),
     'practice' => array(
-      'title' => t('Favorite Practice Tip'),
+      'title' => t('Favorite practice tip'),
       'description' => t('Optional.  We are collecting tips to rotate through appropriate areas of the website.  Your tip will be properly credited.'),
     ),
     'composer' => array(
-      'title' => t('Favorite Composer or piece to play'),
+      'title' => t('Favorite composer or piece to play'),
       'description' => t('Optional.  We are collecting bits of trivia for the new website.'),
     ),
     'personal' => array(
-      'title' => t('Favorite Personal Musical Moment'),
+      'title' => t('Pivotal personal musical moments'),
       'description' => t('Last one!  Again, this is optional.  We are collecting interesting info for our website/facebook, etc.  Please share your favorite musical moment...going to hear the symphony for the first time...performing at Carnegie Hall...debuting your new composition...meeting a musical hero.'),
     ),
   );
