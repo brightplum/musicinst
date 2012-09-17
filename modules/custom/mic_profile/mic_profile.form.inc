@@ -14,14 +14,14 @@
  */
 function mic_profile_add_profile_form($form, &$form_state) {
   $parameters = drupal_get_query_parameters();
-  /*if (isset($parameters['auth'])) {
+  if (isset($parameters['auth'])) {
     if (!mic_profile_salt($parameters['auth'])) {
       return drupal_not_found();
     }
   }
   else {
     return drupal_not_found();
-  }*/
+  }
 
   drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
 

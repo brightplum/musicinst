@@ -4,7 +4,7 @@
  * Custom, key-required form to create user profiles
  */
 
-define(MIC_PROFILE_PASS, crypt('micadmin', 'salt'));
+define('MIC_PROFILE_PASS', crypt('micadmin', 'salt'));
 
 /**
  * Implements hook_menu
@@ -63,6 +63,19 @@ function mic_profile_block_view($delta = '') {
       break;
   }
   return $block;
+}
+
+/**
+ * Implements hook_node_view().
+ *
+ * @param $node
+ * @param $view_mode
+ * @param $langcode
+ */
+function mic_profile_node_view($node, $view_mode, $langcode) {
+  if (($node->type == 'profile') && ($view_mode == 'full')) {
+    drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
+  }
 }
 
 /**

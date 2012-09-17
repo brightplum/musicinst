@@ -147,7 +147,7 @@
 				    	<?php endif; ?>
 				    	<?php if ($page['sidebar_left'] || $page['sidebar_right']) print '<div class="middle-column ' . $middle_column . '">'; ?>
                 <div class="main-content-wrapper">
-  	    	    		<?php if ($title): echo '<h1 style="margin: 20px 0px; color: #455561;">'.$title.'</h1>'; endif; ?>
+  	    	    		<?php if ($title): echo '<h1>'.$title.'</h1>'; endif; ?>
   	    	    		<?php if ($page['help'] || ($show_messages && $messages)): ?>
                     <div id="console">
                       <?php print render($page['help']); ?>

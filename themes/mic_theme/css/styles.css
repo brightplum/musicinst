@@ -169,7 +169,8 @@ p {
 
 h1 {
 	font-size: 2em;
-	margin: 0px;
+    margin: 20px 0px;
+    color: #455561;
 }
 
 h2 {
