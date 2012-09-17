@@ -18,3 +18,9 @@
 .body-inner-wrapper .middle-column .main-content-wrapper .field-name-field-job-title {
   margin-bottom: 10px;
 }
+
+.body-inner-wrapper .middle-column .main-content-wrapper .field-name-field-image {
+  display: inline-block;
+  float: left;
+  margin: 0px 20px 20px 0px;
+}

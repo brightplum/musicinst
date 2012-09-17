@@ -230,7 +230,7 @@ function mic_profile_add_profile_form_submit($form, &$form_state) {
   $textareas += mic_profile_textareas();
   foreach ($textareas as $key => $textarea) {
     if (isset($form_state['values'][$key]) && !empty($form_state['values'][$key])) {
-      $body[] = '<br /><strong>' . $textarea['title'] . '</strong><br />' . $form_state['values'][$key] . '<br />';
+      $body[] = '<br /><strong>' . $textarea['title'] . '</strong><br /><em>' . $form_state['values'][$key] . '</em><br />';
     }
   }
   $body = implode('<br /><hr><br />', $body);
