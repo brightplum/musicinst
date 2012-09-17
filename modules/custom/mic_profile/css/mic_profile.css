@@ -11,3 +11,10 @@
 .clear {
   clear: both;
 }
+
+.body-inner-wrapper .middle-column .main-content-wrapper h1 {
+  margin-bottom: 0px;
+}
+.body-inner-wrapper .middle-column .main-content-wrapper .field-name-field-job-title {
+  margin-bottom: 10px;
+}
