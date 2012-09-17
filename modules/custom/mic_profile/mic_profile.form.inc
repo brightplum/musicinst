@@ -220,17 +220,17 @@ function mic_profile_add_profile_form_submit($form, &$form_state) {
   //body
   $body = array();
   $textareas = array(
+    'hire_date' => array(
+      'title' => 'Music institute of Chicago teacher since',
+    ),
     'education' => array(
       'title' => 'Education',
-    ),
-    'hire_date' => array(
-      'title' => 'Hire Date',
     ),
   );
   $textareas += mic_profile_textareas();
   foreach ($textareas as $key => $textarea) {
     if (isset($form_state['values'][$key]) && !empty($form_state['values'][$key])) {
-      $body[] = '<strong>' . $textarea['title'] . '</strong><br />' . $form_state['values'][$key];
+      $body[] = '<br /><strong>' . $textarea['title'] . '</strong><br />' . $form_state['values'][$key] . '<br />';
     }
   }
   $body = implode('<br /><hr><br />', $body);
