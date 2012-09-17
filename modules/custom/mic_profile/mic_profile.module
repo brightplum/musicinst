@@ -190,6 +190,7 @@ function mic_profile_get_profiles_by_taxonomy($tid) {
     ->entityCondition('bundle', 'profile')
     ->propertyCondition('status', 1)
     ->fieldCondition('field_profile_instruments', 'tid', $tid)
+    ->fieldOrderBy('field_last_name', 'value')
     ->execute();
 
   return reset($result);
