@@ -69,7 +69,7 @@ Please indicate your faculty titles here.  If you also have an administrative ro
   $form['headshot'] = array(
     '#type' => 'file',
     '#title' => t('Attach your photo here'),
-    '#description' => t('Upload a file, allowed extensions: jpg, jpeg, png, gif'),
+    '#description' => t('Upload your professional head shot. If you don\'t have one or want a new one, contact Mike Canale for your free headshot at musicinst.org/office. Allowed extensions: jpg, jpeg, png, gif'),
   );
 
   //program areas
