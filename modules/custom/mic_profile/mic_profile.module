@@ -179,6 +179,13 @@ function mic_profile_namelookup($name) {
   return reset($result);
 }
 
+/**
+ * Get an array of terms, either parent or children.
+ *
+ * @param $vocabulary_machine_name
+ * @param null $term_name
+ * @return array
+ */
 function mic_profile_get_taxonomy($vocabulary_machine_name, $term_name = NULL) {
   $term = (isset($term_name)) ? taxonomy_get_term_by_name($term_name, $vocabulary_machine_name) : NULL;
   $parent = (isset($term)) ? array_keys($term) : 0;
@@ -188,6 +195,11 @@ function mic_profile_get_taxonomy($vocabulary_machine_name, $term_name = NULL) {
   return $terms;
 }
 
+/**
+ * Get a list of profiles filtered by term id's
+ * @param $tid
+ * @return mixed
+ */
 function mic_profile_get_profiles_by_taxonomy($tid) {
   $query = new EntityFieldQuery();
   $result = $query
