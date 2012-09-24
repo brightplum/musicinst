@@ -28,6 +28,6 @@
 .instrument-programarea {
   display: inline-block;
   width: 240px;
-  float: left;
+  vertical-align: top;
   margin-bottom: 15px;
 }

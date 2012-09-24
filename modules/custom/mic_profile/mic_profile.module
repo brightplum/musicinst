@@ -86,12 +86,15 @@ function mic_profile_node_view($node, $view_mode, $langcode) {
 function mic_profile_instrument_program_area() {
   drupal_add_css(drupal_get_path('module', 'mic_profile') . '/css/mic_profile.css', 'file');
   $node = menu_get_object('node');
-  $output = array();
+  $output = $program_areas = array();
   if (isset($node) && is_object($node)) {
+    // Fields to lookup.
     $fields = array(
       'instrument' => 'field_standard_instruments',
       'program_area' => 'field_standard_program_area',
     );
+
+    // Grab terms for vocab of the above fields.
     foreach ($fields as $key => $field) {
       $field_values = field_get_items('node', $node, $field);
       if (is_array($field_values)) {
@@ -103,22 +106,31 @@ function mic_profile_instrument_program_area() {
           else {
             $term_name = $field_value['taxonomy_term']->name;
           }
-          $terms = mic_profile_get_taxonomy($key, $term_name);
-          foreach ($terms as $term) {
-            $profile = mic_profile_get_profiles_by_taxonomy($term->tid);
-            if ($profile) {
-              $term_output = '<div id="' . strtolower($term->name) . '" class="instrument-programarea"><strong>' . $term->name . '</strong><br />';
-              $profile_output = array();
-              $nodes = node_load_multiple(array_keys($profile));
-              foreach ($nodes as $node) {
-                $profile_output[] = l($node->title, 'node/' . $node->nid);
-              }
-              $term_output .= implode("<br />", $profile_output);
-            }
-            $term_output .= '</div>';
-            $output[] = $term_output;
-          }
+          $terms[$key] = mic_profile_get_taxonomy($key, $term_name);
         }
+      }
+    }
+
+    // Get list of program area tids.
+    if (isset($terms['program_area']) && is_array($terms['program_area'])) {
+      foreach ($terms['program_area'] as $program_area) {
+        $program_areas[] = $program_area->tid;
+      }
+    }
+
+    // Create output for instrument terms.
+    foreach ($terms['instrument'] as $instrument) {
+      $profiles = mic_profile_get_profiles_by_taxonomy($instrument->tid, $program_areas);
+      if ($profiles) {
+        $term_output = '<div id="' . strtolower($instrument->name) . '" class="instrument-programarea"><strong>' . $instrument->name . '</strong><br />';
+        $profile_output = array();
+        $nodes = node_load_multiple(array_keys($profiles));
+        foreach ($nodes as $node) {
+          $profile_output[] = l($node->title, 'node/' . $node->nid);
+        }
+        $term_output .= implode("<br />", $profile_output);
+        $term_output .= '</div>';
+        $output[] = $term_output;
       }
     }
   }
@@ -154,7 +166,7 @@ function mic_profile_get_taxonomy_options($vocabulary_machine_name, $term_name =
 }
 
 /**
- * Auth check function
+ * Auth check function.
  *
  * @param $phrase
  * @return bool
@@ -164,8 +176,8 @@ function mic_profile_salt($phrase) {
 }
 
 /**
- * Helper to lookup if profile with name already exists
- * Returns the nid if found
+ * Helper to lookup if profile with name already exists.
+ * Returns the nid if found.
  *
  * @param string $name
  * @return int
@@ -192,23 +204,28 @@ function mic_profile_get_taxonomy($vocabulary_machine_name, $term_name = NULL) {
   $parent = (is_array($parent)) ? reset($parent) : $parent;
   $vocab = taxonomy_vocabulary_machine_name_load($vocabulary_machine_name);
   $terms = taxonomy_get_tree($vocab->vid, $parent);
-  return $terms;
+  return (empty($terms)) ? $term : $terms;
 }
 
 /**
- * Get a list of profiles filtered by term id's
- * @param $tid
+ * Get a list of profiles filtered by term id's passed in.
+ *
+ * @param array $terms
  * @return mixed
  */
-function mic_profile_get_profiles_by_taxonomy($tid) {
+function mic_profile_get_profiles_by_taxonomy($instrument_tid, $program_area_tids) {
   $query = new EntityFieldQuery();
-  $result = $query
+  $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'profile')
     ->propertyCondition('status', 1)
-    ->fieldCondition('field_profile_instruments', 'tid', $tid)
-    ->fieldOrderBy('field_last_name', 'value')
-    ->execute();
+    ->fieldCondition('field_profile_instruments', 'tid', $instrument_tid)
+    ->fieldOrderBy('field_last_name', 'value');
+
+  if (!empty($program_area_tids)) {
+    $query->fieldCondition('field_profile_program_area', 'tid', $program_area_tids);
+  }
+  $result = $query->execute();
 
   return reset($result);
 }
