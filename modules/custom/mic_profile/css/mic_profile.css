@@ -15,6 +15,11 @@
 .node-type-profile .body-inner-wrapper .middle-column .main-content-wrapper h1 {
   margin-bottom: 0px;
 }
+
+.node-profile div.field-type-text, .node-profile div.field-type-text-long {
+  margin-bottom: 15px;
+}
+
 .body-inner-wrapper .middle-column .main-content-wrapper .field-name-field-job-title {
   margin-bottom: 10px;
 }
