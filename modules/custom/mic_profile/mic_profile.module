@@ -29,8 +29,28 @@ function mic_profile_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+  $items['convert/profiles'] = array(
+    'title' => t('Convert Profiles to Fields'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_profile_convert_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'mic_profile.convert.inc',
+  );
 
   return $items;
+}
+
+/**
+ * Implementes hook_admin_paths()
+ *
+ * @return array
+ */
+function mic_profile_admin_paths() {
+  $paths = array(
+    'convert/profiles' => TRUE,
+  );
+  return $paths;
 }
 
 /**
@@ -213,7 +233,7 @@ function mic_profile_get_taxonomy($vocabulary_machine_name, $term_name = NULL) {
  * @param array $terms
  * @return mixed
  */
-function mic_profile_get_profiles_by_taxonomy($instrument_tid, $program_area_tids) {
+function mic_profile_get_profiles_by_taxonomy($instrument_tid, $program_area_tids = array()) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
@@ -225,6 +245,16 @@ function mic_profile_get_profiles_by_taxonomy($instrument_tid, $program_area_tid
   if (!empty($program_area_tids)) {
     $query->fieldCondition('field_profile_program_area', 'tid', $program_area_tids);
   }
+  $result = $query->execute();
+
+  return reset($result);
+}
+
+function mic_profile_get_profiles() {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'profile');
   $result = $query->execute();
 
   return reset($result);
