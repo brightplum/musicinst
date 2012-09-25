@@ -39,6 +39,12 @@ function mic_profile_convert_form_submit(&$form, &$form_state) {
   batch_set($batch);
 }
 
+/**
+ * Parse body text and push into individual fields.
+ *
+ * @param $profile
+ * @param $context
+ */
 function mic_profile_convert_batch_import($profile, &$context) {
   $node = node_load($profile->nid, $profile->vid);
   $body = $node->body[LANGUAGE_NONE][0];
@@ -55,10 +61,7 @@ function mic_profile_convert_batch_import($profile, &$context) {
       if (strpos($chunks[$i], $mapping['question']) !== FALSE) {
         $field = $mapping['field'];
         $text = strip_tags($chunks[$i+1]);
-        if (empty($text)) {
-          unset($node->$field);
-        }
-        else {
+        if (!empty($text)) {
           $node->$field = array(
             LANGUAGE_NONE => array(
               array(
@@ -72,8 +75,21 @@ function mic_profile_convert_batch_import($profile, &$context) {
     }
   }
   node_save($node);
+
+  $context['message'] = t('Converted profile %title', array('%title' => $node->title));
 }
 
+function mic_profile_convert_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('Convert successful.'));
+  }
+}
+
+/**
+ * Mapping of questions and fields
+ *
+ * @return array
+ */
 function mic_profile_convert_mapping() {
   $mapping = array();
   $mapping[] = array('question' => 'Education','field' => 'field_profile_education');
