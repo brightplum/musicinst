@@ -219,7 +219,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Professional Affiliations and Activities',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -291,7 +291,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Additional studies, recent awards or recordings',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -363,7 +363,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Favorite composer or piece to play',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -435,7 +435,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Education',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -507,7 +507,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Teaching philosophies and areas of expertise',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -581,7 +581,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'With Music Institute of Chicago since',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -653,7 +653,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Interests outside of music',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -725,7 +725,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Music teachers and mentors',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -797,7 +797,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Pivotal personal musical moments',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -869,7 +869,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Favorite practice tip',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -941,7 +941,7 @@ function mic_profile_profile_text_fields() {
       'label' => 'Favorite Quote',
       'required' => 0,
       'settings' => array(
-        'text_processing' => '0',
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
