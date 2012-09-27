@@ -126,7 +126,7 @@ function mic_profile_instrument_program_area() {
           else {
             $term_name = $field_value['taxonomy_term']->name;
           }
-          $terms[$key] = mic_profile_get_taxonomy($key, $term_name);
+          $terms[$key][] = mic_profile_get_taxonomy($key, $term_name);
         }
       }
     }
@@ -134,23 +134,26 @@ function mic_profile_instrument_program_area() {
     // Get list of program area tids.
     if (isset($terms['program_area']) && is_array($terms['program_area'])) {
       foreach ($terms['program_area'] as $program_area) {
+        $program_area = reset($program_area);
         $program_areas[] = $program_area->tid;
       }
     }
 
     // Create output for instrument terms.
-    foreach ($terms['instrument'] as $instrument) {
-      $profiles = mic_profile_get_profiles_by_taxonomy($instrument->tid, $program_areas);
-      if ($profiles) {
-        $term_output = '<div id="' . strtolower($instrument->name) . '" class="instrument-programarea"><strong>' . $instrument->name . '</strong><br />';
-        $profile_output = array();
-        $nodes = node_load_multiple(array_keys($profiles));
-        foreach ($nodes as $node) {
-          $profile_output[] = l($node->title, 'node/' . $node->nid);
+    foreach ($terms['instrument'] as $instruments) {
+      foreach ($instruments as $instrument) {
+        $profiles = mic_profile_get_profiles_by_taxonomy($instrument->tid, $program_areas);
+        if ($profiles) {
+          $term_output = '<div id="' . strtolower($instrument->name) . '" class="instrument-programarea"><strong>' . $instrument->name . '</strong><br />';
+          $profile_output = array();
+          $nodes = node_load_multiple(array_keys($profiles));
+          foreach ($nodes as $node) {
+            $profile_output[] = l($node->title, 'node/' . $node->nid);
+          }
+          $term_output .= implode("<br />", $profile_output);
+          $term_output .= '</div>';
+          $output[] = $term_output;
         }
-        $term_output .= implode("<br />", $profile_output);
-        $term_output .= '</div>';
-        $output[] = $term_output;
       }
     }
   }
