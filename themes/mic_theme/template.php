@@ -35,8 +35,14 @@ function mic_theme_preprocess_block(&$vars) {
   $vars['classes_array'][] = $block_class;
 }
 
+/**
+ * Implements theme_preprocess_field().
+ *
+ * @param $vars
+ */
 function mic_theme_preprocess_field(&$vars) {
   if($vars['element']['#field_name'] == 'field_profile_hire_date') {
+    // Year only.
     $vars['items']['0']['#markup'] = date('Y', $vars['items']['0']['#markup']);
   }
 }
