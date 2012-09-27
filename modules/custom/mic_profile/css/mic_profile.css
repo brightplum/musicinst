@@ -16,7 +16,10 @@
   margin-bottom: 0px;
 }
 
-.node-profile div.field-type-text, .node-profile div.field-type-text-long {
+.node-profile div.field-type-text,
+.node-profile div.field-type-text-long,
+.node-profile div.field-name-field-profile-hire-date,
+.node-profile div.field-type-taxonomy-term-reference {
   margin-bottom: 15px;
 }
 
