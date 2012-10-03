@@ -41,9 +41,11 @@ function mic_theme_preprocess_block(&$vars) {
  * @param $vars
  */
 function mic_theme_preprocess_field(&$vars) {
-  if($vars['element']['#field_name'] == 'field_profile_hire_date') {
-    // Year only.
-    $vars['items']['0']['#markup'] = date('Y', $vars['items']['0']['#markup']);
+  switch ($vars['element']['#field_name']) {
+    case 'field_profile_hire_date';
+      // Year only.
+      $vars['items']['0']['#markup'] = date('Y', strtotime($vars['items']['0']['#markup']));
+      break;
   }
 }
 
