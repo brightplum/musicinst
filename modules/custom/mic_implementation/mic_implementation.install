@@ -7,18 +7,21 @@
 /**
  * Add fields for a given ctype
  *
- * @param string $ctype
+ * @param string $bundle
  * @param array $fields
  */
-function mic_implementation_add_fields($ctype, $fields) {
-  node_types_rebuild(); // make sure the system is aware of new ctypes
+function mic_implementation_add_fields($bundle, $fields, $entity_type = 'node') {
+  if ($entity_type == 'node') {
+    node_types_rebuild(); // make sure the system is aware of new ctypes
+  }
+
   foreach ($fields as $field) {
     // create the field if it doesn't exist
     if (!field_info_field($field['field_config']['field_name'])) {
       field_create_field($field['field_config']);
     }
     // create the field instance if it doesn't exist
-    if (!field_info_instance('node', $field['field_instance']['field_name'], $ctype)) {
+    if (!field_info_instance($entity_type, $field['field_instance']['field_name'], $bundle)) {
       field_create_instance($field['field_instance']);
     }
   }
@@ -173,4 +176,75 @@ function mic_implementation_update_7001(&$sandbox) {
 
   //add fields
   mic_implementation_add_fields('profile', $fields);
+}
+
+/**
+ * Add classfinder checkbox to program area vocabulary
+ */
+function mic_implementation_update_7002(&$sandbox) {
+  $fields = array();
+
+  // Exported field: 'taxonomy_term-program_area-field_programarea_classfinder'
+  $fields['taxonomy_term-program_area-field_programarea_classfinder'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_programarea_classfinder',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => 'Show in Class Finder',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
+    ),
+    'field_instance' => array(
+      'bundle' => 'program_area',
+      'default_value' => array(
+        0 => array(
+          'value' => 0,
+        ),
+      ),
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '0',
+        ),
+      ),
+      'entity_type' => 'taxonomy_term',
+      'field_name' => 'field_programarea_classfinder',
+      'label' => 'Class Finder',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 0,
+        ),
+        'type' => 'options_onoff',
+        'weight' => '1',
+      ),
+    ),
+  );
+
+  //add fields
+  mic_implementation_add_fields('program_area', $fields, 'taxonomy_term');
 }

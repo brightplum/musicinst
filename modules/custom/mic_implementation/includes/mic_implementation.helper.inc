@@ -9,7 +9,7 @@ function mic_implementation_parse_listings_request($get) {
 		if(mic_implementation_check_valid_filter($get['tid']))
 			$filter = $get['tid'];
 		else
-			$filter = null;
+			$filter = NULL;
 	}
 
 	$request = array();
@@ -21,7 +21,7 @@ function mic_implementation_parse_listings_request($get) {
 	if(!empty($request))
 		return $request;
 	else
-		return null;
+		return NULL;
 
 }
 
@@ -115,7 +115,7 @@ function mic_implementation_get_taxonomy_blocks($type, $args) {
 
 		case 'news_events_page':
 
-			$node = variable_get('news_events_settings', null);
+			$node = variable_get('news_events_settings', NULL);
 
 			$feature_story = mic_implementation_get_taxonomy_feature_story($node);
 			$feature_video = mic_implementation_get_taxonomy_feature_video($node);
@@ -158,7 +158,7 @@ function mic_implementation_get_taxonomy_slideshow($node) {
 				ORDER BY n.created ASC
 				LIMIT 0, 6");
 		} else {
-			return null;
+			return NULL;
 		}
 	}
 	$slideshow = array();
@@ -195,7 +195,7 @@ function mic_implementation_get_taxonomy_banner($node) {
 						ORDER BY RAND()
 						LIMIT 0, 1");
 				} else {
-					return null;
+					return NULL;
 				}
 			}
 			break;
@@ -221,7 +221,7 @@ function mic_implementation_get_taxonomy_banner($node) {
 						ORDER BY RAND()
 						LIMIT 0, 1");
 				} else {
-					return null;
+					return NULL;
 				}
 			}
 			break;
@@ -275,7 +275,7 @@ function mic_implementation_get_taxonomy_news_articles($node, $type = 'node') {
 						ORDER BY n.created DESC
 						LIMIT 0, 2");
 				} else {
-					return null;
+					return NULL;
 				}
 			}
 			break;
@@ -376,7 +376,7 @@ function mic_implementation_get_taxonomy_events($node, $type = 'node') {
 			    		ORDER BY e2.field_event_date_value ASC
 			    		LIMIT 0, 2");
 			    } else {
-			    	return null;
+			    	return NULL;
 			    }
 			}
 
@@ -408,7 +408,7 @@ function mic_implementation_get_taxonomy_feature_story($node) {
 			    ORDER BY RAND()
 			    LIMIT 0, 1");
 		} else {
-			return null;
+			return NULL;
 		}
 
 	} else {
@@ -440,7 +440,7 @@ function mic_implementation_get_taxonomy_feature_story($node) {
 					ORDER BY RAND()
 					LIMIT 0, 1");
 			} else {
-				return null;
+				return NULL;
 			}
 		}
 	}
@@ -467,7 +467,7 @@ function mic_implementation_get_taxonomy_feature_video($node) {
 			    ORDER BY RAND()
 			    LIMIT 0, 1");
 		} else {
-			return null;
+			return NULL;
 		}
 
 	} else {
@@ -499,7 +499,7 @@ function mic_implementation_get_taxonomy_feature_video($node) {
 		   		ORDER BY RAND()
 		   		LIMIT 0, 1");
 		   } else {
-		   	return null;
+		   	return NULL;
 		   }
 		}
 	}
@@ -617,7 +617,7 @@ function mic_implementation_get_tags() {
 		}
 		return $options;
     }
-    return null;
+    return NULL;
 
 }
 
@@ -657,11 +657,40 @@ function mic_implementation_get_taxomony_terms($vocab) {
     $terms = taxonomy_get_tree($vid);
     if ($terms) {
 		foreach ($terms as $term) {
-			$options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
+      // Only show classfinder program areas.
+      if ($vocab == 'program_areas') {
+        if (_mic_implementation_check_classfinder($term->tid)) {
+          $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
+        }
+        else {
+          continue;
+        }
+      }
+      else {
+        $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
+      }
 		}
 		return $options;
     }
-    return null;
+    return NULL;
+}
+
+/**
+ * Check if program areas taxonomy should show in classfinder widget.
+ *
+ * @param $tid
+ * @return bool
+ */
+function _mic_implementation_check_classfinder($tid) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'taxonomy_term')
+    ->entityCondition('bundle', 'program_area')
+    ->entityCondition('entity_id', $tid)
+    ->fieldCondition('field_programarea_classfinder', 'value', 1)
+    ->execute();
+
+  return (isset($result['taxonomy_term'])) ? TRUE : FALSE;
 }
 
 function mic_implementation_get_taxonomy_term_list_from_array($term_array, $type = 'node') {
@@ -764,7 +793,7 @@ function mic_implementation_check_valid_type($type) {
 	$types = array('event','feature_story','feature_video','news_article', 'profile');
 
 	if(in_array($type, $types))
-		return true;
+		return TRUE;
 
 }
 
@@ -776,19 +805,19 @@ function mic_implementation_check_valid_filter($filter) {
 	foreach($terms as $tid) {
 		$t = taxonomy_term_load($tid);
 		if(!$t)
-			return false;
+			return FALSE;
 	}
 
-	return true;
+	return TRUE;
 
 }
 
 function valid_post($post) {
 
 	if(strlen($post['age']) == 0 && strlen($post['program_area']) == 0 && strlen($post['instrument']) == 0 && strlen($post['campus']) == 0 && strlen($post['semester']) == 0)
-		return false;
+		return FALSE;
 	else
-		return true;
+		return TRUE;
 }
 
 ?>
