@@ -97,17 +97,8 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#description' => t('At which MIC campus or campuses do you currently teach.'),
   );
 
-  //education
-  $form['education'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Education'),
-    '#description' => t('Please list your degrees (highest degree first).  Use abbreviations for degree type followed by college or university from with degree was received.
-(e.g.  MM, Northwestern University).'),
-    '#required' => TRUE,
-  );
-
   //hire date
-  $form['hire_date'] = array(
+  $form['field_profile_hire_date'] = array(
     '#type' => 'date_popup',
     '#title' => t('With Music Institute of Chicago since'),
     '#date_label_position' => 'none',
@@ -217,25 +208,22 @@ function mic_profile_add_profile_form_submit($form, &$form_state) {
   }
   $node->field_profile_instruments[LANGUAGE_NONE] = mic_profile_terms($instruments);
 
-  //body
-  $body = array();
+  //profile fields
   $textareas = array(
-    'hire_date' => array(
-      'title' => 'Music institute of Chicago teacher since',
-    ),
-    'education' => array(
-      'title' => 'Education',
-    ),
+    'field_profile_hire_date' => 'hire_date',
   );
   $textareas += mic_profile_textareas();
   foreach ($textareas as $key => $textarea) {
     if (isset($form_state['values'][$key]) && !empty($form_state['values'][$key])) {
-      $body[] = '<br /><strong>' . $textarea['title'] . '</strong><br /><em>' . $form_state['values'][$key] . '</em><br />';
+      $node->$key = array(
+        LANGUAGE_NONE => array(
+          array(
+            'value' => $form_state['values'][$key],
+          ),
+        ),
+      );
     }
   }
-  $body = implode('<br /><hr><br />', $body);
-  $node->body[LANGUAGE_NONE][0]['value'] = $body;
-  $node->body[LANGUAGE_NONE][0]['format'] = 'full_html';
 
   node_save($node);
 
@@ -285,47 +273,33 @@ function mic_profile_instruments() {
 }
 
 /**
- * List of textarea questions
+ * List of textarea questions.
  *
  * @return array
  */
 function mic_profile_textareas() {
-  return array(
-    'study' => array(
-      'title' => t('Music teachers and mentors'),
-      'required' => TRUE,
-    ),
-    'teaching' => array(
-      'title' => t('Teaching philosophies and areas of expertise'),
-      'required' => TRUE,
-    ),
-    'awards' => array(
-      'title' => t('Additional studies, recent awards or recordings'),
-    ),
-    'activity' => array(
-      'title' => t('Professional affiliations &amp; activities'),
-    ),
-    'interests' => array(
-      'title' => t('Interests outside of music'),
-      'description' => t('Musicians are multi-faceted!  Tell us about your "facets" !  Are you writing a novel?  Are you a marathon runner? Do you also play nose flute???'),
-    ),
-    'quote' => array(
-      'title' => t('Favorite quote'),
-      'description' => t('Optional.  We are collecting favorite music / inspirational quotes for use on the new website.'),
-    ),
-    'practice' => array(
-      'title' => t('Favorite practice tip'),
-      'description' => t('Optional.  We are collecting tips to rotate through appropriate areas of the website.  Your tip will be properly credited.'),
-    ),
-    'composer' => array(
-      'title' => t('Favorite composer or piece to play'),
-      'description' => t('Optional.  We are collecting bits of trivia for the new website.'),
-    ),
-    'personal' => array(
-      'title' => t('Pivotal personal musical moments'),
-      'description' => t('Last one!  Again, this is optional.  We are collecting interesting info for our website/facebook, etc.  Please share your favorite musical moment...going to hear the symphony for the first time...performing at Carnegie Hall...debuting your new composition...meeting a musical hero.'),
-    ),
+  $output = array();
+  $fields = array(
+    'field_profile_affiliations',
+    'field_profile_awards',
+    'field_profile_composer',
+    'field_profile_education',
+    'field_profile_expertise',
+    'field_profile_interests',
+    'field_profile_mentors',
+    'field_profile_moments',
+    'field_profile_practice',
+    'field_profile_quote',
   );
+  foreach ($fields as $field) {
+    $details = mic_profile_get_label_description($field);
+    $data = unserialize($details['data']);
+    $output[$field] = array(
+      'title' => $data['label'],
+      'description' => $data['description'],
+    );
+  }
+  return $output;
 }
 
 /**
@@ -343,4 +317,20 @@ function mic_profile_terms($form_values) {
   }
 
   return $terms;
+}
+
+/**
+ * Get details of profile field questions.
+ *
+ * @param $field_name
+ * @return mixed
+ */
+function mic_profile_get_label_description($field_name) {
+  $query = db_select('field_config_instance', 'fci');
+  $query
+    ->condition('fci.field_name', $field_name)
+    ->fields('fci', array('field_name', 'data'));
+  $result = $query->execute()->fetchAssoc();
+
+  return $result;
 }
