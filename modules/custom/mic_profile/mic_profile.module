@@ -30,7 +30,7 @@ function mic_profile_menu() {
     'type' => MENU_CALLBACK,
   );
   $items['convert/profiles'] = array(
-    'title' => t('Convert Profiles to Fields'),
+    'title' => t('Convert Profiles'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_profile_convert_form'),
     'access arguments' => array('administer site configuration'),

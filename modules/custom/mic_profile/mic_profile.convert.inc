@@ -10,6 +10,12 @@
  * @return array
  */
 function mic_profile_convert_form() {
+  $form['choice'] = array(
+    '#title' => t('Choose'),
+    '#type' => 'radios',
+    '#options' => array('body' => 'Convert body to profile fields', 'tags' => 'Convert tags to other vocabs'),
+    '#required' => TRUE,
+  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Start'),
@@ -27,16 +33,34 @@ function mic_profile_convert_form() {
 function mic_profile_convert_form_submit(&$form, &$form_state) {
   $operations = array();
   $profiles = mic_profile_get_profiles();
-  foreach ($profiles as $profile) {
-    $operations[] = array('mic_profile_convert_batch_import', array($profile));
-  }
-  $batch = array(
-    'operations' => $operations,
-    'finished' => 'mic_profile_convert_batch_finished',
-    'file' => drupal_get_path('module', 'mic_profile') . '/mic_profile.convert.inc',
-  );
+  $file = drupal_get_path('module', 'mic_profile') . '/mic_profile.convert.inc';
+  $finished = 'mic_profile_convert_batch_finished';
+  $skip = FALSE;
 
-  batch_set($batch);
+  switch ($form_state['values']['choice']) {
+    case 'body':
+      $callback = 'mic_profile_convert_batch_import';
+      break;
+    case 'tags':
+      $callback = 'mic_profile_convert_tags_import';
+      break;
+    default:
+      drupal_set_message('Nothing to convert.');
+      $skip = TRUE;
+      break;
+  }
+
+  if (!$skip) {
+    foreach ($profiles as $profile) {
+      $operations[] = array($callback, array($profile));
+    }
+    $batch = array(
+      'operations' => $operations,
+      'finished' => $finished,
+      'file' => $file,
+    );
+    batch_set($batch);
+  }
 }
 
 /**
@@ -82,6 +106,44 @@ function mic_profile_convert_batch_import($profile, &$context) {
 function mic_profile_convert_batch_finished($success, $results, $operations) {
   if ($success) {
     drupal_set_message(t('Convert successful.'));
+  }
+}
+
+function mic_profile_convert_tags_import($profile, &$context) {
+  $node = node_load($profile->nid, $profile->vid);
+  $tags = field_get_items('node', $node, 'field_tags');
+  $save = FALSE;
+  $vocabs = array(
+    'instrument',
+    'program_area',
+  );
+
+  if (is_array($tags)) {
+    $terms = array();
+    foreach ($vocabs as $vocab) {
+      foreach($tags as $tag) {
+        $full_tag = taxonomy_term_load($tag['tid']);
+        $term = taxonomy_get_term_by_name($full_tag->name, $vocab);
+        if (is_array($term) && !empty($term)) {
+          $term = reset($term);
+          $terms[$vocab][] = $term->tid;
+        }
+      }
+      if (!empty($terms[$vocab]) && isset($terms[$vocab])) {
+        module_load_include('inc', 'mic_profile', 'mic_profile.form');
+        $field = 'field_profile_' . $vocab;
+        $node->{$field} = array(
+          LANGUAGE_NONE => mic_profile_terms($terms[$vocab]),
+        );
+        if (!$save) {
+          $save = TRUE;
+        }
+      }
+    }
+    if ($save) {
+      node_save($node);
+      $context['message'] = t('Converted profile tags for %title', array('%title' => $node->title));
+    }
   }
 }
 
