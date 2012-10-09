@@ -227,9 +227,11 @@ function mic_implementation_get_taxonomy_banner($node) {
 			break;
 	}
 
-	foreach($result as $row) {
-		return node_load($row->nid);
-	}
+  if (isset($result) && is_array($result)) {
+    foreach($result as $row) {
+      return node_load($row->nid);
+    }
+  }
 }
 
 function mic_implementation_get_taxonomy_news_articles($node, $type = 'node') {
