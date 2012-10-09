@@ -634,63 +634,60 @@ function mic_implementation_get_nodequeue_nodes($qid) {
 
 function mic_implementation_get_taxomony_terms($vocab) {
 
-	$vid = 1;
+  $vid = 1;
 
-	switch($vocab) {
-		case 'ages':
-			$vid = 5;
-			break;
-		case 'program_areas':
-			$vid = 3;
-			break;
-		case 'instruments':
-			$vid = 4;
-			break;
-		case 'campuses':
-			$vid = 7;
-			break;
-		case 'semesters':
-			$vid = 6;
-			break;
-	}
+  switch($vocab) {
+    case 'ages':
+      $vid = 5;
+      break;
+    case 'program_areas':
+      $vid = 3;
+      break;
+    case 'instruments':
+      $vid = 4;
+      break;
+    case 'campuses':
+      $vid = 7;
+      break;
+    case 'semesters':
+      $vid = 6;
+      break;
+  }
 
-    $terms = taxonomy_get_tree($vid);
-    if ($terms) {
-		foreach ($terms as $term) {
-      // Only show classfinder program areas.
-      if ($vocab == 'program_areas') {
-        if (_mic_implementation_check_classfinder($term->tid)) {
-          $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
-        }
-        else {
-          continue;
-        }
+  $terms = taxonomy_get_tree($vid);
+  $vocab = taxonomy_vocabulary_load($vid);
+  if ($terms) {
+    foreach ($terms as $term) {
+      // Exclude terms in classfinder where checked.
+      if (_mic_implementation_check_classfinder($term->tid, $vocab->machine_name)) {
+        continue;
       }
       else {
         $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
       }
-		}
-		return $options;
     }
-    return NULL;
+    return $options;
+  }
+  return NULL;
 }
 
 /**
- * Check if program areas taxonomy should show in classfinder widget.
+ * Check if term should show in classfinder widget list.
  *
  * @param $tid
  * @return bool
  */
-function _mic_implementation_check_classfinder($tid) {
-  $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'taxonomy_term')
-    ->entityCondition('bundle', 'program_area')
-    ->entityCondition('entity_id', $tid)
-    ->fieldCondition('field_programarea_classfinder', 'value', 1)
-    ->execute();
+function _mic_implementation_check_classfinder($tid, $vocab) {
+  $query = db_select('field_data_field_exclude_listing', 'el');
+  $query
+    ->condition('entity_id', $tid)
+    ->condition('entity_type', 'taxonomy_term')
+    ->condition('bundle', $vocab)
+    ->fields('el', array('field_exclude_listing_value'));
+  $result = $query->execute()->fetchAssoc();
+  $value = (isset($result['field_exclude_listing_value'])) ? $result['field_exclude_listing_value'] : NULL;
 
-  return (isset($result['taxonomy_term'])) ? TRUE : FALSE;
+  return (isset($value) && ($value == 'classfinder')) ? TRUE : FALSE;
 }
 
 function mic_implementation_get_taxonomy_term_list_from_array($term_array, $type = 'node') {

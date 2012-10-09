@@ -184,14 +184,14 @@ function mic_implementation_update_7001(&$sandbox) {
 function mic_implementation_update_7002(&$sandbox) {
   $fields = array();
 
-  // Exported field: 'taxonomy_term-program_area-field_programarea_classfinder'
-  $fields['taxonomy_term-program_area-field_programarea_classfinder'] = array(
+  // Exported field: 'taxonomy_term-instrument-field_exclude_listing'
+  $fields['taxonomy_term-instrument-field_exclude_listing'] = array(
     'field_config' => array(
       'active' => '1',
-      'cardinality' => '1',
+      'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_programarea_classfinder',
+      'field_name' => 'field_exclude_listing',
       'foreign keys' => array(),
       'indexes' => array(
         'value' => array(
@@ -201,21 +201,16 @@ function mic_implementation_update_7002(&$sandbox) {
       'module' => 'list',
       'settings' => array(
         'allowed_values' => array(
-          0 => '',
-          1 => 'Show in Class Finder',
+          'classfinder' => 'Classfinder',
         ),
         'allowed_values_function' => '',
       ),
       'translatable' => '0',
-      'type' => 'list_boolean',
+      'type' => 'list_text',
     ),
     'field_instance' => array(
-      'bundle' => 'program_area',
-      'default_value' => array(
-        0 => array(
-          'value' => 0,
-        ),
-      ),
+      'bundle' => 'instrument',
+      'default_value' => NULL,
       'deleted' => '0',
       'description' => '',
       'display' => array(
@@ -227,8 +222,8 @@ function mic_implementation_update_7002(&$sandbox) {
         ),
       ),
       'entity_type' => 'taxonomy_term',
-      'field_name' => 'field_programarea_classfinder',
-      'label' => 'Class Finder',
+      'field_name' => 'field_exclude_listing',
+      'label' => 'Exclude from Listings',
       'required' => 0,
       'settings' => array(
         'user_register_form' => FALSE,
@@ -236,15 +231,72 @@ function mic_implementation_update_7002(&$sandbox) {
       'widget' => array(
         'active' => 1,
         'module' => 'options',
-        'settings' => array(
-          'display_label' => 0,
-        ),
-        'type' => 'options_onoff',
+        'settings' => array(),
+        'type' => 'options_select',
         'weight' => '1',
       ),
     ),
   );
 
-  //add fields
+  //add field
+  mic_implementation_add_fields('instrument', $fields, 'taxonomy_term');
+
+  $fields = array();
+
+  // Exported field: 'taxonomy_term-program_area-field_exclude_listing'
+  $fields['taxonomy_term-program_area-field_exclude_listing'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_exclude_listing',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          'classfinder' => 'Classfinder',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'program_area',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => '0',
+        ),
+      ),
+      'entity_type' => 'taxonomy_term',
+      'field_name' => 'field_exclude_listing',
+      'label' => 'Exclude from Listings',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => '1',
+      ),
+    ),
+  );
+
+  //add field
   mic_implementation_add_fields('program_area', $fields, 'taxonomy_term');
 }
