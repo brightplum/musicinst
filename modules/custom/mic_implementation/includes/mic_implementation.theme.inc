@@ -146,28 +146,6 @@ function mic_implementation_theme_mic_feature_video(&$variables) {
 	);
 }
 
-function mic_implementation_theme_mic_profile(&$variables) {
-
-	$node = $variables['node'];
-
-	//print_r($node);
-
-	$path = image_style_url('profile', $node->field_image['und'][0]['uri']);
-	return array(
-		'prefix' => $node->field_prefix['und'][0]['safe_value'],
-		'first_name' => $node->field_first_name['und'][0]['safe_value'],
-		'last_name' => $node->field_last_name['und'][0]['safe_value'],
-		'suffix' => $node->field_suffix['und'][0]['safe_value'],
-		'title' => $node->field_job_title['und'][0]['safe_value'],
-		'body' => $node->body['und'][0]['safe_value'],
-		'img' => '<img src="'.$path.'" alt="'.$node->field_image['und'][0]['alt'].'" />',
-		'phone' => $node->field_phone['und'][0]['safe_value'],
-		'fax' => $node->field_fax['und'][0]['safe_value'],
-		'email' => $node->field_email['und'][0]['safe_value'],
-		'tags' => mic_implementation_get_taxonomy_term_list_string_from_array($node->field_tags['und']),
-	);
-}
-
 function mic_implementation_theme_mic_course(&$variables) {
   $header = $rows = array();
   $variables = reset($variables);
