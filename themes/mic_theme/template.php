@@ -44,7 +44,8 @@ function mic_theme_preprocess_field(&$vars) {
   switch ($vars['element']['#field_name']) {
     case 'field_profile_hire_date';
       // Year only.
-      $vars['items']['0']['#markup'] = date('Y', strtotime($vars['items']['0']['#markup']));
+      $date = new DateTime($vars['items']['0']['#markup']);
+      $vars['items']['0']['#markup'] = $date->format('Y');
       break;
   }
 }
