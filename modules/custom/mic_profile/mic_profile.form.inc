@@ -78,6 +78,7 @@ Please indicate your faculty titles here.  If you also have an administrative ro
     '#title' => t('Program Area(s)'),
     '#options' => mic_profile_get_taxonomy_options('program_area'),
     '#description' => t('Please select the program areas with which you are affiliated.  Only include areas for which you have been hired to teach at MIC.'),
+    '#required' => TRUE,
   );
 
   foreach (mic_profile_instruments() as $key => $instrument) {
