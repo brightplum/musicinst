@@ -26,13 +26,13 @@
 
 .body-inner-wrapper .main-content-wrapper .field-name-field-job-title {
   color: #455561;
-  margin: 5px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
 }
 
 .body-inner-wrapper .main-content-wrapper .field-name-field-image {
   display: inline-block;
   float: left;
-  margin: 0px 20px 20px 0px;
+  margin: 10px 20px 20px 0px;
 }
 
 .instrument-programarea {
