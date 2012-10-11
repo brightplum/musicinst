@@ -227,7 +227,7 @@ function mic_implementation_get_taxonomy_banner($node) {
 			break;
 	}
 
-  if (isset($result) && is_array($result)) {
+  if (isset($result) && is_object($result)) {
     foreach($result as $row) {
       return node_load($row->nid);
     }
