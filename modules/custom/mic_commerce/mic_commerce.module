@@ -77,6 +77,24 @@ function mic_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_s
     $node = menu_get_object();
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#default_value'] = $node->title;
     $form['line_item_fields']['field_lineitem_tkt_eventname'][LANGUAGE_NONE][0]['value']['#type'] = 'hidden';
+
+    // Sort tickets by certain order.
+    uasort($form['product_id']['#options'], function($a, $b) {
+      static $order = array(
+        'Adult' => 0,
+        'Senior' => 1,
+        'Student' => 2,
+        '3PASS Adult' => 3,
+        '3PASS Senior' => 4,
+      );
+      return $order[$a] - $order[$b];
+    });
+
+    // Set default selection.
+    $form['product_id']['#default_value'] = 154;
+
+    // Set help text.
+    $form['product_id']['#prefix'] = '<div class="ticket-help">Select your ticket type. To purchase multiple ticket types, add to cart then select again.</div>';
   }
   if ($form_state['line_item']->type == 'product_class' && $form_state['submitted'] == FALSE) {
     $product = commerce_product_load($form['product_id']['#value']);

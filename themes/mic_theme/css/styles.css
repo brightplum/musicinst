@@ -3463,6 +3463,10 @@ Misc
   color: #0D70A1;
   font-weight: bold;
 }
+.ticket-help {
+  font-weight: bold;
+  margin: 10px 0px -10px 0px;
+}
 
 /** Profile **/
 #block-mic-implementation-profile-courses h4 {
