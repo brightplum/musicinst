@@ -744,6 +744,11 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
     $redirect = mic_commerce_redirect_cart();
     $form['#prefix'] = '<div class="first-time-msg">' . t('<strong>First time users</strong> must <a href="!create">create a new account</a> to complete purchase.', array('!create' => '/user/register?destination=' . $redirect)) . '<br />Credit card information will not be stored on our site.</div>';
   }
+
+  // Change button text for review form of cart
+  if ($form_id == 'commerce_checkout_form_review') {
+    $form['buttons']['continue']['#value'] = t('Process payment');
+  }
 }
 
 /**
