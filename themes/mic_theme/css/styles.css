@@ -260,6 +260,10 @@ ul li {
 	padding: 0px 0px 0px 10px;
 }
 
+ul.tabs li a {
+  background-color: #FC6;
+}
+
 /********************
 
 Shared Block Links
