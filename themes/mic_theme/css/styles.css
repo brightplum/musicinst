@@ -3493,3 +3493,7 @@ Misc
     padding-bottom: 6px;
     margin-bottom: 0px;
 }
+
+div.messages {
+  font-size: 18px;
+}
