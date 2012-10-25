@@ -736,6 +736,12 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       '#weight' => 99,
     );
   }
+
+  // Add message for login
+  if ($form_id == 'user_login') {
+    drupal_set_message(t('First time users must <a href="!create">create a new account</a> to complete purchase.', array('!create' => '/user/register')));
+    drupal_set_message('Credit card information will not be stored on our site.');
+  }
 }
 
 /**
