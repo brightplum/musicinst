@@ -2323,6 +2323,7 @@ Body Wrapper
 	margin: 18px 0px 0px;
 }
 
+.body-inner-wrapper .main-content-wrapper a,
 .body-inner-wrapper .middle-column .main-content-wrapper a {
 	font-weight: bold;
     color: #0D70A1;
