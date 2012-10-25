@@ -3458,6 +3458,15 @@ Misc
 .anonymous-checkout {
   margin-left: 5px;
 }
+.body-inner-wrapper .main-content-wrapper .anonymous-checkout a {
+  cursor: default;
+  color: #000;
+  padding: 2px 6px;
+  border: 2px outset buttonface;
+  background-color: #fff;
+  box-sizing: border-box;
+  border-radius: 5px;
+}
 .cart-account-login a,
 .messages a,
 #commerce-checkout-form-complete a {
