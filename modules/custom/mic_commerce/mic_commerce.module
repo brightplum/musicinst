@@ -116,7 +116,8 @@ function mic_commerce_form_commerce_cart_add_to_cart_form_alter(&$form, &$form_s
 function mic_commerce_form_views_form_commerce_cart_form_default_alter(&$form, &$form_state, $form_id) {
   global $user;
   if ($user->uid == 0) {
-    $create_account = l(t('create account'), 'user/register', array('query' => array('destination' => 'cart')));
+    $redirect = mic_commerce_redirect_cart();
+    $create_account = l(t('create account'), 'user/register', array('query' => array('destination' => $redirect)));
     $login = l(t('login'), 'user/login', array('query' => array('destination' => 'checkout')));
   }
 }
@@ -714,8 +715,9 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
 
   //add checkout button to redirect to login for non logged-in users
   if (strpos($form_id, 'views_form_commerce_cart_form_') === 0) {
+    $redirect = mic_commerce_redirect_cart();
     $form['actions']['checkout_redirect'] = array(
-      '#markup' => '<span class="anonymous-checkout">' . l('Checkout', 'user/login', array('query' => array('destination' => 'cart'))) . '</span>',
+      '#markup' => '<span class="anonymous-checkout">' . l('Checkout', 'user/login', array('query' => array('destination' => $redirect))) . '</span>',
       '#weight' => 5,
       '#access' => !(user_access('access checkout')),
     );
@@ -738,9 +740,9 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // Add message for login
-  if ($form_id == 'user_login') {
-    drupal_set_message(t('First time users must <a href="!create">create a new account</a> to complete purchase.', array('!create' => '/user/register')));
-    drupal_set_message('Credit card information will not be stored on our site.');
+  if (($form_id == 'user_login') && drupal_anonymous_user()) {
+    $redirect = mic_commerce_redirect_cart();
+    $form['#prefix'] = '<div class="first-time-msg">' . t('<strong>First time users</strong> must <a href="!create">create a new account</a> to complete purchase.', array('!create' => '/user/register?destination=' . $redirect)) . '<br />Credit card information will not be stored on our site.</div>';
   }
 }
 
@@ -983,4 +985,8 @@ function mic_commerce_order_log_history($order_id) {
     return theme('table', array('header' => $header, 'rows' => array_reverse($rows)));
   }
   return NULL;
+}
+
+function mic_commerce_redirect_cart() {
+  return (mic_commerce_num_items_cart() > 0) ? 'checkout' : 'cart';
 }
