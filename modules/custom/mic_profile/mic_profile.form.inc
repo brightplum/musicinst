@@ -270,6 +270,14 @@ function mic_profile_instruments() {
       'label' => t('Other'),
       'term' => 'Other',
     ),
+    'academy-faculty-only' => array(
+      'label' => t('Academy Faculty Only'),
+      'term' => 'Academy Faculty Only',
+    ),
+    'ita-modalities' => array(
+      'label' => t('Creative Arts Therapy Modalities'),
+      'term' => 'Creative Arts Therapy Modalities',
+    ),
   );
 }
 
