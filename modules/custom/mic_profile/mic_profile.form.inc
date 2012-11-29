@@ -299,6 +299,9 @@ function mic_profile_textareas() {
     'field_profile_moments',
     'field_profile_practice',
     'field_profile_quote',
+    'field_profile_clinical_approach',
+    'field_profile_why_creative_arts',
+    'field_profile_work_experience',
   );
   foreach ($fields as $field) {
     $details = mic_profile_get_label_description($field);
