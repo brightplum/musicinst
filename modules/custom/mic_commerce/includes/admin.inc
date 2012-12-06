@@ -17,8 +17,8 @@ function mic_commerce_admin_student_fee_form() {
   );
 
   $fee_options = array(
-    0 => t('New and Returning Students'),
-    1 => t('New Students Only'),
+    0 => t('New or Returning Students'),
+    1 => t('Continuing Students Only'),
   );
 
   $form['mic_student_fee'] = array(
