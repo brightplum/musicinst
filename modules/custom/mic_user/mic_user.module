@@ -93,10 +93,6 @@ function mic_user_user_update(&$edit, $account, $category) {
   $profile->commerce_customer_address = $account->field_user_billing;
 
   commerce_customer_profile_save($profile);
-
-  if (mic_commerce_num_items_cart()) {
-    drupal_goto('checkout');
-  }
 }
 
 /**
