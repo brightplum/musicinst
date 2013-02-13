@@ -61,8 +61,7 @@ Example:  Dr. Jonathan S. Smith'),
   $form['titles'] = array(
     '#type' => 'textfield',
     '#title' => t('MIC Title(s)'),
-    '#description' => t('Are you a department head, or Program Director?
-Please indicate your faculty titles here.  If you also have an administrative role at MIC, that information will be handled elsewhere.'),
+    '#description' => t('Are you a department head, or Program Director? Please indicate your MIC titles here.'),
   );
 
   //headshot
@@ -273,10 +272,6 @@ function mic_profile_instruments() {
     'academy-faculty-only' => array(
       'label' => t('Academy Faculty Only'),
       'term' => 'Academy Faculty Only',
-    ),
-    'ita-modalities' => array(
-      'label' => t('Creative Arts Therapy Modalities'),
-      'term' => 'Creative Arts Therapy Modalities',
     ),
   );
 }
