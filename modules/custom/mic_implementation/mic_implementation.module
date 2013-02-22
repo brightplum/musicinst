@@ -153,6 +153,12 @@ function mic_implementation_node_view($node, $view_mode, $langcode) {
         unset($node->content['links']);
       }
       break;
+
+    case 'event':
+      $insert_js = '$(".form-item-quantity > label").insertAfter("input#edit-quantity");';
+      drupal_add_js($insert_js, array('type' => 'inline'));
+      break;
+
   }
 }
 
