@@ -3497,3 +3497,18 @@ Misc
 div.messages {
   font-size: 18px;
 }
+
+/** Add to Cart **/
+.commerce-add-to-cart .form-item-product-id,
+.commerce-add-to-cart #edit-line-item-fields,
+.commerce-add-to-cart .form-item-quantity {
+  display: inline-block;
+}
+
+.commerce-add-to-cart .form-item-quantity label {
+  position: relative;
+  top: 45px;
+}
+
+
+
