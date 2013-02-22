@@ -1,19 +1,24 @@
 <?php
+/**
+ * @file
+ * Commerce customizations for MIC.
+ */
 
 /**
- * Implements hook_menu()
+ * Implements hook_menu().
  *
  * @return array
+ *   The menu items.
  */
 function mic_commerce_menu() {
   $items = array();
 
   $items['create/product-classes'] = array(
-  	'title' => 'Product Class creation',
-  	'page callback' => 'drupal_get_form',
+    'title' => 'Product Class creation',
+    'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_commerce_classes_products_form'),
-  	'access arguments' => array('administer site configuration'),
-  	'type' => MENU_CALLBACK,
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
   );
 
   $items['create/product-classes/%node'] = array(
@@ -29,6 +34,16 @@ function mic_commerce_menu() {
     'page arguments' => array(1, 2),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/commerce/student-fee'] = array(
+    'title' => t('Student Fee'),
+    'description' => t('Configure the student fee settings.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_commerce_admin_student_fee_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/admin.inc',
+    'type' => MENU_NORMAL_ITEM,
   );
 
 	return $items;
@@ -403,21 +418,37 @@ function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
  * @param unknown_type $order
  */
 function mic_commerce_commerce_order_presave($order) {
-  // Find out if our order already has an mic_student_fee line item and if new student was checked.
+  // Student fee admin setting.
+  $student_fee = variable_get('mic_student_fee', 0);
+
+  // Find out if our order already has a mic_student_fee line item
+  // and if new student was checked.
   $type_exists = $new_student = FALSE;
+
   if (!empty($order->commerce_line_items['und'])) {
-    foreach($order->commerce_line_items['und'] as $delta => $line_item_entry) {
+    // Go through each line item.
+    foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
       if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
         if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
-          //&& $line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] == 1) {
-          $new_student = TRUE;
+          // If student fee set to new only, check if current value is new only.
+          if ($student_fee) {
+            if ($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] == 1) {
+              $new_student = TRUE;
+            }
+          }
+          // Everyone gets charged the fee.
+          else {
+            $new_student = TRUE;
+          }
         }
+        // If we find our fee, set some values.
         if ($line_item->type == 'mic_newstudent_fee') {
           $type_exists = TRUE;
           $line_item_fee_id = array(
             'delta' => $delta,
             'id' => $line_item->line_item_id
           );
+          // Get out of the loop.
           break;
         }
       }
@@ -435,7 +466,7 @@ function mic_commerce_commerce_order_presave($order) {
   }
   // If a new student was added, then removed and the fee remained, need to remove fee
   // if a continuing student is added to same order later
-  else if ($type_exists && ($order->order_id > 0) && !$new_student) {
+  else if ($type_exists && ($order->order_id > 0) && !$new_student && isset($line_item_fee_id)) {
     commerce_line_item_delete($line_item_fee_id['id']);
     unset($order->commerce_line_items[LANGUAGE_NONE][$line_item_fee_id['delta']]);
   }
