@@ -421,54 +421,61 @@ function mic_commerce_commerce_order_presave($order) {
   // Student fee admin setting.
   $student_fee = variable_get('mic_student_fee', 0);
 
-  // Find out if our order already has a mic_student_fee line item
-  // and if new student was checked.
-  $type_exists = $new_student = FALSE;
+  // Array of students and fees.
+  $line_item_students = $line_item_fees = array();
 
   if (!empty($order->commerce_line_items['und'])) {
     // Go through each line item.
     foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
       if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
         if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
-          // If student fee set to new only, check if current value is new only.
+          // If student fee set to new only, add to count of students to track with fees.
           if ($student_fee) {
             if ($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'] == 1) {
-              $new_student = TRUE;
+              $line_item_students[] = array(
+                'delta' => $delta,
+                'id' => $line_item->line_item_id,
+              );
             }
           }
-          // Everyone gets charged the fee.
+          // Everyone gets tracked to add a fee.
           else {
-            $new_student = TRUE;
+            $line_item_students[] = array(
+              'delta' => $delta,
+              'id' => $line_item->line_item_id,
+            );
           }
         }
-        // If we find our fee, set some values.
+        // Keep track of how many fees we already have in cart.
         if ($line_item->type == 'mic_newstudent_fee') {
-          $type_exists = TRUE;
-          $line_item_fee_id = array(
+          $line_item_fees[] = array(
             'delta' => $delta,
             'id' => $line_item->line_item_id
           );
-          // Get out of the loop.
-          break;
         }
       }
     }
   }
 
-  // If our line item is not yet in the order and the order has an ID,
-  // create a line item to add to the order.
-  if (!$type_exists && $order->order_id > 0) {
-    if ($new_student) {
+  $num_students = count($line_item_students);
+  $num_fees = count($line_item_fees);
+
+  // If count of students and fees are equal, do nothing.
+  // If more students than fee, add a fee.
+  // If more fees than students, remove a fee.
+  if ($num_fees < $num_students) {
+    for ($i = $num_fees; $i < $num_students; $i++) {
       $line_item = mic_commerce_newstudent_fee_line_item_new($order->order_id);
       commerce_line_item_save($line_item);
       $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
     }
   }
-  // If a new student was added, then removed and the fee remained, need to remove fee
-  // if a continuing student is added to same order later
-  else if ($type_exists && ($order->order_id > 0) && !$new_student && isset($line_item_fee_id)) {
-    commerce_line_item_delete($line_item_fee_id['id']);
-    unset($order->commerce_line_items[LANGUAGE_NONE][$line_item_fee_id['delta']]);
+  elseif ($num_fees > $num_students) {
+    for ($i = $num_students; $i <= $num_fees; $i++) {
+      $fee_to_remove = array_pop($line_item_fees);
+      commerce_line_item_delete($fee_to_remove['id']);
+      unset($order->commerce_line_items[LANGUAGE_NONE][$fee_to_remove['delta']]);
+    }
   }
 }
 
