@@ -658,29 +658,26 @@ function mic_implementation_get_taxomony_terms($vocab) {
 
   $terms = taxonomy_get_tree($vid);
   $vocab = taxonomy_vocabulary_load($vid);
-  $continue = FALSE;
   $options = array();
 
   if ($terms) {
     foreach ($terms as $term) {
       // Exclude terms in classfinder where checked.
       if (_mic_implementation_check_classfinder($term->tid, $vocab->machine_name)) {
-        $continue = TRUE;
+        continue;
       }
+
       // Exclude terms that are not set as visible.
-      elseif ($vid == 6) {
+      if ($vid == 6) {
         $full_term = taxonomy_term_load($term->tid);
         $active = field_get_items('taxonomy_term', $full_term, 'field_visibility');
-        $active = (is_array($active)) ? reset($active) : $active;
-        if (!$active) {
-          $continue = TRUE;
+        if ($active === false) {
+          continue;
         }
       }
 
       // Build terms.
-      if (!$continue) {
-        $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
-      }
+      $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
     }
 
     return $options;
