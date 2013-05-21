@@ -671,7 +671,8 @@ function mic_implementation_get_taxomony_terms($vocab) {
       if ($vid == 6) {
         $full_term = taxonomy_term_load($term->tid);
         $active = field_get_items('taxonomy_term', $full_term, 'field_visibility');
-        if ($active === false) {
+        $active = (is_array($active)) ? reset($active) : $active;
+        if (($active === false) || (isset($active['value']) && $active['value'] == 0)) {
           continue;
         }
       }
