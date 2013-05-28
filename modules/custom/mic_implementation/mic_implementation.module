@@ -149,6 +149,19 @@ function mic_implementation_node_view($node, $view_mode, $langcode) {
           '#theme' => 'mic_course',
         );
       }
+
+      // Collapse fieldsets where semester isn't set.
+      $params = drupal_get_query_parameters();
+      if (isset($params['semester'])) {
+        foreach ($node->content['#fieldgroups'] as $fieldgroup => $settings) {
+          if ($fieldgroup == 'group_' . $params['semester']) {
+            $node->content['#fieldgroups'][$fieldgroup]->format_settings['formatter'] = 'collapsible';
+          }
+          elseif ($fieldgroup != 'group_semester_wrapper') {
+            $node->content['#fieldgroups'][$fieldgroup]->format_settings['formatter'] = 'collapsed';
+          }
+        }
+      }
       if ($view_mode == 'teaser') {
         unset($node->content['links']);
       }

@@ -52,7 +52,7 @@
 
 									<div class="class-finder-results">
 
-									  <?php print render($courses); ?>
+									  <?php print $courses; ?>
 
 									</div>
 

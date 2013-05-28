@@ -512,8 +512,7 @@ function mic_implementation_get_taxonomy_feature_video($node) {
 }
 
 function mic_implementation_get_classes($post) {
-	$today = strtotime(date('n/j/Y', time()));
-	$courses = array();
+	$courses = $nodes = array();
 
   if(valid_post($post)) {
 
@@ -562,16 +561,27 @@ function mic_implementation_get_classes($post) {
             if (!mic_implementation_classes_subquery($nid, $condition, $value)) {
               unset($nids[$nid]);
             }
+            elseif (!isset($nodes[$nid])) {
+              $node = node_load($nid);
+              if (in_array('semester', $class_conditions)) {
+                // Load the condition.
+                $term = taxonomy_term_load($post['semester']);
+                $semester = substr($term->name, 0, strpos($term->name, ' '));
+                $nodes[$nid] = array(
+                  'title' => $node->title,
+                  'href' => 'node/' . $nid,
+                  'query' => array('semester' => strtolower($semester)),
+                );
+              }
+            }
           }
-
         }
       }
-      $nodes = node_load_multiple($nids);
-      $courses = node_view_multiple($nodes);
+      $courses = $nodes;
     }
   }
 
-  return $courses;
+  return theme('links', array('links' => $courses));
 }
 
 /**
