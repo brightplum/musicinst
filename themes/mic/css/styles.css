@@ -2404,12 +2404,17 @@ Body Wrapper
 }
 
 .class-finder-results .item,
-.class-finder-results .node-teaser {
+.class-finder-results .node-teaser,
+.class-finder-results ul.links li {
     border-bottom: 1px solid #AAAAAA;
     padding: 15px 0px;
 }
 
-.class-finder-results h2 {
+.class-finder-results ul.links li {
+  background-image: none;
+}
+.class-finder-results h2,
+.class-finder-results ul.links li{
   font-size: 1.1em;
   margin: 5px 0px;
 }
