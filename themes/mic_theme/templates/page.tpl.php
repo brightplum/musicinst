@@ -135,16 +135,19 @@
       	  <?php endif ; ?>
       	  <div class="body-wrapper">
             <div class="body-inner-wrapper">
+
               <?php if ($page['top']): ?>
                 <?php print render($page['top']); ?>
               <?php endif; ?>
+
               <?php if ($page['sidebar_left']): ?>
               <div class="left-column">
-				    		<div class="secondary-navigation-wrapper">
-				    			<?php print render($page['sidebar_left']); ?>
-				    		</div>
-				    	</div>  <!-- end left-column -->
-				    	<?php endif; ?>
+			    <div class="secondary-navigation-wrapper">
+                  <?php print render($page['sidebar_left']); ?>
+                </div>
+			  </div>  <!-- end left-column -->
+			  <?php endif; ?>
+
 				    	<?php if ($page['sidebar_left'] || $page['sidebar_right']) print '<div class="middle-column ' . $middle_column . '">'; ?>
                 <div class="main-content-wrapper">
   	    	    		<?php if ($title): echo '<h1>'.$title.'</h1>'; endif; ?>
