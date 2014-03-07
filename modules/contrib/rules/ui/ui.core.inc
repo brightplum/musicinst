@@ -282,7 +282,7 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
    * Actually generates the parameter form for the given data type.
    */
   protected function getParameterForm($name, $info, $settings, &$mode) {
-    $class = $this->getDataTypeClass($info['type']);
+    $class = $this->getDataTypeClass($info['type'], $info);
     $supports_input_mode = in_array('RulesDataDirectInputFormInterface', class_implements($class));
 
     // Init the mode.
@@ -297,8 +297,18 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
         $mode = $info['restriction'];
       }
       else {
-        $mode = call_user_func(array($class, 'getDefaultMode'));
+        // Allow the parameter to define the 'default mode' and fallback to the
+        // data type default.
+        $mode = !empty($info['default mode']) ? $info['default mode'] : call_user_func(array($class, 'getDefaultMode'));
       }
+    }
+
+    // For translatable parameters, pre-populate an internal translation source
+    // key so data type forms or input evaluators (i18n) may produce suiting
+    // help.
+    if (drupal_multilingual() && !empty($info['translatable'])) {
+      $parameter = $this->element->pluginParameterInfo();
+      $info['custom translation language'] = !empty($parameter['language']);
     }
 
     // Add the parameter form.
@@ -410,6 +420,8 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
       '#required' => TRUE,
       '#weight' => -5,
     );
+    // @todo: For Drupal 8 use "owner" for generating machine names and
+    // module only for the modules providing default configurations.
     if (!empty($this->element->module) && !empty($this->element->name) && $this->element->module == 'rules' && strpos($this->element->name, 'rules_') === 0) {
       // Remove the Rules module prefix from the machine name.
       $machine_name = substr($this->element->name, strlen($this->element->module) + 1);
@@ -420,7 +432,9 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
     $form['settings']['name'] = array(
       '#type' => 'machine_name',
       '#default_value' => isset($machine_name) ? $machine_name : '',
-      '#maxlength' => 64,
+      // The string 'rules_' is pre-pended to machine names, so the
+      // maxlength must be less than the field length of 64 characters.
+      '#maxlength' => 58,
       '#disabled' => entity_has_status('rules_config', $this->element, ENTITY_IN_CODE) && !(isset($form_state['op']) && $form_state['op'] == 'clone'),
       '#machine_name' => array(
         'exists' => 'rules_config_load',
@@ -478,9 +492,75 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
         '#limit_validation_errors' => array(array('vars')),
         '#submit' => array('rules_form_submit_rebuild'),
       );
+      if (!empty($this->element->id)) {
+        // Display a setting to manage access.
+        $form['settings']['access'] = array(
+          '#weight' => 50,
+        );
+        $plugin_type = $this->element instanceof RulesActionInterface ? t('action') : t('condition');
+        $form['settings']['access']['access_exposed'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Configure access for using this component with a permission.'),
+          '#default_value' => !empty($this->element->access_exposed),
+          '#description' => t('By default, the @plugin-type for using this component may be only used by users that have access to configure the component. If checked, access is determined by a permission instead.', array('@plugin-type' => $plugin_type))
+        );
+        $form['settings']['access']['permissions'] = array(
+          '#type' => 'container',
+          '#states' => array(
+            'visible' => array(
+              ':input[name="settings[access][access_exposed]"]' => array('checked' => TRUE),
+            ),
+          ),
+        );
+        $form['settings']['access']['permissions']['matrix'] = $this->settingsFormPermissionMatrix();
+      }
     }
 
     // TODO: Attach field form thus description.
+  }
+
+  /**
+   * Provides a matrix permission for the component based in the existing roles.
+   *
+   * @return
+   *   Form elements with the matrix of permissions for a component.
+   */
+  protected function settingsFormPermissionMatrix() {
+    $form['#theme'] = 'user_admin_permissions';
+    $status = array();
+    $options = array();
+
+    $role_names = user_roles();
+    $role_permissions = user_role_permissions($role_names);
+    $component_permission = rules_permissions_by_component(array($this->element));
+    $component_permission_name = key($component_permission);
+
+    $form['permission'][$component_permission_name] = array(
+      '#type' => 'item',
+      '#markup' => $component_permission[$component_permission_name]['title'],
+    );
+    $options[$component_permission_name] = '';
+    foreach ($role_names as $rid => $name) {
+      if (isset($role_permissions[$rid][$component_permission_name])) {
+        $status[$rid][] = $component_permission_name;
+      }
+    }
+
+    // Build the checkboxes for each role.
+    foreach ($role_names as $rid => $name) {
+      $form['checkboxes'][$rid] = array(
+        '#type' => 'checkboxes',
+        '#options' => $options,
+        '#default_value' => isset($status[$rid]) ? $status[$rid] : array(),
+        '#attributes' => array('class' => array('rid-' . $rid)),
+      );
+      $form['role_names'][$rid] = array('#markup' => check_plain($name), '#tree' => TRUE);
+    }
+
+    // Attach the default permissions page JavaScript.
+    $form['#attached']['js'][] = drupal_get_path('module', 'user') . '/user.permissions.js';
+
+    return $form;
   }
 
   public function settingsFormExtractValues($form, &$form_state) {
@@ -491,7 +571,7 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
     if ($form['settings']['name']['#default_value'] != $form_values['name']) {
       $module = isset($this->element->module) ? $this->element->module : 'rules';
       $this->element->name = $module . '_' . $form_values['name'];
-      $form_state['redirect'] = RulesPluginUI::path($this->element->name);
+      $form_state['redirect'] = RulesPluginUI::path($this->element->name, 'edit', $this->element);
     }
     $this->element->tags = empty($form_values['tags']) ? array() : drupal_explode_tags($form_values['tags']);
 
@@ -522,6 +602,7 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
       }
       unset($input['vars']);
     }
+    $this->element->access_exposed = isset($form_values['access']['access_exposed']) ? $form_values['access']['access_exposed'] : FALSE;
   }
 
   public function settingsFormValidate($form, &$form_state) {
@@ -532,7 +613,12 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
   }
 
   public function settingsFormSubmit($form, &$form_state) {
-
+    if (isset($form_state['values']['settings']['access']) && !empty($this->element->access_exposed)) {
+      // Save the permission matrix.
+      foreach ($form_state['values']['settings']['access']['permissions']['matrix']['checkboxes'] as $rid => $value) {
+        user_role_change_permissions($rid, $value);
+      }
+    }
   }
 
   /**
@@ -583,12 +669,22 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
    * Returns the name of class for the given data type.
    *
    * @param $data_type
-   *  The name of the data typ
+   *   The name of the data typ
+   * @param $parameter_info
+   *   (optional) An array of info about the to be configured parameter. If
+   *   given, this array is complemented with data type defaults also.
    */
-  public function getDataTypeClass($data_type) {
+  public function getDataTypeClass($data_type, &$parameter_info = array()) {
     $cache = rules_get_cache();
     $data_info = $cache['data_info'];
-    return (is_string($data_type) && isset($data_info[$data_type]['ui class'])) ? $data_info[$data_type]['ui class'] : 'RulesDataUI';
+    // Add in data-type defaults.
+    if (empty($parameter_info['ui class'])) {
+      $parameter_info['ui class'] = (is_string($data_type) && isset($data_info[$data_type]['ui class'])) ? $data_info[$data_type]['ui class'] : 'RulesDataUI';
+    }
+    if (is_subclass_of($parameter_info['ui class'], 'RulesDataInputOptionsListInterface')) {
+      $parameter_info['options list'] = array($parameter_info['ui class'], 'optionsList');
+    }
+    return $parameter_info['ui class'];
   }
 
   /**
@@ -620,8 +716,8 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
         );
       }
       elseif (isset($this->element->settings[$name]) && (!isset($parameter['default value']) || $parameter['default value'] != $this->element->settings[$name])) {
+        $class = $this->getDataTypeClass($parameter['type'], $parameter);
         $method = empty($parameter['options list']) ? 'render' : 'renderOptionsLabel';
-        $class = $this->getDataTypeClass($parameter['type']);
         // We cannot use method_exists() here as it would trigger a PHP bug,
         // @see http://drupal.org/node/1258284
         $element = call_user_func(array($class, $method), $this->element->settings[$name], $name, $parameter, $this->element);
@@ -746,47 +842,10 @@ class RulesPluginUI extends FacesExtender implements RulesPluginUIInterface {
   }
 
   /**
-   * Returns an array of options to use with a select for the items specified
-   * in the given hook.
-   *
-   * @param $item_type
-   *   The item type to get options for. One of 'data', 'event', 'condition' and
-   *   'action'.
-   * @param $items
-   *   (optional) An array of items to restrict the options to.
-   *
-   * @return
-   *   An array of options.
+   * @see RulesUICategory::getOptions()
    */
   public static function getOptions($item_type, $items = NULL) {
-    $sorted_data = array();
-    $ungrouped = array();
-    $data = $items ? $items : rules_fetch_data($item_type . '_info');
-    foreach ($data as $name => $info) {
-      // Verfiy the current user has access to use it.
-      if (!user_access('bypass rules access') && !empty($info['access callback']) && !call_user_func($info['access callback'], $item_type, $name)) {
-        continue;
-      }
-      if (!empty($info['group'])) {
-        $sorted_data[drupal_ucfirst($info['group'])][$name] = drupal_ucfirst($info['label']);
-      }
-      else {
-        $ungrouped[$name] = drupal_ucfirst($info['label']);
-      }
-    }
-    asort($ungrouped);
-    foreach ($sorted_data as $key => $choices) {
-      asort($choices);
-      $sorted_data[$key] = $choices;
-    }
-    ksort($sorted_data);
-    // Always move the 'Components' group down it it exists.
-    if (isset($sorted_data[t('Components')])) {
-      $copy = $sorted_data[t('Components')];
-      unset($sorted_data[t('Components')]);
-      $sorted_data[t('Components')] = $copy;
-    }
-    return $ungrouped + $sorted_data;
+    return RulesUICategory::getOptions($item_type, $items = NULL);
   }
 
   public static function formDefaults(&$form, &$form_state) {
@@ -887,7 +946,7 @@ class RulesContainerPluginUI extends RulesPluginUI {
     $form['elements']['#attributes']['class'][] = 'rules-container-plugin';
 
     // Recurse over all element childrens or use the provided iterator.
-    $iterator = isset($iterator) ? $iterator : new RecursiveIteratorIterator($this->element, RecursiveIteratorIterator::SELF_FIRST);
+    $iterator = isset($iterator) ? $iterator : $this->element->elements();
     $root_depth = $this->element->depth();
     foreach ($iterator as $key => $child) {
       $id = $child->elementId();
@@ -902,7 +961,7 @@ class RulesContainerPluginUI extends RulesPluginUI {
       $form['elements'][$id]['weight'] = array(
         '#type' => 'weight',
         '#default_value' => $child->weight,
-        '#delta' => 20,
+        '#delta' => 50,
       );
       $form['elements'][$id]['parent_id'] = array(
         '#type' => 'hidden',
@@ -998,7 +1057,7 @@ class RulesContainerPluginUI extends RulesPluginUI {
           '#theme' => 'rules_content_group',
           '#caption' => t('Tags'),
           'tags' => array(
-            '#markup' => implode(', ', $this->element->tags),
+            '#markup' => check_plain(drupal_implode_tags($this->element->tags)),
           ),
         );
       }
@@ -1079,4 +1138,138 @@ class RulesActionContainerUI extends RulesContainerPluginUI {
     $form['elements']['#attributes']['class'][] = 'rules-action-container';
     $form['elements']['#caption'] = t('Actions');
   }
+}
+
+/**
+ * Class holding category related methods.
+ */
+class RulesUICategory {
+
+  /**
+   * Gets info about all available categories, or about a specific category.
+   *
+   * @return array
+   */
+  public static function getInfo($category = NULL) {
+    $data = rules_fetch_data('category_info');
+    if (isset($category)) {
+      return $data[$category];
+    }
+    return $data;
+  }
+
+  /**
+   * Returns a group label, e.g. as usable for opt-groups in a select list.
+   *
+   * @param array $item_info
+   *   The info-array of an item, e.g. an entry of hook_rules_action_info().
+   * @param bool $in_category
+   *   (optional) Whether group labels for grouping inside a category should be
+   *   return. Defaults to FALSE.
+   *
+   * @return string|boolean
+   *   The group label to use, or FALSE if none can be found.
+   */
+  public static function getItemGroup($item_info, $in_category = FALSE) {
+    if (isset($item_info['category']) && !$in_category) {
+      return self::getCategory($item_info, 'label');
+    }
+    else if (!empty($item_info['group'])) {
+      return $item_info['group'];
+    }
+    return FALSE;
+  }
+
+  /**
+   * Gets the category for the given item info array.
+   *
+   * @param array $item_info
+   *   The info-array of an item, e.g. an entry of hook_rules_action_info().
+   * @param string|null $key
+   *   (optional) The key of the category info to return, e.g. 'label'. If none
+   *   is given the whole info array is returned.
+   *
+   * @return array|mixed|false
+   *   Either the whole category info array or the value of the given key. If
+   *   no category can be found, FALSE is returned.
+   */
+  public static function getCategory($item_info, $key = NULL) {
+    if (isset($item_info['category'])) {
+      $info = self::getInfo($item_info['category']);
+      return isset($key) ? $info[$key] : $info;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Returns an array of options to use with a select for the items specified
+   * in the given hook.
+   *
+   * @param $item_type
+   *   The item type to get options for. One of 'data', 'event', 'condition' and
+   *   'action'.
+   * @param $items
+   *   (optional) An array of items to restrict the options to.
+   *
+   * @return
+   *   An array of options.
+   */
+  public static function getOptions($item_type, $items = NULL) {
+    $sorted_data = array();
+    $ungrouped = array();
+    $data = $items ? $items : rules_fetch_data($item_type . '_info');
+    foreach ($data as $name => $info) {
+      // Verfiy the current user has access to use it.
+      if (!user_access('bypass rules access') && !empty($info['access callback']) && !call_user_func($info['access callback'], $item_type, $name)) {
+        continue;
+      }
+      if ($group = RulesUICategory::getItemGroup($info)) {
+        $sorted_data[drupal_ucfirst($group)][$name] = drupal_ucfirst($info['label']);
+      }
+      else {
+        $ungrouped[$name] = drupal_ucfirst($info['label']);
+      }
+    }
+    asort($ungrouped);
+    foreach ($sorted_data as $key => $choices) {
+      asort($choices);
+      $sorted_data[$key] = $choices;
+    }
+
+    // Sort the grouped data by category weights, defaulting to weight 0 for
+    // groups without a respective category.
+    $sorted_groups = array();
+    foreach (array_keys($sorted_data) as $label) {
+      $sorted_groups[$label] = array('weight' => 0, 'label' => $label);
+    }
+    // Add in category weights.
+    foreach (RulesUICategory::getInfo() as $info) {
+      if (isset($sorted_groups[$info['label']])) {
+        $sorted_groups[$info['label']] = $info;
+      }
+    }
+    uasort($sorted_groups, '_rules_ui_sort_categories');
+
+    // Now replace weights with group content.
+    foreach ($sorted_groups as $group => $weight) {
+      $sorted_groups[$group] = $sorted_data[$group];
+    }
+    return $ungrouped + $sorted_groups;
+  }
+}
+
+/**
+ * Helper for sorting categories.
+ */
+function _rules_ui_sort_categories($a, $b) {
+  // @see element_sort()
+  $a_weight = isset($a['weight']) ? $a['weight'] : 0;
+  $b_weight = isset($b['weight']) ? $b['weight'] : 0;
+  if ($a_weight == $b_weight) {
+    // @see element_sort_by_title()
+    $a_title = isset($a['label']) ? $a['label'] : '';
+    $b_title = isset($b['label']) ? $b['label'] : '';
+    return strnatcasecmp($a_title, $b_title);
+  }
+  return ($a_weight < $b_weight) ? -1 : 1;
 }

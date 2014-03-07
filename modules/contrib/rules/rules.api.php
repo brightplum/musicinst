@@ -30,6 +30,10 @@
  * placed into the file MODULENAME.rules.inc, which gets automatically included
  * when the hook is invoked.
  *
+ * However, as an alternative to implementing this hook, class based plugin
+ * handlers may be provided by implementing RulesActionHandlerInterface. See
+ * the interface for details.
+ *
  * @return
  *   An array of information about the module's provided rules actions.
  *   The array contains a sub-array for each action, with the action name as
@@ -92,10 +96,22 @@
  *     FALSE.
  *   - restriction: (optional) Restrict how the argument for this parameter may
  *     be provided. Supported values are 'selector' and 'input'.
+ *   - default mode: (optional) Customize the default mode for providing the
+ *     argument value for a parameter. Supported values are 'selector' and
+ *     'input'. The default depends on the required data type.
  *   - sanitize: (optional) Allows parameters of type 'text' to demand an
  *     already sanitized argument. If enabled, any user specified value won't be
  *     sanitized itself, but replacements applied by input evaluators are as
  *     well as values retrieved from selected data sources.
+ *   - translatable: (optional) If set to TRUE, the provided argument value
+ *     of the parameter is translatable via i18n String translation. This is
+ *     applicable for textual parameters only, i.e. parameters of type 'text',
+ *     'token', 'list<text>' and 'list<token>'. Defaults to FALSE.
+ *   - ui class: (optional) Allows overriding the UI class, which is used to
+ *     generate the configuration UI of a parameter. Defaults to the UI class of
+ *     the specified data type.
+ *   - cleaning callback: (optional) A callback that input evaluators may use
+ *     to clean inserted replacements; e.g. this is used by the token evaluator.
  *   - wrapped: (optional) Set this to TRUE in case the data should be passed
  *     wrapped. This only applies to wrapped data types, e.g. entities.
  *  Each 'provides' array may contain the following properties:
@@ -140,6 +156,60 @@ function hook_rules_action_info() {
 }
 
 /**
+ * Define categories for Rules items, e.g. actions, conditions or events.
+ *
+ * Categories are similar to the previously used 'group' key in e.g.
+ * hook_rules_action_info(), but have a machine name and some more optional
+ * keys like a weight, or an icon.
+ *
+ * For best compatibility, modules may keep using the 'group' key for referring
+ * to categories. However, if a 'group' key and a 'category' is given the group
+ * will be treated as grouping in the given category (e.g. group "paypal" in
+ * category "commerce payment").
+ *
+ * @return
+ *   An array of information about the module's provided categories.
+ *   The array contains a sub-array for each category, with the category name as
+ *   the key. Names may only contain lowercase alpha-numeric characters
+ *   and underscores and should be prefixed with the providing module name.
+ *   Possible attributes for each sub-array are:
+ *   - label: The label of the category. Start capitalized. Required.
+ *   - weight: (optional) A weight for sorting the category. Defaults to 0.
+ *   - equals group: (optional) For BC, categories may be defined that equal
+ *     a previsouly used 'group'.
+ *   - icon: (optional) The file path of an icon to use, relative to the module
+ *     or specified icon path. The icon should be a transparent SVG containing
+ *     no colors (only #fff). See https://drupal.org/node/2090265 for
+ *     instructions on how to create a suiting icon.
+ *     Note that the icon is currently not used by Rules, however other UIs
+ *     building upon Rules (like fluxkraft) do, and future releases of Rules
+ *     might do as well. Consequently, the definition of an icon is optional.
+ *     However, if both an icon font and icon is given, the icon is preferred.
+ *   - icon path: (optional) The base path for the icon. Defaults to the
+ *     providing module's directory.
+ *   - icon font class: (optional) An icon font class referring to a suiting
+ *     icon. Icon font class names should map to the ones as defined by Font
+ *     Awesome, while themes might want to choose to provide another icon font.
+ *     See http://fortawesome.github.io/Font-Awesome/cheatsheet/.
+ *   - icon background color: (optional) The color used as icon background.
+ *     Should have a high contrast to white. Defaults to #ddd.
+ */
+function hook_rules_category_info() {
+  return array(
+    'rules_data' => array(
+      'label' => t('Data'),
+      'equals group' => t('Data'),
+      'weight' => -50,
+    ),
+    'fluxtwitter' => array(
+      'label' => t('Twitter'),
+      'icon font class' => 'icon-twitter',
+      'icon font background color' => '#30a9fd',
+    ),
+  );
+}
+
+/**
  * Specify files containing rules integration code.
  *
  * All files specified in that hook will be included when rules looks for
@@ -156,6 +226,27 @@ function hook_rules_action_info() {
  */
 function hook_rules_file_info() {
   return array('yourmodule.rules-eval');
+}
+
+/**
+ * Specifies directories for class-based plugin handler discovery.
+ *
+ * Implementing this hook is not a requirement, it is just one option to load
+ * the files containing the classes during discovery - see
+ * rules_discover_plugins().
+ *
+ * @return string|array
+ *   A directory relative to the module directory, which holds the files
+ *   containing rules plugin handlers, or multiple directories keyed by the
+ *   module the directory is contained in.
+ *   All files in those directories having a 'php' or 'inc' file extension will
+ *   be loaded during discovery. Optionally, wildcards ('*') may be used to
+ *   match multiple directories.
+ *
+ * @see rules_discover_plugins()
+ */
+function hook_rules_directory() {
+  return 'lib/Drupal/fluxtwitter/Rules/*';
 }
 
 /**
@@ -191,6 +282,10 @@ function rules_action_execution_callback($node, $title, $settings) {
  * placed into the file MODULENAME.rules.inc, which gets automatically included
  * when the hook is invoked.
  *
+ * However, as an alternative to implementing this hook, class based plugin
+ * handlers may be provided by implementing RulesConditionHandlerInterface. See
+ * the interface for details.
+ *
  * Adding conditions works exactly the same way as adding actions, with the
  * exception that conditions can't provide variables and cannot save parameters.
  * Thus the 'provides' attribute is not supported. Furthermore the condition
@@ -222,6 +317,10 @@ function hook_rules_condition_info() {
  * usually it's invoked directly from the providing module but wrapped by a
  * module_exists('rules') check.
  *
+ * However, as an alternative to implementing this hook, class based event
+ * handlers may be provided by implementing RulesEventHandlerInterface. See
+ * the interface for details.
+ *
  * @return
  *   An array of information about the module's provided rules events. The array
  *   contains a sub-array for each event, with the event name as the key. The
@@ -232,13 +331,18 @@ function hook_rules_condition_info() {
  *   - group: A group for this element, used for grouping the events in the
  *     interface. Should start with a capital letter and be translated.
  *     Required.
- *   - 'access callback': An callback, which has to return whether the
+ *   - class: (optional) An event handler class implementing the
+ *     RulesEventHandlerInterface. If none is specified the
+ *     RulesEventDefaultHandler class will be used. While the default event
+ *     handler has no settings, custom event handlers may be implemented to
+ *     to make an event configurable. See RulesEventHandlerInterface.
+ *   - access callback: (optional) An callback, which has to return whether the
  *     currently logged in user is allowed to configure rules for this event.
  *     Access should be only granted, if the user at least may access all the
- *     variables provided by the event. Optional.
- *   - help: A help text for rules reaction on this event.
- *   - variables: An array describing all variables that are available for
- *     elements reaction on this event. Optional. Each variable has to be
+ *     variables provided by the event.
+ *   - help: (optional) A help text for rules reaction on this event.
+ *   - variables: (optional) An array describing all variables that are
+ *     available for elements reacting on this event. Each variable has to be
  *     described by a sub-array with the possible attributes:
  *     - label: The label of the variable. Start capitalized. Required.
  *     - type: The rules data type of the variable. All types declared in
@@ -250,12 +354,12 @@ function hook_rules_condition_info() {
  *     - 'options list': (optional) A callback that returns an array of possible
  *       values for this variable as specified for entity properties at
  *       hook_entity_property_info().
- *     - 'skip save': If the variable is saved after the event has occurred
- *       anyway, set this to TRUE. So rules won't save the variable a second
- *       time. Optional, defaults to FALSE.
- *     - handler: A handler to load the actual variable value. This is useful
- *       for lazy loading variables. The handler gets all so far available
- *       variables passed in the order as defined. Optional. Also see
+ *     - 'skip save': (optional) If the variable is saved after the event has
+ *       occurred anyway, set this to TRUE. So rules won't save the variable a
+ *       second time. Defaults to FALSE.
+ *     - handler: (optional) A handler to load the actual variable value. This
+ *       is useful for lazy loading variables. The handler gets all so far
+ *       available variables passed in the order as defined. Also see
  *       http://drupal.org/node/884554.
  *       Note that for lazy-loading entities just the entity id may be passed
  *       as variable value, so a handler is not necessary in that case.
@@ -326,7 +430,9 @@ function hook_rules_event_info() {
  *     configuration UI to configure parameters of this type. The given class
  *     must extend RulesDataUI and may implement the
  *     RulesDataDirectInputFormInterface in order to allow the direct data input
- *     configuration mode. Defaults to RulesDataUI.
+ *     configuration mode. For supporting selecting values from options lists,
+ *     the UI class may implement RulesDataInputOptionsListInterface also.
+ *     Defaults to RulesDataUI.
  *   - wrap: (optional) If set to TRUE, the data is wrapped internally using
  *     wrappers provided by the entity API module. This is required for entities
  *     and data structures to support selecting a property via the data selector
@@ -402,8 +508,9 @@ function hook_rules_data_info() {
  *     components (see below).
  *   - class: The implementation class. Has to extend the RulesPlugin class.
  *   - embeddable: A container class in which elements of those plugin may be
- *     embedded or FALSE to disallow embedding. Common classes that are used
- *     here are RulesConditionContainer and RulesActionContainer.
+ *     embedded via the UI or FALSE to disallow embedding it via the UI. This
+ *     has no implications on the API level though. Common classes that are
+ *     used here are RulesConditionContainer and RulesActionContainer.
  *   - component: If set to TRUE, the rules admin UI will list elements of those
  *     plugin in the components UI and allows the creation of new components
  *     based upon this plugin. Optional.
@@ -694,7 +801,7 @@ function hook_rules_config_insert($config) {
  *   The rules configuration that is being inserted or updated.
  */
 function hook_rules_config_presave($config) {
-  if ($config->id && $config->module == 'yours') {
+  if ($config->id && $config->owner == 'your_module') {
     // Add custom condition.
     $config->conditon(/* Your condition */);
   }
@@ -754,6 +861,7 @@ function hook_rules_config_execute($config) {
  *   An array of rules configurations with the configuration names as keys.
  *
  * @see hook_default_rules_configuration_alter()
+ * @see hook_rules_config_defaults_rebuild()
  */
 function hook_default_rules_configuration() {
   $rule = rules_reaction_rule();
@@ -765,7 +873,7 @@ function hook_default_rules_configuration() {
        ->action('drupal_message', array('message' => 'A node has been updated.'));
 
   $configs['rules_test_default_1'] = $rule;
-  return $config;
+  return $configs;
 }
 
 /**
@@ -784,6 +892,37 @@ function hook_default_rules_configuration() {
 function hook_default_rules_configuration_alter(&$configs) {
   // Add custom condition.
   $configs['foo']->condition('bar');
+}
+
+/**
+ * Act after rebuilding default configurations.
+ *
+ * This hook is invoked by the entity module after default rules configurations
+ * have been rebuilt; i.e. defaults have been saved to the database.
+ *
+ * @param $rules_configs
+ *   The array of default rules configurations which have been inserted or
+ *   updated, keyed by name.
+ * @param $originals
+ *   An array of original rules configurations keyed by name; i.e. the rules
+ *   configurations before the current defaults have been applied. For inserted
+ *   rules configurations no original is available.
+ *
+ * @see hook_default_rules_configuration()
+ * @see entity_defaults_rebuild()
+ */
+function hook_rules_config_defaults_rebuild($rules_configs, $originals) {
+  // Once all defaults have been rebuilt, update all i18n strings at once. That
+  // way we build the rules cache once the rebuild is complete and avoid
+  // rebuilding caches for each updated rule.
+  foreach ($rules_configs as $name => $rule_config) {
+    if (empty($originals[$name])) {
+      rules_i18n_rules_config_insert($rule_config);
+    }
+    else {
+      rules_i18n_rules_config_update($rule_config, $originals[$name]);
+    }
+  }
 }
 
 /**
@@ -894,6 +1033,64 @@ function hook_rules_action_base_upgrade($element, RulesPlugin $target) {
  */
 function hook_rules_element_upgrade_alter($element, $target) {
 
+}
+
+/**
+ * Allows modules to alter or to extend the provided Rules UI.
+ *
+ * Use this hook over the regular hook_menu_alter() as the Rules UI is re-used
+ * and embedded by modules. See rules_ui().
+ *
+ * @param $items
+ *   The menu items to alter.
+ * @param $base_path
+ *   The base path of the Rules UI.
+ * @param $base_count
+ *   The count of the directories contained in the base path.
+ */
+function hook_rules_ui_menu_alter(&$items, $base_path, $base_count) {
+  $items[$base_path . '/manage/%rules_config/schedule'] = array(
+    'title callback' => 'rules_get_title',
+    'title arguments' => array('Schedule !plugin "!label"', $base_count + 1),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rules_scheduler_schedule_form', $base_count + 1, $base_path),
+    'access callback' => 'rules_config_access',
+    'access arguments' => array('update', $base_count + 1),
+    'file' => 'rules_scheduler.admin.inc',
+    'file path' => drupal_get_path('module', 'rules_scheduler'),
+  );
+}
+
+/**
+ * Control access to Rules configurations.
+ *
+ * Modules may implement this hook if they want to have a say in whether or not
+ * a given user has access to perform a given operation on a Rules
+ * configuration.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'create', 'update' or
+ *   'delete'.
+ * @param $rules_config
+ *   (optional) A Rules configuration to check access for. If nothing is given,
+ *   access for all Rules configurations is determined.
+ * @param $account
+ *   (optional) The user to check for. If no account is passed, access is
+ *   determined for the current user.
+ * @return boolean
+ *   Return TRUE to grant access, FALSE to explicitly deny access. Return NULL
+ *   or nothing to not affect the operation.
+ *   Access is granted as soon as a module grants access and no one denies
+ *   access. Thus if no module explicitly grants access, access will be denied.
+ *
+ * @see rules_config_access()
+ */
+function hook_rules_config_access($op, $rules_config = NULL, $account = NULL) {
+  // Instead of returning FALSE return nothing, so others still can grant
+  // access.
+  if (isset($rules_config) && $rules_config->owner == 'mymodule' && user_access('my modules permission')) {
+    return TRUE;
+  }
 }
 
 /**

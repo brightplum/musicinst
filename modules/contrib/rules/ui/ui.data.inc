@@ -29,6 +29,31 @@ interface RulesDataDirectInputFormInterface {
 }
 
 /**
+ * Interface for data UI classes providing an options list.
+ */
+interface RulesDataInputOptionsListInterface extends RulesDataDirectInputFormInterface {
+
+  /**
+   * Returns the options list for the data type.
+   *
+   * @param RulesPlugin $element
+   *   The rules element to get the options for.
+   * @param string $name
+   *   The name of the parameter for which to get options.
+   *
+   * For retrieving information about the used data type and parameter, the
+   * helper RulesDataUI::getTypeInfo() may be used as following:
+   * @code
+   *   list($type, $parameter_info) = RulesDataUI::getTypeInfo($element, $name);
+   * @endcode
+   *
+   * @return
+   *   An array of options as used by hook_options_list().
+   */
+  public static function optionsList(RulesPlugin $element, $name);
+}
+
+/**
  * Default UI related class for data types.
  */
 class RulesDataUI {
@@ -68,6 +93,37 @@ class RulesDataUI {
       '#description' => t("The data selector helps you drill down into the data available to Rules. <em>To make entity fields appear in the data selector, you may have to use the condition 'entity has field' (or 'content is of type').</em> More useful tips about data selection is available in <a href='@url'>the online documentation</a>.",
         array('@url' => rules_external_help('data-selection'))),
     );
+
+    $cache = rules_get_cache();
+    $form['types_help'] = array(
+      '#theme' => 'rules_settings_help',
+      '#heading' => t('Data types'),
+    );
+    if ($info['type'] == '*') {
+      $type_labels[] = t('any');
+    }
+    else {
+      $types = is_array($info['type']) ? $info['type'] : array($info['type']);
+      $type_labels = array();
+      foreach ($types as $type) {
+        $type_labels[] = drupal_ucfirst(isset($cache['data_info'][$type]['label']) ? $cache['data_info'][$type]['label'] : $type);
+      }
+    }
+    $form['types_help']['#text'] = format_plural(count($type_labels), 'Select data of the type %types.', 'Select data of the types %types.', array('%types' => implode(', ', $type_labels)));
+
+    if (!empty($info['translatable'])) {
+      if (empty($info['custom translation language'])) {
+        $text = t('If a multilingual data source (i.e. a translatable field) is given, the argument is translated to the current interface language.');
+      }
+      else {
+        $text = t('If a multilingual data source (i.e. a translatable field) is given, the argument is translated to the configured language.');
+      }
+      $form['translation'] = array(
+        '#theme' => 'rules_settings_help',
+        '#text' => $text,
+        '#heading' => t('Translation'),
+      );
+    }
     $form['help'] = array(
       '#theme' => 'rules_data_selector_help',
       '#variables' => $element->availableVariables(),
@@ -96,7 +152,7 @@ class RulesDataUI {
   public static function renderOptionsLabel($value, $name, $info, RulesPlugin $element) {
     if (!empty($info['options list'])) {
       $element->call('loadBasicInclude');
-      $options = entity_property_options_flatten($info['options list']($element, $name));
+      $options = entity_property_options_flatten(call_user_func($info['options list'], $element, $name));
       if (!is_array($value) && isset($options[$value])) {
         $value = $options[$value];
       }
@@ -113,6 +169,17 @@ class RulesDataUI {
         '#attributes' => array('class' => array('rules-parameter-options-entry')),
       );
     }
+  }
+
+  /**
+   * Returns the data type and parameter information for the given arguments.
+   *
+   * This helper may be used by options list callbacks operation at data-type
+   * level, see RulesDataInputOptionsListInterface.
+   */
+  public static function getTypeInfo(RulesPlugin $element, $name) {
+    $parameters = $element->pluginParameterInfo();
+    return array($parameters[$name]['type'], $parameters[$name]);
   }
 }
 
@@ -167,9 +234,11 @@ class RulesDataUITextToken extends RulesDataUIText {
 
   public static function inputForm($name, $info, $settings, RulesPlugin $element) {
     $form = parent::inputForm($name, $info, $settings, $element);
-    $form[$name]['#element_validate'][] = 'rules_ui_element_token_validate';
-    $form[$name]['#description'] = t('May only contain lowercase letters, numbers, and underscores and has to start with a letter.');
-    $form[$name]['#rows'] = 1;
+    if ($form[$name]['#type'] == 'textarea') {
+      $form[$name]['#element_validate'][] = 'rules_ui_element_token_validate';
+      $form[$name]['#description'] = t('May only contain lowercase letters, numbers, and underscores and has to start with a letter.');
+      $form[$name]['#rows'] = 1;
+    }
     return $form;
   }
 }
@@ -422,7 +491,7 @@ class RulesDataUIEntity extends RulesDataUIText {
       }
       $form[$name]['#title'] = t('@entity identifier', array('@entity' => $entity_info['label']));
       $entity_label = strtolower($entity_info['label'][0]) . substr($entity_info['label'], 1);
-      $form[$name]['#description'] = t('Specify an identfier of a @entity.', array('@entity' => $entity_label));
+      $form[$name]['#description'] = t('Specify an identifier of a @entity.', array('@entity' => $entity_label));
     }
     return $form;
   }
@@ -439,25 +508,49 @@ class RulesDataUIEntityExportable extends RulesDataUIEntity {
 }
 
 /**
- * UI for taxonomy vocabularies.
+ * Data UI variant displaying a select list of available bundle entities.
  *
- * @see RulesTaxonomyVocabularyWrapper
+ * This is used for "bundle entities" implemented via the 'bundle of' feature
+ * of entity.module.
  */
-class RulesDataUITaxonomyVocabulary extends RulesDataUIEntity {
+class RulesDataUIBundleEntity extends RulesDataUIEntity implements RulesDataInputOptionsListInterface {
 
   public static function getDefaultMode() {
     return 'input';
   }
 
-  public static function inputForm($name, $info, $settings, RulesPlugin $element) {
-    // Add an options list of all vocabularies if there is none yet.
-    if (!isset($info['options list'])) {
-      $info['options list'] = array('RulesDataUITaxonomyVocabulary', 'optionsList');
+  /**
+   * Implements RulesDataInputOptionsListInterface::optionsList().
+   */
+  public static function optionsList(RulesPlugin $element, $name) {
+    list($data_type, $parameter_info) = RulesDataUI::getTypeInfo($element, $name);
+    $bundles = array();
+    $entity_info = entity_get_info();
+    $bundle_of_type = $entity_info[$data_type]['bundle of'];
+    if (isset($entity_info[$bundle_of_type]['bundles'])) {
+      foreach ($entity_info[$bundle_of_type]['bundles'] as $bundle_name => $bundle_info) {
+        $bundles[$bundle_name] = $bundle_info['label'];
+      }
     }
-    return parent::inputForm($name, $info, $settings, $element);
+    return $bundles;
+  }
+}
+
+/**
+ * UI for taxonomy vocabularies.
+ *
+ * @see RulesTaxonomyVocabularyWrapper
+ */
+class RulesDataUITaxonomyVocabulary extends RulesDataUIEntity implements RulesDataInputOptionsListInterface {
+
+  public static function getDefaultMode() {
+    return 'input';
   }
 
-  public static function optionsList() {
+  /**
+   * Implements RulesDataInputOptionsListInterface::optionsList().
+   */
+  public static function optionsList(RulesPlugin $element, $name) {
     $options = array();
     foreach (taxonomy_vocabulary_get_names() as $machine_name => $vocab) {
       $options[$machine_name] = $vocab->name;
@@ -481,9 +574,8 @@ class RulesDataUIListEntity extends RulesDataUIListInteger {
       }
       $form[$name]['#title'] = t('@entity identifiers', array('@entity' => $entity_info['label']));
       $entity_label = strtolower($entity_info['label'][0]) . substr($entity_info['label'], 1);
-      $form[$name]['#description'] = t('Specify a comma-separated list of identfiers of @entity entities.', array('@entity' => $entity_label));
+      $form[$name]['#description'] = t('Specify a comma-separated list of identifiers of @entity entities.', array('@entity' => $entity_label));
     }
     return $form;
   }
 }
-

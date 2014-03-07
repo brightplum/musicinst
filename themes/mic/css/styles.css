@@ -714,11 +714,7 @@ Home Banner Wrapper
 
 
 .home-banner-wrapper .calendar-wrapper .bottom div.actions ul li a.rss {
-	background: url('../images/structure/block-items/rss-icon.jpg') no-repeat 0px 4px;
-	display: block;
-	text-indent: -9999em;
-	width: 13px;
-	height: 22px;
+	display: none;
 }
 
 .home-banner-wrapper .date-nav-wrapper {
@@ -737,8 +733,10 @@ Home Banner Wrapper
 	width: 20px;
 	height: 38px;
 	display: block;
-	text-indent: -9999em;
 	margin: 0px;
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .home-banner-wrapper .date-nav-wrapper .date-next {
@@ -756,8 +754,10 @@ Home Banner Wrapper
 	width: 20px;
 	height: 38px;
 	display: block;
-	text-indent: 9999em;
 	margin-top: -19px;
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .home-banner-wrapper .date-nav-wrapper .date-heading {
@@ -895,22 +895,11 @@ Banner Wrapper
 }
 
 .banner-inner-wrapper .right-column .listing-block-top div.actions span.rss {
-	float: left;
-	padding: 3px 0px 0px 8px;
-	width: 13px;
-	height: 17px;
-	text-indent: -99999em;
-	background: url('../images/structure/home-body/news-actions-separator.jpg') no-repeat 0px 2px;
-	display: block;
+	display: none;
 }
 
 .banner-inner-wrapper .right-column .listing-block-top div.actions a.rss {
-	padding: 3px 6px 0px 8px;
-	width: 13px;
-	height: 16px;
-	text-indent: -99999em;
-	background: url('../images/structure/block-items/rss-icon.jpg') no-repeat 0px 1px;
-	display: block;
+	display: none;
 }
 
 /*  Bottom - Left Column */
@@ -1238,22 +1227,11 @@ Home-Body Wrapper
 }
 
 .home-body-wrapper .left-column div.actions span.rss {
-	float: left;
-	padding: 3px 0px 0px 8px;
-	width: 13px;
-	height: 17px;
-	text-indent: -99999em;
-	background: url('../images/structure/home-body/news-actions-separator.jpg') no-repeat 0px 2px;
-	display: block;
+	display: none;
 }
 
 .home-body-wrapper .left-column div.actions a.rss {
-	padding: 3px 6px 0px 8px;
-	width: 13px;
-	height: 16px;
-	text-indent: -99999em;
-	background: url('../images/structure/block-items/rss-icon.jpg') no-repeat 0px 1px;
-	display: block;
+	display: none;
 }
 
 /*  Bottom - Left Column */
@@ -2104,22 +2082,11 @@ Content-Listing Wrapper
 }
 
 .content-listing-inner-wrapper .content-listing-top div.actions span.rss {
-	float: left;
-	padding: 3px 0px 0px 8px;
-	width: 13px;
-	height: 17px;
-	text-indent: -99999em;
-	background: url('../images/structure/home-body/news-actions-separator.jpg') no-repeat 0px 2px;
-	display: block;
+	display: none;
 }
 
 .content-listing-inner-wrapper .content-listing-top div.actions a.rss {
-	padding: 3px 6px 0px 8px;
-	width: 13px;
-	height: 16px;
-	text-indent: -99999em;
-	background: url('../images/structure/block-items/rss-icon.jpg') no-repeat 0px 1px;
-	display: block;
+	display: none;
 }
 
 .content-listing-inner-wrapper .content-listing-bottom .listing-block-item {
@@ -2629,22 +2596,11 @@ News Columns
 }
 
 .body-inner-wrapper .news-middle-column .main-content-wrapper .main-story-wrapper div.actions span.rss {
-    background: url("../images/structure/home-body/news-actions-separator.jpg") no-repeat 0px 2px;
-    display: block;
-    float: left;
-    height: 17px;
-    padding: 3px 0 0 8px;
-    text-indent: -99999em;
-    width: 13px;
+    display: none;
 }
 
 .body-inner-wrapper .news-middle-column .main-content-wrapper .main-story-wrapper div.actions a.rss {
-    background: url("../images/structure/block-items/rss-icon.jpg") no-repeat 0px 1px;
-    display: block;
-    height: 16px;
-    padding: 3px 6px 0 8px;
-    text-indent: -99999em;
-    width: 13px;
+    display: none;
 }
 
 .body-inner-wrapper .news-middle-column .main-content-wrapper .listing-block-item {
@@ -2739,22 +2695,11 @@ News Columns
 }
 
 .body-inner-wrapper .news-right-column .listing-block-top div.actions span.rss {
-	float: left;
-	padding: 3px 0px 0px 8px;
-	width: 13px;
-	height: 17px;
-	text-indent: -99999em;
-	background: url('../images/structure/home-body/news-actions-separator.jpg') no-repeat 0px 2px;
-	display: block;
+	display: none;
 }
 
 .body-inner-wrapper .news-right-column .listing-block-top div.actions a.rss {
-	padding: 3px 6px 0px 8px;
-	width: 13px;
-	height: 16px;
-	text-indent: -99999em;
-	background: url('../images/structure/block-items/rss-icon.jpg') no-repeat 0px 1px;
-	display: block;
+	display: none;
 }
 
 .body-inner-wrapper .news-right-column .listing-block-bottom {
