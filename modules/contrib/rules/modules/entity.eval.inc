@@ -65,7 +65,7 @@ function rules_action_entity_query_info_alter(&$element_info, RulesAbstractPlugi
     $element_info['parameter']['property']['options list'] = 'rules_action_entity_query_property_options_list';
 
     if ($element->settings['property']) {
-      $wrapper = entity_metadata_wrapper($element->settings['type']);
+      $wrapper = rules_get_entity_metadata_wrapper_all_properties($element);
       if (isset($wrapper->{$element->settings['property']}) && $property = $wrapper->{$element->settings['property']}) {
         $element_info['parameter']['value']['type'] = $property->type();
         $element_info['parameter']['value']['options list']  = $property->optionsList() ? 'rules_action_entity_query_value_options_list' : FALSE;
@@ -99,7 +99,7 @@ function rules_action_entity_create($args, $element) {
  * Info alteration callback for the entity create action.
  */
 function rules_action_entity_create_info_alter(&$element_info, RulesAbstractPlugin $element) {
-  if (!empty($element->settings['type'])) {
+  if (!empty($element->settings['type']) && entity_get_info($element->settings['type'])) {
     $wrapper = entity_metadata_wrapper($element->settings['type']);
     // Add the data type's needed parameter for loading to the parameter info.
     foreach ($wrapper as $name => $child) {
@@ -141,14 +141,14 @@ function rules_action_entity_delete($wrapper, $settings, $state, $element) {
  * Condition: Entity is new.
  */
 function rules_condition_entity_is_new($wrapper, $settings, $state, $element) {
-  return !$wrapper->getIdentifier() || !empty($entity->is_new);
+  return !$wrapper->getIdentifier() || !empty($wrapper->value()->is_new);
 }
 
 /**
  * Condition: Entity has field.
  */
 function rules_condition_entity_has_field($wrapper, $field_name, $settings, $state) {
-  return isset($wrapper->$field_name) || isset($entity->$field_name);
+  return isset($wrapper->$field_name) || isset($wrapper->value()->$field_name);
 }
 
 /**
@@ -156,4 +156,19 @@ function rules_condition_entity_has_field($wrapper, $field_name, $settings, $sta
  */
 function rules_condition_entity_is_of_type($wrapper, $type) {
   return $wrapper->type() == $type;
+}
+
+/**
+ * Condition: Entity is of type and bundle.
+ */
+function rules_condition_entity_is_of_bundle($wrapper, $type, $bundles) {
+  return $wrapper->type() == $type && in_array($wrapper->getBundle(), $bundles);
+}
+
+/**
+ * Condition: User has access to field.
+ */
+function rules_condition_entity_field_access(EntityDrupalWrapper $wrapper, $field_name, $op, $account = NULL) {
+  $field = field_info_field($field_name);
+  return !empty($field) && field_access($op, $field, $wrapper->type(), $wrapper->value(), $account = NULL);
 }

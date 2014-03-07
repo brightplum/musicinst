@@ -75,18 +75,21 @@ function rules_action_breadcrumb_set(array $titles, array $paths) {
 /**
  * Action Implementation: Send mail.
  */
-function rules_action_mail($to, $subject, $message, $from = NULL, $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mail($to, $subject, $message, $from = NULL, $langcode, $settings, RulesState $state, RulesPlugin $element) {
   $to = str_replace(array("\r", "\n"), '', $to);
   $from = !empty($from) ? str_replace(array("\r", "\n"), '', $from) : NULL;
   $params = array(
     'subject' => $subject,
     'message' => $message,
+    'langcode' => $langcode,
   );
   // Set a unique key for this mail.
   $name = isset($element->root()->name) ? $element->root()->name : 'unnamed';
   $key = 'rules_action_mail_' . $name . '_' . $element->elementId();
+  $languages = language_list();
+  $language = isset($languages[$langcode]) ? $languages[$langcode] : language_default();
 
-  $message = drupal_mail('rules', $key, $to, language_default(), $params, $from);
+  $message = drupal_mail('rules', $key, $to, $language, $params, $from);
   if ($message['result']) {
     watchdog('rules', 'Successfully sent email to %recipient', array('%recipient' => $to));
   }
@@ -112,21 +115,25 @@ function rules_action_mail_to_users_of_role($roles, $subject, $message, $from = 
   $params = array(
     'subject' => $subject,
     'message' => $message,
-    'action' => $element,
-    'state' => $state,
   );
   // Set a unique key for this mail.
   $name = isset($element->root()->name) ? $element->root()->name : 'unnamed';
-  $key = 'rules_action_mail_to_users_of_role_' . $name . '_' . $element->elementId();
+  $key = 'rules_action_mail_to_users_of_role_' . $name . '_' . $element->elementId();  $languages = language_list();
 
   $message = array('result' => TRUE);
   foreach ($result as $row) {
     $message = drupal_mail('rules', $key, $row->mail, language_default(), $params, $from);
-    if (!$message['result']) {
+    // If $message['result'] is FALSE, then it's likely that email sending is
+    // failing at the moment, and we should just abort sending any more. If
+    // however, $mesage['result'] is NULL, then it's likely that a module has
+    // aborted sending this particular email to this particular user, and we
+    // should just keep on sending emails to the other users.
+    // For more information on the result value, see drupal_mail().
+    if ($message['result'] === FALSE) {
       break;
     }
   }
-  if ($message['result']) {
+  if ($message['result'] !== FALSE) {
     $role_names = array_intersect_key(user_roles(TRUE), array_flip($roles));
     watchdog('rules', 'Successfully sent email to the role(s) %roles.', array('%roles' => implode(', ', $role_names)));
   }
@@ -179,6 +186,9 @@ class RulesTokenEvaluator extends RulesDataInputEvaluator {
       else {
         $replacements += token_generate($var_name, $tokens, array(), $options);
       }
+      // Remove tokens if no replacement value is found. As token_replace() does
+      // if 'clear' is set.
+      $replacements += array_fill_keys($tokens, '');
     }
 
     // Optionally clean the list of replacement values.
@@ -199,6 +209,15 @@ class RulesTokenEvaluator extends RulesDataInputEvaluator {
     return str_replace($tokens, $values, $text);
   }
 
+  /**
+   * Create documentation about the available replacement patterns.
+   *
+   * @param array $var_info
+   *   Array with the available variables.
+   *
+   * @return array
+   *   Renderable array with the replacement pattern documentation.
+   */
   public static function help($var_info) {
     $render = array(
       '#type' => 'fieldset',
@@ -222,7 +241,11 @@ class RulesTokenEvaluator extends RulesDataInputEvaluator {
         );
         foreach ($token_info['tokens'][$token_type] as $token => $info) {
           $token = '[' . str_replace('_', '-', $name) . ':' . $token . ']';
-          $render[$name]['#rows'][$token] = array(check_plain($token), check_plain($info['name']), check_plain($info['description']));
+          $render[$name]['#rows'][$token] = array(
+            check_plain($token),
+            check_plain($info['name']),
+            check_plain($info['description']),
+          );
         }
       }
     }
