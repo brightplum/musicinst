@@ -113,12 +113,13 @@ function mic_implementation_custom_theme() {
   $paths = array(
     'cart',
     'checkout',
-    'user'
+    'user',
   );
 
   if (is_object($node)) {
     switch ($node->type) {
       case 'item_course':
+      case 'standard_template_page':
       case 'event':
       case 'profile':
         $switch = TRUE;
