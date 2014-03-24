@@ -3511,5 +3511,12 @@ div.messages {
   top: 45px;
 }
 
+/** Tooltips **/
+.tooltip {
+  height: auto;
+  background: none;
+  background-color: #333333;
+}
+
 
 
