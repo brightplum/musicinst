@@ -696,6 +696,7 @@ function mic_commerce_cart_ajax_callback($js, $product_id) {
  */
 function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   //dialog for add_to_cart; breaks if JS compression is turned on
+  //get tooltip working
   if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
     //only do ajax for class forms
     if (isset($form['line_item_fields']['field_class_lineitem_detail']) && isset($form['line_item_fields']['field_class_lineitem_newstud'])) {
@@ -711,6 +712,51 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
         '#value' => $nid,
       );
       $form['#process'][] = 'dialog_process_ajax_form';
+    }
+
+    //tooltip on line item form
+    if (isset($form['line_item_fields']) && ($form['line_item_fields']['#bundle'] == 'product_pi')) {
+      // Grab entity information from the form.
+      $entity_type = $form['line_item_fields']['#entity_type'];
+      $bundle = $form['line_item_fields']['#bundle'];
+
+      // Lookup field instance information for all of the entity's fields.
+      $instances = field_info_instances($entity_type, $bundle);
+
+      // Add tooltips to each of the form's fields where appropriate.
+      foreach ($instances as $field_name => $instance) {
+        if (isset($form['line_item_fields'][$field_name])) {
+          if (!empty($instance['settings']['field_tooltips_enabled']) && !empty($instance['settings']['field_tooltips_tooltip'])) {
+            // Translate field tooltip.
+            if (module_exists('i18n_field')) {
+              $instance['settings']['field_tooltips_tooltip']['value'] = i18n_field_translate_tooltip($instance, $instance['settings']['field_tooltips_tooltip']['value']);
+            }
+
+            // Add a class to the parent field form item. This will be used by
+            // the tooltip JS to target the child field form items.
+            $form['line_item_fields'][$field_name]['#attributes']['class'][] = 'field-tooltips';
+
+            // Find all field form items and add the sanitized tooltip text as a
+            // title attribute.
+            foreach($form['line_item_fields'][$field_name][LANGUAGE_NONE] as $key => &$field) {
+              if (is_numeric($key) && is_array($field)) {
+                if (isset($field['value'])) {
+                  $field['value']['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
+                }
+                else {
+                  $field['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Attach the tooltip library.
+      $form['#attached']['library'][] = array('field_tooltips', 'tools.tooltip');
+      $form['#attached']['js'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.js';
+      $form['#attached']['css'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.css';
+
     }
   }
 
