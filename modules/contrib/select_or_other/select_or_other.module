@@ -50,7 +50,6 @@ function select_or_other_element_info() {
     'select_or_other' => array(
       '#select_type' => 'select',
       '#input' => TRUE,
-      '#size' => 0,
       '#multiple' => FALSE,
       '#disabled' => FALSE,
       '#default_value' => NULL,
@@ -85,31 +84,23 @@ function select_or_other_element_process($element, &$form_state) {
   // Load the JS file to hide/show the 'other' box when needed.
   $element['#attached']['js'][] = drupal_get_path('module', 'select_or_other') . '/select_or_other.js';
 
-  // Hide the title from the wrapper.
-  $element['#title_display'] = 'none';
-
   // Create the main select box
-  // Note that #title, #default_value, #disabled, #multiple, #options, #attributes,
-  // #required, and #size as passed to the select box from the main element.
+  // Note that #title, #title_display, #default_value, #disabled, #multiple,
+  // #required, #size, #options, and #attributes are passed to the select box
+  // from the main element automatically.
 
   $element['select'] = array(
     '#type' => $element['#select_type'],
     '#title' => $element['#title'],
+    '#title_display' => $element['#title_display'],
     '#default_value' => $element['#default_value'],
     '#disabled' => $element['#disabled'],
     '#multiple' => $element['#multiple'],
     '#required' => $element['#required'],
-    '#size' => $element['#size'],
+    '#size' => isset($element['#size']) ? $element['#size'] : NULL,
     '#options' => $element['#options'],
     '#attributes' => $element['#attributes'],
     '#weight' => 10,
-
-    // The following values were set by the content module and need
-    // to be passed down to the nested element.
-    //'#field_name' => $element['#field_name'],
-    //'#delta' => $element['#delta'],
-    //'#columns' => $element['#columns'],
-
   );
 
   if (isset($element['#empty_value'])) {
@@ -205,6 +196,12 @@ function select_or_other_element_process($element, &$form_state) {
   if (!empty($element['#maxlength'])) {
     $element['other']['#maxlength'] = $element['#maxlength'];
   }
+  if (isset($element['#other_size'])) {
+    $element['other']['#size'] = $element['#other_size'];
+  }
+
+  // Hide the title from the wrapper.
+  $element['#title'] = NULL;
 
   return $element;
 }
@@ -214,7 +211,7 @@ function select_or_other_element_process($element, &$form_state) {
  */
 function select_or_other_element_validate($element, &$form_state) {
   $other_selected = FALSE;
-  if (is_array($element['select']['#value']) && in_array('select_or_other', $element['select']['#value'])) {
+  if (is_array($element['select']['#value']) && isset($element['select']['#value']['select_or_other'])) {
     // This is a multiselect. assoc arrays
     $other_selected = TRUE;
     $value = $element['select']['#value'];
@@ -230,7 +227,7 @@ function select_or_other_element_validate($element, &$form_state) {
     $value = $element['select']['#value'];
   }
   if ($other_selected && !$element['other']['#value']) {
-    form_error($element['other'], t('!title is required', array('!title' => $element['#title'])));
+    form_error($element['other'], t('!title field is required.', array('!title' => $element['select']['#title'])));
   }
   if (isset($value)) {
     form_set_value($element, $value, $form_state);
@@ -284,7 +281,7 @@ function theme_select_or_other_none($variables) {
  *   Boolean indicating if the key is set.
  */
 function select_or_other_multi_array_key_exists($needle, $haystack) {
-  if (array_key_exists($needle, $haystack)) {
+  if (array_key_exists(html_entity_decode($needle, ENT_QUOTES), $haystack)) {
     return TRUE;
   }
   else {

@@ -1,5 +1,3 @@
-// $Id: imce.js,v 1.26.2.2 2010/12/12 07:15:56 ufku Exp $
-
 (function($) {
 //Global container.
 window.imce = {tree: {}, findex: [], fids: {}, selected: {}, selcount: 0, ops: {}, cache: {}, urlId: {},
@@ -9,6 +7,7 @@ hooks: {load: [], list: [], navigate: [], cache: []},
 //initiate imce.
 initiate: function() {
   imce.conf = Drupal.settings.imce || {};
+  imce.ie = (navigator.userAgent.match(/msie (\d+)/i) || ['', 0])[1] * 1;
   if (imce.conf.error != false) return;
   imce.FLW = imce.el('file-list-wrapper'), imce.SBW = imce.el('sub-browse-wrapper');
   imce.NW = imce.el('navigation-wrapper'), imce.BW = imce.el('browse-wrapper');
@@ -80,7 +79,7 @@ dirCollapsible: function (branch) {
     if (branch.ul) {
       $(branch.ul).toggle();
       $(branch.li).toggleClass('expanded');
-      $.browser.msie && $('#navigation-header').css('top', imce.NW.scrollTop);
+      imce.ie && $('#navigation-header').css('top', imce.NW.scrollTop);
     }
     else if (branch.clkbl){
       $(branch.a).click();
@@ -329,7 +328,7 @@ opClick: function(name) {
       });
     });
     var diff = left + $opcon.width() - $('#imce-content').width();
-    $opcon.css({left: diff > 0 ? left - diff : left});
+    $opcon.css({left: diff > 0 ? left - diff - 1 : left});
     $(Op.li).addClass('active');
     $(imce.opCloseLink).fadeIn(300);
     imce.vars.op = name;
@@ -425,7 +424,7 @@ navCache: function (dir, newdir) {
 
 //validate upload form
 uploadValidate: function (data, form, options) {
-  var path = data[0].value;
+  var path = $('#edit-imce').val();
   if (!path) return false;
   if (imce.conf.extensions != '*') {
     var ext = path.substr(path.lastIndexOf('.') + 1);
@@ -433,7 +432,6 @@ uploadValidate: function (data, form, options) {
       return imce.setMessage(Drupal.t('Only files with the following extensions are allowed: %files-allowed.', {'%files-allowed': imce.conf.extensions}), 'error');
     }
   }
-  var sep = path.indexOf('/') == -1 ? '\\' : '/';
   options.url = imce.ajaxURL('upload');//make url contain current dir.
   imce.fopLoading('upload', true);
   return true;
@@ -488,12 +486,12 @@ commonSubmit: function(fop) {
 
 //settings for default file operations
 fopSettings: function (fop) {
-  return {url: imce.ajaxURL(fop), type: 'POST', dataType: 'json', success: imce.processResponse, complete: function (response) {imce.fopLoading(fop, false);}, data: imce.vars.opform +'&filenames='+ imce.serialNames() +'&jsop='+ fop + (imce.ops[fop].div ? '&'+ $('input, select, textarea', imce.ops[fop].div).serialize() : '')};
+  return {url: imce.ajaxURL(fop), type: 'POST', dataType: 'json', success: imce.processResponse, complete: function (response) {imce.fopLoading(fop, false);}, data: imce.vars.opform +'&filenames='+ escape(imce.serialNames()) +'&jsop='+ fop + (imce.ops[fop].div ? '&'+ $('input, select, textarea', imce.ops[fop].div).serialize() : '')};
 },
 
 //toggle loading state
 fopLoading: function(fop, state) {
-  var el = imce.el('edit-'+ fop), func = state ? 'addClass' : 'removeClass'
+  var el = imce.el('edit-'+ fop), func = state ? 'addClass' : 'removeClass';
   if (el) {
     $(el)[func]('loading').attr('disabled', state);
   }
@@ -554,9 +552,9 @@ setMessage: function (msg, type) {
     $box.css({opacity: 0, display: 'block'}).html(msg);
     $box.dequeue();
   });
-  var q = $box.queue().length;
+  var q = $box.queue().length, t = imce.vars.msgT || 1000;
   q = q < 2 ? 1 : q < 3 ? 0.8 : q < 4 ? 0.7 : 0.4;//adjust speed with respect to queue length
-  $box.fadeTo(600 * q, 1).fadeTo(1000 * q, 1).fadeOut(400 * q);
+  $box.fadeTo(600 * q, 1).fadeTo(t * q, 1).fadeOut(400 * q);
   $(logs).append(msg);
   return false;
 },
@@ -790,7 +788,7 @@ updateUI: function() {
     imce.opAdd({name: 'help', title: $('#help-box-title').remove().text(), content: $('#help-box').show()});
   });
   //add ie classes
-  $.browser.msie && $('html').addClass('ie') && parseFloat($.browser.version) < 8 && $('html').addClass('ie-7');
+  imce.ie && $('html').addClass('ie') && imce.ie < 8 && $('html').addClass('ie-7');
   // enable box view for file list
   imce.vars.boxW && imce.boxView();
   //scrolling file list

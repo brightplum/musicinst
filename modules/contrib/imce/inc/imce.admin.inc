@@ -1,5 +1,4 @@
 <?php
-// $Id: imce.admin.inc,v 1.7.2.1 2010/12/12 07:14:44 ufku Exp $
 
 /**
  * @file
@@ -17,7 +16,8 @@ function imce_admin() {
   $rows = array();
 
   foreach ($profiles as $pid => $profile) {
-    $rows[] = array($profile['name'],
+    $rows[] = array(
+      check_plain($profile['name']),
       l(t('Edit'), 'admin/config/media/imce/profile/edit/' . $pid),
       $pid == 1 ? '' : l(t('Delete'), 'admin/config/media/imce/profile/delete/' . $pid),
     );
@@ -117,7 +117,7 @@ function imce_admin_theme($variables) {
   $swrappers = file_get_stream_wrappers(STREAM_WRAPPERS_VISIBLE);
   foreach ($swrappers as $scheme => $info) {
     $header[] = l($info['name'], 'imce/' . $scheme);
-    $rows[0][] = $profile1['name'];
+    $rows[0][] = check_plain($profile1['name']);
     $keys[] = $scheme . '_pid';
   }
 
@@ -250,7 +250,7 @@ function imce_profile_form($form, &$form_state, $pid = 0) {
   );
   $form['dimensions'] = array(
     '#type' => 'textfield',
-    '#title' => t('Maximum image resolution'),
+    '#title' => t('Maximum image dimensions'),
     '#default_value' => $profile['dimensions'],
     '#description' => t('The maximum allowed image size (e.g. 640x480). Set to 0 for no restriction. If an <a href="!image-toolkit-link">image toolkit</a> is installed, files exceeding this value will be scaled down to fit.', array('!image-toolkit-link' => url('admin/config/media/image-toolkit'))),
     '#field_suffix' => '<kbd>' . t('WIDTHxHEIGHT') . '</kbd>',
@@ -283,8 +283,28 @@ function imce_profile_form($form, &$form_state, $pid = 0) {
   $form = array('profile' => $form);
   $form['pid'] = array('#type' => 'hidden', '#value' => $pid);
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+  $form['#validate'][] = 'imce_profile_validate';
   $form['#submit'][] = 'imce_profile_submit';
   return $form;
+}
+
+/**
+ * Profile form validate.
+ */
+function imce_profile_validate($form, &$form_state) {
+  $profile = &$form_state['values']['profile'];
+  $dim_re = '/^\d+x\d+$/';
+  $dim_error = t('Dimensions must be specified in <kbd>WIDTHxHEIGHT</kbd> format.');
+  // Check max image dimensions
+  if ($profile['dimensions'] && !preg_match($dim_re, $profile['dimensions'])) {
+    return form_set_error('profile][dimensions', $dim_error);
+  }
+  // Check thumbnails dimensions
+  foreach ($profile['thumbnails'] as $i => $thumb) {
+    if (trim($thumb['name']) != '' && !preg_match($dim_re, $thumb['dimensions'])) {
+      return form_set_error("profile][thumbnails][$i][dimensions", $dim_error);
+    }
+  }
 }
 
 /**
@@ -463,7 +483,7 @@ function imce_thumbnails_theme($variables) {
  */
 function imce_role_form($role, $weight = TRUE, $core = TRUE) {
   $form['name'] = array(
-    '#markup' => $role['name'],
+    '#markup' => check_plain($role['name']),
   );
   if ($weight) {
     $form['weight'] = $core ? array(
@@ -598,7 +618,7 @@ function imce_update_profiles($pid, $profile = NULL) {
 function imce_clean_profile_fields(&$profile) {
   $clean = array();
   foreach ($profile['thumbnails'] as $thumb) {
-    if (trim($thumb['name']) != '' && preg_match('/^\d+x\d+$/', $thumb['dimensions'])) {
+    if (trim($thumb['name']) != '') {
       $clean[] = $thumb;
     }
   }

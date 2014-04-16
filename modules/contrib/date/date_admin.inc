@@ -122,6 +122,7 @@ function date_default_formatter_settings_summary($field, $instance, $view_mode) 
   $formatter = $display['type'];
   $format_types = date_format_type_options();
   $summary = array();
+  $format = FALSE;
   switch ($formatter) {
     case 'date_plain':
       $format = t('Plain');
@@ -130,9 +131,16 @@ function date_default_formatter_settings_summary($field, $instance, $view_mode) 
       $format = t('Interval');
       break;
     default:
-      $format = $format_types[$settings['format_type']];
+      if (!empty($format_types[$settings['format_type']])) {
+        $format = $format_types[$settings['format_type']];
+      }
   }
-  $summary[] = t('Display dates using the @format format', array('@format' => $format));
+  if ($format) {
+    $summary[] = t('Display dates using the @format format', array('@format' => $format));
+  }
+  else {
+    $summary[] = t('Display dates using the default format because the specified format (@format) is not defined', array('@format' => $settings['format_type']));
+  }
 
   if (array_key_exists('fromto', $settings) && $field['settings']['todate']) {
     $options = array(
@@ -362,11 +370,11 @@ function _date_field_widget_settings_form($field, $instance) {
   );
   if (in_array($widget['type'], array('date_select'))) {
     $options = array('above' => t('Above'), 'within' => t('Within'), 'none' => t('None'));
-    $description = t("The location of date part labels, like 'Year', 'Month', or 'Day' . 'Above' displays the label as titles above each date part. 'Within' inserts the label as the first option in the select list and in blank textfields. 'None' doesn't label any of the date parts. Theme functions like 'date_part_label_year' and 'date_part_label_month' control label text.");
+    $description = t("The location of date part labels, like 'Year', 'Month', or 'Day' . 'Above' displays the label as titles above each date part. 'Within' inserts the label as the first option in the select list and in blank textfields. 'None' doesn't visually label any of the date parts. Theme functions like 'date_part_label_year' and 'date_part_label_month' control label text.");
   }
   else {
     $options = array('above' => t('Above'), 'none' => t('None'));
-    $description = t("The location of date part labels, like 'Year', 'Month', or 'Day' . 'Above' displays the label as titles above each date part. 'None' doesn't label any of the date parts. Theme functions like 'date_part_label_year' and 'date_part_label_month' control label text.");
+    $description = t("The location of date part labels, like 'Year', 'Month', or 'Day' . 'Above' displays the label as titles above each date part. 'None' doesn't visually label any of the date parts. Theme functions like 'date_part_label_year' and 'date_part_label_month' control label text.");
   }
   $form['advanced']['label_position'] = array(
     '#type' => 'radios',
@@ -445,6 +453,9 @@ function _date_field_settings_form($field, $instance, $has_data) {
   $tz_handling = $settings['tz_handling'];
 
   $description = t('Select the date attributes to collect and store.');
+  if ($has_data) {
+    $description .= ' ' . t('Changes to date attributes only effects new or updated content.');
+  }
   $options = date_granularity_names();
   $checkbox_year = array(
     '#type' => 'checkbox',
@@ -461,7 +472,6 @@ function _date_field_settings_form($field, $instance, $has_data) {
     '#options' => $options,
     '#attributes' => array('class' => array('container-inline')),
     '#description' => $description,
-    '#disabled' => $has_data,
     'year' => $checkbox_year,
   );
 
@@ -491,7 +501,6 @@ function _date_field_settings_form($field, $instance, $has_data) {
     '#default_value' => $tz_handling,
     '#options' => date_timezone_handling_options(),
     '#description' => $description,
-    '#disabled' => $has_data,
     '#attached' => array(
       'js' => array(drupal_get_path('module', 'date') . '/date_admin.js'),
     ),

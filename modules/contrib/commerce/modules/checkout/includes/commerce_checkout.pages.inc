@@ -32,17 +32,15 @@ function commerce_checkout_router($order, $checkout_page = NULL) {
     // Only redirect if the target page is different from the page the user was
     // trying to access. Otherwise give a 403 error.
     if (!empty($target_uri) && $target_uri !== $_GET['q']) {
-      return drupal_goto($target_uri);
+      drupal_goto($target_uri);
     }
     else {
       return MENU_ACCESS_DENIED;
     }
   }
 
-  // If there are no line items on the order, redirect away.
-  $wrapper = entity_metadata_wrapper('commerce_order', $order);
-
-  if (commerce_line_items_quantity($wrapper->commerce_line_items, commerce_product_line_item_types()) == 0) {
+  // Ensure the order can proceed to checkout; if not, redirect away.
+  if (!commerce_checkout_order_can_checkout($order)) {
     drupal_goto('<front>');
   }
 
@@ -129,7 +127,7 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
           $form_state['storage']['themed_messages'][$pane_id] = theme('status_messages');
 
           $pane_form[$pane_id . '_messages'] = array(
-            '#markup' =>  $form_state['storage']['themed_messages'][$pane_id],
+            '#markup' => $form_state['storage']['themed_messages'][$pane_id],
             '#weight' => -50,
           );
         }
@@ -182,6 +180,8 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
     // submit handlers because we're using hook_forms() to use this form builder
     // function and to avoid issues if other modules implement button level submit
     // handlers on these or custom checkout buttons.
+    $button_operator = '<span class="button-operator">' . t('or') . '</span>';
+
     if (!$checkout_page['prev_page'] && !empty($checkout_page['back_value'])) {
       // Add an empty "Back" button value to avoid submission errors.
       $form['buttons']['back'] = array(
@@ -198,7 +198,7 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
         '#attributes' => array('class' => array('checkout-cancel')),
         '#submit' => array('commerce_checkout_form_cancel_submit'),
         '#limit_validation_errors' => array(),
-        '#prefix' => t('or'),
+        '#prefix' => $button_operator,
       );
     }
     elseif ($checkout_page['prev_page'] && !empty($checkout_page['back_value'])) {
@@ -208,7 +208,7 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
         '#attributes' => array('class' => array('checkout-back')),
         '#submit' => array('commerce_checkout_form_back_submit'),
         '#limit_validation_errors' => array(),
-        '#prefix' => t('or'),
+        '#prefix' => $button_operator,
       );
     }
   }
@@ -229,8 +229,6 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
  * are happy, we move on to the next page.
  */
 function commerce_checkout_form_validate($form, &$form_state) {
-  global $user;
-
   $checkout_page = $form_state['checkout_page'];
 
   // Load a fresh copy of the order stored in the form.
@@ -264,7 +262,7 @@ function commerce_checkout_form_validate($form, &$form_state) {
       }
 
       if (isset($previous_messages['error'])) {
-        $previous_messages['error'] = array_diff($previous_messages['error'], $errors[$pane_id]);
+        $previous_messages['error'] = array_values(array_diff($previous_messages['error'], $errors[$pane_id]));
       }
     }
 
@@ -295,8 +293,10 @@ function commerce_checkout_form_validate($form, &$form_state) {
   $form_state['storage']['errors'] = $form_errors;
   $form_errors = array();
 
-  // Save the updated order object.
+  // Save the updated order object and reset the order in the form cache to
+  // ensure rebuilt forms use the updated order.
   commerce_order_save($order);
+  $form_state['build_info']['args'][0] = $order;
 
   // If a pane failed validation or the form state has otherwise been altered to
   // initiate a rebuild, return without moving to the next checkout page.
@@ -348,7 +348,7 @@ function commerce_checkout_form_submit($form, &$form_state) {
 function commerce_checkout_form_back_submit($form, &$form_state) {
   // If there is a previous page...
   if ($previous_page = commerce_checkout_page_load($form_state['checkout_page']['prev_page'])) {
-    $order = $form_state['order'];
+    $order = commerce_order_load($form_state['order']->order_id);
 
     // Move the form back to that page.
     if ($previous_page['prev_page']) {

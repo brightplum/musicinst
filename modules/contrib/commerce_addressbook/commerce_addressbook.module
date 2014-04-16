@@ -38,17 +38,17 @@ function commerce_addressbook_menu() {
 
   $items['user/%user/addressbook'] = array(
     'title' => 'Address Book',
-    'page callback' => 'commerce_addressbook_profile_page',
+    'page callback' => 'commerce_addressbook_page',
     'page arguments' => array(1),
-    'access callback' => 'commerce_addressbook_profile_page_access',
+    'access callback' => 'commerce_addressbook_page_access',
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/commerce_addressbook.user.inc',
+    'weight' => 20,
   );
 
   // Custom administrative components for managing customer profile entities
   // from the user pages.
-  $first = TRUE;
   foreach (commerce_customer_profile_types() as $type => $profile_type) {
     $items['user/%user/addressbook/' . $type] = array(
       'page callback' => 'commerce_addressbook_profile_page',
@@ -56,17 +56,9 @@ function commerce_addressbook_menu() {
       'access callback' => 'commerce_addressbook_profile_page_access',
       'access arguments' => array(1, $type),
       'title' => $profile_type['name'],
-      'title callback' => FALSE,
-      'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      'type' => MENU_LOCAL_TASK,
       'file' => 'includes/commerce_addressbook.user.inc',
     );
-    if ($first) {
-      // The parent menu item needs to point to the first profile type.
-      $items['user/%user/addressbook']['page arguments'][] = $type;
-      $items['user/%user/addressbook']['access arguments'][] = $type;
-      $first = FALSE;
-    }
-
     $items['user/%user/addressbook/' . $type . '/create'] = array(
       'page callback' => 'commerce_addressbook_profile_create',
       'page arguments' => array(1, $type),
@@ -106,20 +98,34 @@ function commerce_addressbook_menu() {
 }
 
 /**
+ * Access callback for path /user/%user/addressbook.
+ *
+ * Return the first enabled profile type if there's one, or FALSE.
+ */
+function commerce_addressbook_page_access($account) {
+  foreach (commerce_customer_profile_types() as $type => $profile_type) {
+    if (commerce_addressbook_profile_page_access($account, $type)) {
+      return $type;
+    }
+  }
+  return FALSE;
+}
+
+/**
  * Access callback: determine if the user can create a customer profile of the
  * given type.
  */
-function commerce_addressbook_profile_create_access($account, $profile_type) {
+function commerce_addressbook_profile_create_access($account, $type) {
   global $user;
 
   // The addressbook is not enabled for this profile type.
-  if (!variable_get('commerce_customer_profile_' . $profile_type . '_addressbook', FALSE)) {
+  if (!variable_get('commerce_customer_profile_' . $type . '_addressbook', FALSE)) {
     return FALSE;
   }
 
   // The user has admin privileges, or is on his own pages.
   if (user_access('administer commerce_customer_profile entities') || $user->uid == $account->uid) {
-    if (user_access('create commerce_customer_profile entities') || user_access('create commerce_customer_profile entities of bundle ' . $profile_type)) {
+    if (user_access('create commerce_customer_profile entities') || user_access('create commerce_customer_profile entities of bundle ' . $type)) {
       return TRUE;
     }
   }
@@ -155,13 +161,20 @@ function commerce_addressbook_profile_page_access($account, $profile_type) {
   // Check if the user can access any page.
   if (user_access('administer commerce_customer_profile entities')
     || user_access('view any commerce_customer_profile entity')
-    || user_access('view any commerce_customer_profile entity of bundle ' . $profile_type)) {
+    || user_access('view any commerce_customer_profile entity of bundle ' . $profile_type)
+    || user_access('edit any commerce_customer_profile entity')
+    || user_access('edit any commerce_customer_profile entity of bundle ' . $profile_type)) {
     return TRUE;
   }
 
   // Check if the user can access his own page.
   if ($user->uid == $account->uid) {
-    if (user_access('view own commerce_customer_profile entities') || user_access('view own commerce_customer_profile entities of bundle ' . $profile_type)) {
+    if (user_access('view own commerce_customer_profile entities')
+    || user_access('create commerce_customer_profile entities')
+    || user_access('create commerce_customer_profile entities of bundle ' . $profile_type)
+    || user_access('view own commerce_customer_profile entities of bundle ' . $profile_type)
+    || user_access('edit own commerce_customer_profile entities')
+    || user_access('edit own commerce_customer_profile entities of bundle ' . $profile_type)) {
       return TRUE;
     }
   }
@@ -201,19 +214,65 @@ function commerce_addressbook_entity_view($entity, $type, $view_mode, $langcode)
       drupal_add_library('system', 'drupal.ajax');
       if (empty($record) || ($record->profile_id != $entity->profile_id)) {
         $links['default'] = array(
-          '#markup' => l(t('set as default'), 'user/' . $entity->uid . '/addressbook/' . $entity->type . '/default/' . $entity->profile_id . '/nojs', array('attributes' => array('class' => array('use-ajax')))),
+          '#theme' => 'link',
+          '#text' => t('set as default'),
+          '#path' => 'user/' . $entity->uid . '/addressbook/' . $entity->type . '/default/' . $entity->profile_id . '/nojs',
+          '#options' => array(
+            'attributes' => array('class' => array('use-ajax')),
+            'html' => FALSE,
+           ),
           '#suffix' => ' | ',
         );
       }
       $links['edit'] = array(
-        '#markup' => l(t('edit'), 'user/' . $entity->uid . '/addressbook/' . $entity->type . '/edit/' . $entity->profile_id),
+        '#theme' => 'link',
+        '#text' => t('edit'),
+        '#path' => 'user/' . $entity->uid . '/addressbook/' . $entity->type . '/edit/' . $entity->profile_id,
+        '#options' => array(
+          'attributes' => array(),
+          'html' => FALSE,
+         ),
         '#suffix' => ' | ',
       );
     }
     if (commerce_addressbook_profile_access('delete', $entity)) {
-      $links['delete'] = array('#markup' => l(t('delete'), 'user/' .$entity->uid. '/addressbook/' . $entity->type . '/delete/' . $entity->profile_id));
+      $links['delete'] = array(
+        '#theme' => 'link',
+        '#text' => t('delete'),
+        '#path' => 'user/' .$entity->uid. '/addressbook/' . $entity->type . '/delete/' . $entity->profile_id,
+        '#options' => array(
+          'attributes' => array(),
+          'html' => FALSE,
+         ),
+      );
     }
     $entity->content['commerce_addressbook_options'] = $links;
+  }
+}
+
+/**
+ * Implements hook_commerce_customer_profile_delete().
+ *
+ * Delete the customer profile entry from commerce_addressbook_defaults table,
+ * set a new default customer profile for this type.
+ */
+function commerce_addressbook_commerce_customer_profile_delete($profile) {
+  $default_profile = commerce_addressbook_get_default_profile_id($profile->uid, $profile->type);
+  if ($default_profile == $profile->profile_id) {
+    db_delete('commerce_addressbook_defaults')
+      ->condition('profile_id', $profile->profile_id)
+      ->execute();
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'commerce_customer_profile')
+      ->propertyCondition('status', 1)
+      ->propertyCondition('type', $profile->type)
+      ->propertyOrderBy('profile_id', 'DESC')
+      ->range(0, 1);
+    $results = $query->execute();
+    if (!empty($results['commerce_customer_profile'])) {
+      commerce_addressbook_set_default_profile(commerce_customer_profile_load(key($results['commerce_customer_profile'])));
+    }
   }
 }
 
@@ -222,10 +281,8 @@ function commerce_addressbook_entity_view($entity, $type, $view_mode, $langcode)
  */
 function commerce_addressbook_forms() {
   $forms = array();
+  // Define a wrapper ID for the customer profile form used by addressbook.
   $forms['commerce_addressbook_customer_profile_form'] = array(
-    'callback' => 'commerce_customer_customer_profile_form',
-  );
-  $forms['commerce_addressbook_customer_profile_options_edit'] = array(
     'callback' => 'commerce_customer_customer_profile_form',
   );
   return $forms;
@@ -244,7 +301,7 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
     foreach (commerce_checkout_panes(array('enabled' => TRUE, 'page' => $checkout_page_id)) as $pane_id => $checkout_pane) {
       // If this pane is a customer profile based pane build a list of previous
       // profiles from which to pick that are of the same bundle.
-      if ($checkout_pane['base'] == 'commerce_customer_profile_pane' && isset($form[$pane_id]) && variable_get('commerce_' . $pane_id . '_addressbook', FALSE)) {
+      if (substr($pane_id, 0, 16) == 'customer_profile' && isset($form[$pane_id]) && variable_get('commerce_' . $pane_id . '_addressbook', FALSE)) {
         $field = field_info_field(variable_get('commerce_' . $pane_id . '_field', ''));
         $profiles = commerce_customer_profile_load_multiple(array(), array('type' => $field['settings']['profile_type'], 'uid' => $user->uid, 'status' => TRUE));
 
@@ -256,11 +313,10 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
             $options[$id] = $field_values[0]['thoroughfare'];
           }
           drupal_alter('commerce_addressbook_labels', $options, $profiles);
-
           // Prepare the default value.
-          $field_name = variable_get('commerce_' . $pane_id . '_field', '');
+          $reference_field_name = variable_get('commerce_' . $pane_id . '_field', '');
           $order_wrapper = entity_metadata_wrapper('commerce_order', $form_state['order']);
-          $profile_reference = $order_wrapper->{$field_name}->value();
+          $profile_reference = $order_wrapper->{$reference_field_name}->value();
           $default_value = 'none';
           if (!empty($form_state['values'][$pane_id]['addressbook'])) {
             $default_value = $form_state['values'][$pane_id]['addressbook'];
@@ -268,7 +324,37 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
           elseif (!empty($profile_reference->profile_id)) {
             $default_value = $profile_reference->profile_id;
           }
-
+          // Check if the default profile is in the enabled profiles array.
+          if (!isset($profiles[$default_value])) {
+            $default_value = 'none';
+          }
+          if ($default_value != 'none') {
+            // Make sure our profile type still exists..
+            if (!empty($form[$pane_id]['commerce_customer_profile_copy'])) {
+              if (($source_profile_type_name = variable_get('commerce_' . $pane_id . '_profile_copy_source', NULL))
+                && $source_profile_type = commerce_customer_profile_type_load($source_profile_type_name)) {
+                // Disable the profile copy checkbox.
+                $form[$pane_id]['commerce_customer_profile_copy']['#default_value'] = FALSE;
+                $form[$pane_id]['commerce_customer_profile_copy']['#access'] = FALSE;
+                // Loop over source profile fields and enable previously disabled
+                // fields.
+                foreach (field_info_instances('commerce_customer_profile', $source_profile_type['type']) as $field_name => $field) {
+                  if (!empty($form[$pane_id][$field_name])){
+                    $langcode = $form[$pane_id][$field_name]['#language'];
+                    $form[$pane_id][$field_name][$langcode]['#access'] = TRUE;
+                    foreach (element_children($form[$pane_id][$field_name][$langcode]) as $key) {
+                      $form[$pane_id][$field_name][$langcode][$key]['#access'] = TRUE;
+                      // Disable the editing of the profile if the user doesn't
+                      // have the right to edit customer profiles.
+                      if (!commerce_customer_profile_access('update', $profiles[$default_value])) {
+                        $form[$pane_id][$field_name][$langcode][$key]['#disabled'] = TRUE;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           $form[$pane_id]['#prefix'] = '<div id="' . strtr($pane_id, '_', '-') . '-ajax-wrapper">';
           $form[$pane_id]['#suffix'] = '</div>';
           $form[$pane_id]['addressbook_entries'] = array(
@@ -276,6 +362,7 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
             '#value' => $profiles,
           );
           $form[$pane_id]['addressbook'] = array(
+            '#addressbook' => TRUE,
             '#type' => 'select',
             '#title' => t('Addresses on File'),
             '#description' => t('You may select a pre-existing address on file.'),
@@ -295,7 +382,7 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  if ($form_id == 'commerce_checkout_pane_settings_form' && $form['checkout_pane']['#value']['base'] == 'commerce_customer_profile_pane') {
+  if ($form_id == 'commerce_checkout_pane_settings_form' && substr($form['checkout_pane']['#value']['pane_id'], 0, 16) == 'customer_profile') {
     $form['settings']['commerce_' . $form['checkout_pane']['#value']['pane_id'] . '_addressbook'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable the Address Book'),
@@ -304,12 +391,16 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
     );
   }
 
-  if ($form_id == 'commerce_addressbook_customer_profile_options_edit') {
+  if ($form_id == 'commerce_addressbook_customer_profile_form') {
+    // Make sure the submit handlers run.
     rsort($form['actions']['submit']['#submit']);
     foreach ($form['actions']['submit']['#submit'] as $callback) {
       array_unshift($form['#submit'], $callback);
     }
     unset($form['actions']['submit']['#submit']);
+
+    // Hide the "Additional settings" vertical tabs.
+    $form['additional_settings']['#access'] = FALSE;
   }
 }
 
@@ -318,7 +409,15 @@ function commerce_addressbook_form_alter(&$form, &$form_state, $form_id) {
  */
 function commerce_addressbook_checkout_form_callback($form, $form_state) {
   $pane_id = $form_state['triggering_element']['#parents'][0];
-  return $form[$pane_id];
+
+  // Add replace element as default AJAX command.
+  $commands = array();
+  $commands[] = ajax_command_replace(NULL, drupal_render($form[$pane_id]));
+
+  // Allow other modules to add arbitrary AJAX commands on the refresh.
+  drupal_alter('commerce_addressbook_callback', $commands, $form, $form_state);
+
+  return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
@@ -395,14 +494,14 @@ function commerce_addressbook_get_default_profile_id($uid, $type) {
 }
 
 /**
- * Implements hook_commerce_cart_product_add().
+ * Implements hook_commerce_order_insert().
  */
-function commerce_addressbook_commerce_cart_product_add($order, $product, $quantity, $line_item) {
+function commerce_addressbook_commerce_order_insert($order) {
   global $user;
   if ($user->uid) {
     foreach (commerce_checkout_panes() as $pane_id => $checkout_pane) {
       if (variable_get('commerce_' . $pane_id . '_addressbook', FALSE)) {
-        if ($field_name = variable_get('commerce_' . $pane_id . '_field', '')){
+        if (($field_name = variable_get('commerce_' . $pane_id . '_field', '')) && empty($order->{$field_name})) {
           $field = field_info_field($field_name);
           $default_profile_id = commerce_addressbook_get_default_profile_id($user->uid, $field['settings']['profile_type']);
           if ($default_profile_id) {
@@ -417,6 +516,20 @@ function commerce_addressbook_commerce_cart_product_add($order, $product, $quant
 }
 
 /**
+ * Implements hook_commerce_customer_profile_insert().
+ *
+ * Set the new customer profile as default if there's none.
+ */
+function commerce_addressbook_commerce_customer_profile_insert($profile) {
+  if (!empty($profile->profile_id)) {
+    $default_profile = commerce_addressbook_get_default_profile_id($profile->uid, $profile->type);
+    if (!$default_profile) {
+      commerce_addressbook_set_default_profile($profile);
+    }
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function commerce_addressbook_views_api() {
@@ -424,4 +537,40 @@ function commerce_addressbook_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'commerce_addressbook') . '/includes/views',
   );
+}
+
+/**
+ * Retrieve a View.
+ *
+ * @param $view_key
+ *   The ID of the View to embed.
+ * @param $display_id
+ *   The ID of the display of the View.
+ * @param $arguments
+ *   An array of arguments to pass to the View.
+ * @param $override_url
+ *   A url that overrides the url of the current view.
+ *
+ * @return
+ *   The views object, you'll have to call render if to render it.
+ */
+function commerce_addressbook_retrieve_view($view_id, $display_id, $arguments, $override_url = '') {
+  // Load the specified View.
+  $view = views_get_view($view_id);
+  $view->set_display($display_id);
+
+  // Set the specific arguments passed in.
+  $view->set_arguments($arguments);
+
+  // Override the view url, if an override was provided.
+  if (!empty($override_url)) {
+    $view->override_url = $override_url;
+  }
+
+  // Prepare and execute the View query.
+  $view->pre_execute();
+  $view->execute();
+
+  // Return the view.
+  return $view;
 }

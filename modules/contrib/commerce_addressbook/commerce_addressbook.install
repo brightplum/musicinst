@@ -29,7 +29,7 @@ function commerce_addressbook_schema() {
         'default' => '',
       ),
       'uid' => array(
-        'description' => 'Serial numeric ID of the customer profile in the local database.',
+        'description' => 'The {users}.uid that owns this profile-.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -59,6 +59,8 @@ function commerce_addressbook_schema() {
  * Implements hook_uninstall().
  */
 function commerce_addressbook_uninstall() {
+  // Ensure the commerce_checkout module is loaded.
+  drupal_load('module', 'commerce_checkout');
   foreach (commerce_checkout_panes() as $pane_id => $checkout_pane) {
     variable_del('commerce_' . $pane_id . '_addressbook');
   }

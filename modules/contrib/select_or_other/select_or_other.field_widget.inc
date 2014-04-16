@@ -20,7 +20,9 @@ function select_or_other_field_widget_info() {
     'available_options_php' => '',
     'markup_available_options_php' => t('&lt;none&gt;'),
     'other' => t('Other'),
+    'other_title' => '',
     'other_unknown_defaults' => 'other',
+    'other_size' => 60,
   );
   return array(
     'select_or_other' => array(
@@ -31,15 +33,17 @@ function select_or_other_field_widget_info() {
         'default value' => FIELD_BEHAVIOR_DEFAULT,
       ),
       'settings' => $settings,
+      'weight' => 2,
     ),
     'select_or_other_sort' => array(
-      'label' => t('Select (or other) drag and drop lists'),
+      'label' => t('Select (or other) drag and drop lists [deprecated in favor of Field Collection]'),
       'field types' => $field_types,
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_DEFAULT,
         'default value' => FIELD_BEHAVIOR_DEFAULT,
       ),
       'settings' => $settings,
+      'weight' => 2,
     ),
     'select_or_other_buttons' => array(
       'label' => t('Select (or other) check boxes/radio buttons'),
@@ -49,10 +53,52 @@ function select_or_other_field_widget_info() {
         'default value' => FIELD_BEHAVIOR_DEFAULT,
       ),
       'settings' => $settings,
+      'weight' => 2,
     ),
   );
 }
 
+/**
+ * Prepare a single option.
+ */
+function select_or_other_field_widget_form_prepare_option(&$options, $key, $opt, $settings) {
+  $opt = trim($opt);
+  if (empty($opt)) {
+    return;
+  }
+  // Sanitize the user input with a permissive filter.
+  $opt = filter_xss($opt);
+  // If option has a key specified
+  if (strpos($opt, '|') !== FALSE && empty($settings['available_options_php'])) {
+    list($key, $value) = explode('|', $opt);
+    $options[$key] = (isset($value) && $value !== '') ? html_entity_decode($value) : $key;
+  }
+  // If options from PHP
+  elseif (!empty($settings['available_options_php'])) {
+    $options[$key] = html_entity_decode($opt);
+  }
+  // If option has no key specified and is not from PHP
+  else {
+    $options[$opt] = html_entity_decode($opt);
+  }
+}
+
+/***
+  * Get Options from settings
+  * in a separate scope for assurance using 'available_options_php'
+  * @returns array
+  ***/
+function _select_or_other_field_widget_get_available_options($select_or_other_field_widget_settings) {
+    // Create options - similar to code from content_allowed_values().
+  if (!empty($select_or_other_field_widget_settings['available_options_php'])) {
+    ob_start();
+    $select_or_other_field_widget_list = eval($select_or_other_field_widget_settings['available_options_php']);
+    ob_end_clean();
+  } else {
+    $select_or_other_field_widget_list =  explode("\n", $select_or_other_field_widget_settings['available_options']);
+  }
+  return $select_or_other_field_widget_list;
+}
 /**
  * Prepare options for the widget list.
  */
@@ -60,60 +106,42 @@ function select_or_other_field_widget_form_prepare_options($field, $instance, $h
   $options = array();
 
   $settings = &$instance['widget']['settings'];
+  $list = _select_or_other_field_widget_get_available_options($settings);
 
-  // Create options - similar to code from content_allowed_values().
-  $list = explode("\n", $settings['available_options']);
-
-  if (!empty($settings['available_options_php'])) {
-    ob_start();
-    $list = eval($settings['available_options_php']);
-    ob_end_clean();
-  }
-
-  $list = array_map('trim', $list);
-  $list = array_filter($list, 'strlen');
   foreach ($list as $key => $opt) {
-    // Sanitize the user input with a permissive filter.
-    $opt = filter_xss($opt);
-    // If option has a key specified
-    if (strpos($opt, '|') !== FALSE && empty($settings['available_options_php'])) {
-      list($key, $value) = explode('|', $opt);
-      $options[$key] = (isset($value) && $value !== '') ? html_entity_decode($value) : $key;
+    if (is_array($opt)) {
+      $optgroup_options = array();
+      foreach ($opt as $optgroup_key => $optgroup_opt) {
+        select_or_other_field_widget_form_prepare_option($optgroup_options, $optgroup_key, $optgroup_opt, $settings);
+        $options[$key] = $optgroup_options;
+      }
     }
-    // If options from PHP
-    elseif (!empty($settings['available_options_php'])) {
-      $options[$key] = html_entity_decode($opt);
-    }
-    // If option has no key specified and is not from PHP
     else {
-      $options[$opt] = html_entity_decode($opt);
+      select_or_other_field_widget_form_prepare_option($options, $key, $opt, $settings);
     }
   }
 
   $required = (isset($instance['required']) && $instance['required']);
-  $multiple = (($instance['widget']['type'] == 'select_or_other_buttons' && $field['cardinality'] == -1)
-    || ($instance['widget']['type'] == 'select_or_other' && $field['cardinality'] == -1)
+  $multiple = (($instance['widget']['type'] == 'select_or_other' && $field['cardinality'] == -1)
     || ($instance['widget']['type'] == 'select_or_other_sort'));
+  $multiple_checkbox = ($instance['widget']['type'] == 'select_or_other_buttons' && $field['cardinality'] == -1);
 
+  $empty_option = array('_none' => theme('select_or_other_none', array('instance' => $instance)));
   // Multiple select.
   if ($multiple) {
     // Add a 'none' option for non-required fields.
     if (!$required) {
-      $options = array('' => theme('select_or_other_none', array('instance' => $instance))) + $options;
+      $options = $empty_option + $options;
     }
   }
   // Single select.
-  else {
+  elseif (!$multiple_checkbox) {
     // Add a 'none' option for non-required fields, and a 'select a value'
     // option for required fields that do not come with a value selected.
     if (!$required) {
-      $options = array('' => theme('select_or_other_none', array('instance' => $instance))) + $options;
-    }
-    else if (!$has_value) {
-      $options = array('' => theme('select_or_other_none', array('instance' => $instance, 'option' => 'option_select'))) + $options;
+      $options = $empty_option + $options;
     }
   }
-
 
   // @todo: This isset() can probably be taken out in drupal 8.
   if (isset($settings['sort_options']) && $settings['sort_options']) {
@@ -128,11 +156,12 @@ function select_or_other_field_widget_form_prepare_options($field, $instance, $h
  */
 function select_or_other_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   // Construct the element.
-  $element = array(
+  $element = $element + array(
     '#type' => 'select_or_other',
-    '#title' => isset($instance['label']) ? $instance['label'] : NULL,
     '#other' => isset($instance['widget']['settings']['other']) ? $instance['widget']['settings']['other'] : t('Other'),
-    '#default_value' => !empty($items[$delta]) ? $items[$delta] : NULL,
+    '#other_title' => !empty($instance['widget']['settings']['other_title']) ? $instance['widget']['settings']['other_title'] : NULL,
+    '#other_size' => $instance['widget']['settings']['other_size'],
+    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
     '#options' => select_or_other_field_widget_form_prepare_options($field, $instance, !empty($items[$delta])),
     '#description' => isset($instance['description']) ? $instance['description'] : '',
     '#multiple' => $field['cardinality'] == 1 ? FALSE : $field['cardinality'],
@@ -221,6 +250,12 @@ function select_or_other_field_widget_settings_form($field, $instance) {
     '#default_value' => isset($settings['other']) ? $settings['other'] : t('Other'),
     '#required' => TRUE,
   );
+  $form['other_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('<em>Other</em> field title'),
+    '#description' => t('Label for the field in which the user will supply an <em>other</em> value.'),
+    '#default_value' => isset($settings['other_title']) ? $settings['other_title'] : '',
+  );
   $form['other_unknown_defaults'] = array(
     '#type' => 'select',
     '#title' => t('<em>Other</em> value as default value'),
@@ -234,10 +269,17 @@ function select_or_other_field_widget_settings_form($field, $instance) {
     '#default_value' => isset($settings['other_unknown_defaults']) ? $settings['other_unknown_defaults'] : 'other',
     '#required' => TRUE,
   );
+  $form['other_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('<em>Other</em> field size'),
+    '#default_value' => $settings['other_size'],
+    '#required' => TRUE,
+    '#element_validate' => array('element_validate_integer_positive'),
+  );
   $form['sort_options'] = array(
     '#type' => 'checkbox',
     '#title' => t('Sort options'),
-    '#description' => t("Sorts the options in the list alphabetically."),
+    '#description' => t("Sorts the options in the list alphabetically by value."),
     '#default_value' => isset($settings['sort_options']) ? $settings['sort_options'] : 0,
   );
   /*
@@ -267,14 +309,31 @@ function select_or_other_field_widget_settings_validate($element, &$form_state, 
 }
 
 /**
+ * Transforms submitted form values into field storage format.
+ * Align with Drupal core select list, NULL (-None-) value.
+ * http://drupal.org/node/1830090
+ */
+function _select_or_other_options_form_to_storage($value) {
+  if (isset($value[0])) {
+    $index = array_search('_none', $value[0], TRUE);
+    if ($index !== FALSE) {
+      unset($value[0][$index]);
+    }
+  }
+  return $value;
+}
+
+/**
  * Element validate callback for a Select (or other) field widget.
  */
 function select_or_other_field_widget_validate($element, &$form_state) {
-  $field_info = field_info_field($element['#field_name']);
+  //$field_name = $element['#parents'][count($element['#parents']) - 2];
+  $field_name = $element['#field_name'];
+  $field_info = field_info_field($field_name);
 
   $other_selected = FALSE;
 
-  if (is_array($element['select']['#value']) && in_array('select_or_other', $element['select']['#value'])) {
+  if (is_array($element['select']['#value']) && isset($element['select']['#value']['select_or_other'])) {
     // This is a multiselect. assoc arrays
     $other_selected = TRUE;
     $value = $element['select']['#value'];
@@ -290,30 +349,30 @@ function select_or_other_field_widget_validate($element, &$form_state) {
     $value = $element['select']['#value'];
   }
   if ($other_selected && !$element['other']['#value']) {
-    form_error($element['other'], t('%name: @title is required', array('%name' => t($element['select']['#title']), '@title' => $element['#other'])));
+    form_error($element['other'], t('!name: !title is required', array('!name' => t($element['select']['#title']), '!title' => $element['#other'])));
   }
-  if (isset($value)) {
+  if (isset($value) && $value !== "") {
     if (in_array($element['#field_widget'], array('select_or_other', 'select_or_other_buttons'))) {
       // Filter out 'none' value (if present, will always be in key 0)
       if (isset($items[0]['value']) && $items[0]['value'] === '') {
         unset($items[0]);
       }
       if ($element['#multiple'] >= 2 && count($value) > $element['#multiple']) {
-        form_error($element['select'], t('%name: this field cannot hold more than @count values.', array('%name' => t($element['select']['#title']), '@count' => $element['#multiple'])));
+        form_error($element['select'], t('!name: cannot hold more than @count values.', array('!name' => t($element['select']['#title']), '@count' => $element['#multiple'])));
       }
       $delta = 0;
       $values = array();
       foreach ((array)$value as $v) {
         if ($field_info['type'] == 'number_integer' && !preg_match('/^-?\d+$/', $v)) {
-          form_error($element, t('Value must be a valid integer.'));
+          form_error($element, t('!name field must be a valid integer.', array('!name' => t($element['select']['#title']))));
           break;
         }
         if (($field_info['type'] == 'number_float' || $field_info['type'] == 'number_decimal') && !is_numeric($v)) {
-          form_error($element, t('Value must be a valid integer or decimal.'));
+          form_error($element, t('!name field must be a valid integer or decimal.', array('!name' => t($element['select']['#title']))));
           break;
         }
         elseif ($field_info['type'] == 'text' && drupal_strlen($v) > $field_info['settings']['max_length']) {
-          form_error($element, t('Value must be a string at most @max characters long.', array('@max' => $field_info['settings']['max_length'])));
+          form_error($element, t('!name field must be a string at most @max characters long.', array('!name' => t($element['select']['#title']), '@max' => $field_info['settings']['max_length'])));
           break;
         }
         $values[$delta++]['value'] = $v;
@@ -323,15 +382,29 @@ function select_or_other_field_widget_validate($element, &$form_state) {
     elseif ($element['#field_widget'] == 'select_or_other_sort') {
       $value = array('value' => $value);
     }
+
+    // Align with Drupal core select list, NULL (-None-) value.
+    // http://drupal.org/node/1830090
+    $value = _select_or_other_options_form_to_storage($value);
+
     form_set_value($element, $value, $form_state);
     $form_state['clicked_button']['#post'][$element['#name']] = $value; // Is this something we should do?
   }
+  else {
+    form_set_value($element, array(array('value' => '')), $form_state);
+  }
 
   // Add values to available options is configured to do so.
-  $instance = field_widget_instance($element, $form_state);
+  if (!empty($form_state['field'][$field_name][$element['#parents'][1]]['instance'])) {
+    $instance = $form_state['field'][$field_name][$element['#parents'][1]]['instance'];
+  }
+  else {
+    $instance = field_widget_instance($element, $form_state);
+  }
+
   if ($instance['widget']['settings']['other_unknown_defaults'] == 'available') {
     if (
-      $element['select']['#value'] == 'select_or_other' &&
+      ($element['select']['#value'] == 'select_or_other' || (is_array($element['select']['#value']) && isset($element['select']['#value']['select_or_other']))) &&
       !empty($element['other']['#value']) &&
       !isset($element['#options'][$element['other']['#value']])
     ) {
@@ -365,17 +438,20 @@ function select_or_other_field_formatter_info() {
 function select_or_other_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   $settings = $display['settings'];
+  $field_options = array();
 
-  $field_options = explode("\n", $instance['widget']['settings']['available_options']);
-  $pos = strpos($instance['widget']['settings']['available_options'], '|');
+  if (isset($instance['widget']['settings']['available_options'])) {
+    $field_options = explode("\n", $instance['widget']['settings']['available_options']);
+    $pos = strpos($instance['widget']['settings']['available_options'], '|');
 
-  if ($pos !== FALSE) {
-    // There are keys.
-    foreach ($field_options as $field_item) {
-      $exploded = explode('|', $field_item);
-      $temp_options[$exploded[0]] = $exploded[1];
+    if ($pos !== FALSE) {
+      // There are keys.
+      foreach ($field_options as $field_item) {
+        $exploded = explode('|', $field_item);
+        $temp_options[$exploded[0]] = $exploded[1];
+      }
+      $field_options = $temp_options;
     }
-    $field_options = $temp_options;
   }
 
   foreach ($items as $delta => $item) {

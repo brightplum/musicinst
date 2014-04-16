@@ -1,5 +1,4 @@
 <?php
-// $Id: imce_wysiwyg.module,v 1.5 2010/02/21 00:07:00 sun Exp $
 
 /**
  * @file
@@ -8,7 +7,7 @@
  */
 
 /**
- * Implementation of hook_wysiwyg_plugin().
+ * Implements hook_wysiwyg_plugin().
  */
 function imce_wysiwyg_plugin($editor, $version) {
   static $integrated = array();
