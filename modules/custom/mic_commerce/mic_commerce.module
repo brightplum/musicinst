@@ -714,7 +714,6 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       $form['#process'][] = 'dialog_process_ajax_form';
     }
 
-    //tooltip on line item form
     if (isset($form['line_item_fields']) && ($form['line_item_fields']['#bundle'] == 'product_pi')) {
       // Check to see if pi type is set. If so, unset product options
       if (isset($form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'])) {
