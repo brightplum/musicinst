@@ -716,6 +716,35 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
 
     //tooltip on line item form
     if (isset($form['line_item_fields']) && ($form['line_item_fields']['#bundle'] == 'product_pi')) {
+      // Check to see if pi type is set. If so, unset product options
+      if (isset($form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'])) {
+        $pi_type = $form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'];
+        if ($pi_type == 'Suzuki') {
+          unset($form['product_id']['#options'][851]);
+          unset($form['product_id']['#options'][850]);
+          unset($form['product_id']['#options'][161]);
+        }
+        elseif ($pi_type == 'Traditional') {
+          unset($form['product_id']['#options'][854]);
+          unset($form['product_id']['#options'][853]);
+          unset($form['product_id']['#options'][852]);
+        }
+      }
+
+      // Shove price dropdown into line items list for pre-render later
+      $form['line_item_fields']['product_id'] = $form['product_id'];
+      $form['product_id']['#type'] = 'hidden';
+
+      // Add callback to type dropdown
+      $form['line_item_fields']['field_pi_type'][LANGUAGE_NONE]['#ajax'] = array(
+        'callback' => 'mic_commerce_pi_type_callback',
+        'method' => 'change',
+        'wrapper' => 'pi_type_div',
+      );
+
+      // Add pre-render
+      $form['line_item_fields']['#pre_render'][] = 'mic_commerce_pi_pre_render';
+
       // Grab entity information from the form.
       $entity_type = $form['line_item_fields']['#entity_type'];
       $bundle = $form['line_item_fields']['#bundle'];
@@ -758,6 +787,7 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       $form['#attached']['css'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.css';
 
     }
+
   }
 
   //add filter options to orders overview on view
@@ -833,6 +863,18 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'commerce_checkout_form_review') {
     $form['buttons']['continue']['#value'] = t('Process payment');
   }
+}
+
+function mic_commerce_pi_pre_render($form) {
+  $form['group_instruction_type']['product_id'] = $form['product_id'];
+  $form['group_instruction_type']['product_id']['#weight'] = 5;
+  unset($form['product_id']);
+  return $form;
+}
+
+function mic_commerce_pi_type_callback($form, $form_state) {
+  $return = commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state);
+  return $return;
 }
 
 /**
