@@ -581,9 +581,14 @@ function mic_implementation_preprocess_mic_related_links(&$variables) {
 		$links['title'] = 'Related Links';
 
 	$links['links'] = array();
-	foreach($node->field_related_links_link['und'] as $l) {
-		$links['links'][] = l($l['title'], $l['display_url'], array('attributes'=>$l['attributes'], 'html'=>$l['html']));
-	}
+  if (isset($node->field_related_links_link['und']) && is_array($node->field_related_links_link['und'])) {
+    foreach ($node->field_related_links_link['und'] as $l) {
+      $links['links'][] = l($l['title'], $l['display_url'], array(
+        'attributes' => $l['attributes'],
+        'html' => $l['html']
+      ));
+    }
+    }
 	if(!empty($links['links']))
 		$variables['links'] = $links;
 }

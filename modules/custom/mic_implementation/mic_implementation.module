@@ -405,7 +405,7 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 	$theme['mic_events_block'] = array(
 		'arguments' => array('data' => NULL),
 		'template' => 'mic-events-block',
-		'path' => $path,
+      'path' => $path,
 	);
 
 	$theme['mic_feature_story_block'] = array(
