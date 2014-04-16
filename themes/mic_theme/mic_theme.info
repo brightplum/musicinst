@@ -27,7 +27,6 @@ regions[footer_left] = Footer Left
 regions[footer_nav] = Footer Navigation
 regions[footer_social] = Footer Social
 regions[footer_bottom] = Footer Bottom
-regions[closure] = Closure
 
 ; Drupal expects these
 regions[help] = Help

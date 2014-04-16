@@ -1,17 +1,6 @@
 <?php
 
 /**
- * Implements template_process_html()
- *
- * @param array $variables
- */
-function mic_theme_process_html(&$vars) {
-  // Render closure into a top level variable
-  $closure = $vars['page']['closure'];
-  $vars['closure'] = drupal_render($closure);
-}
-
-/**
  * Implements theme_preprocess_page()
  *
  * @param array $vars

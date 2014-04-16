@@ -3501,7 +3501,6 @@ div.messages {
 /** Add to Cart **/
 .commerce-add-to-cart .form-item-product-id,
 .commerce-add-to-cart #edit-line-item-fields,
-.commerce-add-to-cart div.form-wrapper,
 .commerce-add-to-cart .form-item-quantity {
   display: inline-block;
 }

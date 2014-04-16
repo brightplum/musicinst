@@ -58,6 +58,5 @@ $html_attributes = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . $language
   <?php print $page; ?>
   <?php print $scripts; ?>
   <?php print $page_bottom; ?>
-  <?php print $closure; ?>
 </body>
 </html>
