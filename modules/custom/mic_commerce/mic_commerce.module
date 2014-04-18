@@ -416,9 +416,7 @@ function mic_commerce_musicianship_fee_add_form_submit(&$line_item, $element, &$
  * Utility function which creates a new line item populated with the
  * a price of $5.00, etc..
  */
-function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
-  $type = 'mic_newstudent_fee';
-
+function mic_commerce_fee_line_item_new($order_id = 0, $type, $amount) {
   // Create the new line item.
   $line_item = entity_create('commerce_line_item', array(
     'type' => $type,
@@ -426,45 +424,6 @@ function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
     'quantity' => 1,
   ));
 
-  $amount = 2500;
-  $currency_code = 'USD';
-
-  $line_item->commerce_unit_price = array('und' => array(
-    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
-  ));
-
-  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
-    // Add the base price to the components array.
-    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
-      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
-        $line_item_wrapper->commerce_unit_price->value(),
-        'base_price',
-        $line_item_wrapper->commerce_unit_price->value(),
-        TRUE
-      );
-    }
-  }
-  // Return the line item.
-  return $line_item;
-}
-
-/**
- * Utility function which creates a new line item populated with the
- * a price of $5.00, etc..
- */
-function mic_commerce_musicianship_fee_line_item_new($order_id = 0) {
-  $type = 'mic_musicianship_fee';
-
-  // Create the new line item.
-  $line_item = entity_create('commerce_line_item', array(
-    'type' => $type,
-    'order_id' => $order_id,
-    'quantity' => 1,
-  ));
-
-  $amount = 4000;
   $currency_code = 'USD';
 
   $line_item->commerce_unit_price = array('und' => array(
@@ -500,6 +459,12 @@ function mic_commerce_commerce_order_presave($order) {
   // Array of students and fees.
   $line_item_students = $line_item_fees = array();
 
+  // Fee types
+  $fee_types = array(
+    'mic_newstudent_fee',
+    'mic_musicianship_fee',
+  );
+
   if (!empty($order->commerce_line_items['und'])) {
     // Go through each line item.
     foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
@@ -533,8 +498,8 @@ function mic_commerce_commerce_order_presave($order) {
         }
 
         // Keep track of how many fees we already have in cart.
-        if ($line_item->type == 'mic_newstudent_fee') {
-          $line_item_fees[] = array(
+        if (in_array($line_item->type, $fee_types)) {
+          $line_item_fees[$line_item->type][] = array(
             'delta' => $delta,
             'id' => $line_item->line_item_id
           );
@@ -544,14 +509,16 @@ function mic_commerce_commerce_order_presave($order) {
   }
 
   $num_students = count($line_item_students);
-  $num_fees = count($line_item_fees);
+
+  $num_fees = count($line_item_fees['mic_newstudent_fee']);
+  $num_musicianship_fees = count($line_item_fees['mic_musicianship_fee']);
 
   // If count of students and fees are equal, do nothing.
   // If more students than fee, add a fee.
   // If more fees than students, remove a fee.
   if ($num_fees < $num_students) {
     for ($i = $num_fees; $i < $num_students; $i++) {
-      $line_item = mic_commerce_newstudent_fee_line_item_new($order->order_id);
+      $line_item = mic_commerce_fee_line_item_new($order->order_id, 'mic_newstudent_fee', 2500);
       commerce_line_item_save($line_item);
       $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
     }
@@ -564,10 +531,20 @@ function mic_commerce_commerce_order_presave($order) {
     }
   }
 
-  if ($musicanship_fee) {
-    $line_item = mic_commerce_musicianship_fee_line_item_new($order->order_id);
+  // Set musicianship fee
+  if (isset($musicanship_fee) && $musicanship_fee && ($num_musicianship_fees < $num_students)) {
+    $line_item = mic_commerce_fee_line_item_new($order->order_id, 'mic_musicianship_fee', 4000);
     commerce_line_item_save($line_item);
     $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
+  }
+
+  // Clean up musicianship fees
+  if ($num_musicianship_fees > $num_students) {
+    for ($i = $num_students; $i <= $num_musicianship_fees; $i++) {
+      $fee_to_remove = array_pop($line_item_fees['mic_musicianship_fee']);
+      commerce_line_item_delete($fee_to_remove['id']);
+      unset($order->commerce_line_items[LANGUAGE_NONE][$fee_to_remove['delta']]);
+    }
   }
 }
 

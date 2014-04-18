@@ -7,9 +7,9 @@ Drupal.behaviors.mic_mask = {
     $("#edit-line-item-fields-field-student-birthdate-und-0-value", context).mask("99/99/9999");
     $("#edit-line-item-fields-field-student-birthdate-und-0-value--2", context).mask("99/99/9999");
     $("#edit-line-item-fields-field-student-birthdate-und-0-value--3", context).mask("99/99/9999");
-    $("#edit-line-item-fields-field-requested-time-und-0-value", context).mask("99:99");
-    $("#edit-line-item-fields-field-requested-time-und-0-value--2", context).mask("99:99");
-    $("#edit-line-item-fields-field-requested-time-und-0-value--3", context).mask("99:99");
+    $("#edit-line-item-fields-field-requested-time-und-0-value", context).mask("99:99 aa");
+    $("#edit-line-item-fields-field-requested-time-und-0-value--2", context).mask("99:99 aa");
+    $("#edit-line-item-fields-field-requested-time-und-0-value--3", context).mask("99:99 aa");
   }
 };
 
