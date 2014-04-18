@@ -301,6 +301,18 @@ function mic_commerce_commerce_line_item_type_info() {
       'add_form_submit' => 'mic_commerce_newstudent_fee_add_form_submit',
     ),
   );
+  $line_item_types['mic_musicianship_fee'] = array(
+    'name' => t('MIC Musicianship Fee'),
+    'description' => t('A MIC fee for musicianship.'),
+    'product' => FALSE,
+    'add_form_submit_value' => t('Add fee'),
+    'callbacks' => array(
+      'configuration' => 'mic_commerce_musicianship_fee_configuration',
+      'title' => 'mic_commerce_musicianship_fee_title',
+      'add_form' => 'mic_commerce_musicianship_fee_add_form',
+      'add_form_submit' => 'mic_commerce_musicianship_fee_add_form_submit',
+    ),
+  );
   $line_item_types['product_pi'] = array(
     'name' => t('Product Private Instruction'),
     'description' => t('Line item type for product Private Instruction'),
@@ -325,21 +337,22 @@ function mic_commerce_newstudent_fee_add_form($element, &$form_state) {
   return $form;
 }
 
+function mic_commerce_musicianship_fee_configuration($line_item_type) {
+  $type = $line_item_type['type'];
+}
+
+function mic_commerce_musicianship_fee_title($line_item) {
+  return(t('Musicianship Fee'));
+}
+
+function mic_commerce_musicianship_fee_add_form($element, &$form_state) {
+  $form = array();
+  return $form;
+}
+
 /**
  * Adds the selected product information to a line item added via a line item
  *   manager widget (on the admin order page).
- *
- * @param $line_item
- *   The newly created line item object.
- * @param $element
- *   The array representing the widget form element.
- * @param $form_state
- *   The present state of the form upon the latest submission.
- * @param $form
- *   The actual form array.
- *
- * @return
- *   NULL if all is well or an error message if something goes wrong.
  */
 function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
   $line_item->line_item_label = t('Registration Fee');
@@ -369,14 +382,39 @@ function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$fo
 }
 
 /**
+ * Adds the selected product information to a line item added via a line item
+ *   manager widget (on the admin order page).
+ */
+function mic_commerce_musicianship_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
+  $line_item->line_item_label = t('Musicianship Fee');
+
+  // Wrap the line item and product to easily set field information.
+  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+  // Provide a default price.
+  $amount = 4000;
+  $currency_code = 'USD';
+
+  $line_item->commerce_unit_price = array('und' => array(
+    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
+  ));
+
+  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
+    // Add the base price to the components array.
+    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
+      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
+        $line_item_wrapper->commerce_unit_price->value(),
+        'base_price',
+        $line_item_wrapper->commerce_unit_price->value(),
+        TRUE
+      );
+    }
+  }
+}
+
+/**
  * Utility function which creates a new line item populated with the
  * a price of $5.00, etc..
- *
- * @param $order_id
- *   The ID of the order the line item belongs to (if available).
- *
- * @return
- *   The fully loaded line item..
  */
 function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
   $type = 'mic_newstudent_fee';
@@ -389,6 +427,44 @@ function mic_commerce_newstudent_fee_line_item_new($order_id = 0) {
   ));
 
   $amount = 2500;
+  $currency_code = 'USD';
+
+  $line_item->commerce_unit_price = array('und' => array(
+    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
+  ));
+
+  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
+    // Add the base price to the components array.
+    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
+      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
+        $line_item_wrapper->commerce_unit_price->value(),
+        'base_price',
+        $line_item_wrapper->commerce_unit_price->value(),
+        TRUE
+      );
+    }
+  }
+  // Return the line item.
+  return $line_item;
+}
+
+/**
+ * Utility function which creates a new line item populated with the
+ * a price of $5.00, etc..
+ */
+function mic_commerce_musicianship_fee_line_item_new($order_id = 0) {
+  $type = 'mic_musicianship_fee';
+
+  // Create the new line item.
+  $line_item = entity_create('commerce_line_item', array(
+    'type' => $type,
+    'order_id' => $order_id,
+    'quantity' => 1,
+  ));
+
+  $amount = 4000;
   $currency_code = 'USD';
 
   $line_item->commerce_unit_price = array('und' => array(
@@ -428,6 +504,7 @@ function mic_commerce_commerce_order_presave($order) {
     // Go through each line item.
     foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
       if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
+        // Check if new student
         if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
           // If student fee set to new only, add to count of students to track with fees.
           if ($student_fee) {
@@ -446,6 +523,15 @@ function mic_commerce_commerce_order_presave($order) {
             );
           }
         }
+
+        // Check if musicianship added
+        $musicanship_fee = FALSE;
+        if (isset($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value'])) {
+          if ($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value'] == 'Yes') {
+            $musicanship_fee = TRUE;
+          }
+        }
+
         // Keep track of how many fees we already have in cart.
         if ($line_item->type == 'mic_newstudent_fee') {
           $line_item_fees[] = array(
@@ -476,6 +562,12 @@ function mic_commerce_commerce_order_presave($order) {
       commerce_line_item_delete($fee_to_remove['id']);
       unset($order->commerce_line_items[LANGUAGE_NONE][$fee_to_remove['delta']]);
     }
+  }
+
+  if ($musicanship_fee) {
+    $line_item = mic_commerce_musicianship_fee_line_item_new($order->order_id);
+    commerce_line_item_save($line_item);
+    $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
   }
 }
 
