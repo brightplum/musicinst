@@ -295,10 +295,7 @@ function mic_commerce_commerce_line_item_type_info() {
     'product' => FALSE,
     'add_form_submit_value' => t('Add fee'),
     'callbacks' => array(
-      'configuration' => 'mic_commerce_newstudent_fee_configuration',
       'title' => 'mic_commerce_newstudent_fee_title',
-      'add_form' => 'mic_commerce_newstudent_fee_add_form',
-      'add_form_submit' => 'mic_commerce_newstudent_fee_add_form_submit',
     ),
   );
   $line_item_types['mic_musicianship_fee'] = array(
@@ -307,10 +304,16 @@ function mic_commerce_commerce_line_item_type_info() {
     'product' => FALSE,
     'add_form_submit_value' => t('Add fee'),
     'callbacks' => array(
-      'configuration' => 'mic_commerce_musicianship_fee_configuration',
       'title' => 'mic_commerce_musicianship_fee_title',
-      'add_form' => 'mic_commerce_musicianship_fee_add_form',
-      'add_form_submit' => 'mic_commerce_musicianship_fee_add_form_submit',
+    ),
+  );
+  $line_item_types['mic_finaid'] = array(
+    'name' => t('Financial Aid'),
+    'description' => t('Financial aid payment plan.'),
+    'product' => FALSE,
+    'add_form_submit_value' => t('Add financial aid'),
+    'callbacks' => array(
+      'title' => 'mic_commerce_finaid_title',
     ),
   );
   $line_item_types['product_pi'] = array(
@@ -324,92 +327,16 @@ function mic_commerce_commerce_line_item_type_info() {
   return $line_item_types;
 }
 
-function mic_commerce_newstudent_fee_configuration($line_item_type) {
-  $type = $line_item_type['type'];
-}
-
 function mic_commerce_newstudent_fee_title($line_item) {
   return(t('Registration Fee'));
-}
-
-function mic_commerce_newstudent_fee_add_form($element, &$form_state) {
-  $form = array();
-  return $form;
-}
-
-function mic_commerce_musicianship_fee_configuration($line_item_type) {
-  $type = $line_item_type['type'];
 }
 
 function mic_commerce_musicianship_fee_title($line_item) {
   return(t('Musicianship Fee'));
 }
 
-function mic_commerce_musicianship_fee_add_form($element, &$form_state) {
-  $form = array();
-  return $form;
-}
-
-/**
- * Adds the selected product information to a line item added via a line item
- *   manager widget (on the admin order page).
- */
-function mic_commerce_newstudent_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
-  $line_item->line_item_label = t('Registration Fee');
-
-  // Wrap the line item and product to easily set field information.
-  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-  // Provide a default price.
-  $amount = 2500;
-  $currency_code = 'USD';
-
-  $line_item->commerce_unit_price = array('und' => array(
-    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
-  ));
-
-  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
-    // Add the base price to the components array.
-    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
-      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
-        $line_item_wrapper->commerce_unit_price->value(),
-        'base_price',
-        $line_item_wrapper->commerce_unit_price->value(),
-        TRUE
-      );
-    }
-  }
-}
-
-/**
- * Adds the selected product information to a line item added via a line item
- *   manager widget (on the admin order page).
- */
-function mic_commerce_musicianship_fee_add_form_submit(&$line_item, $element, &$form_state, $form) {
-  $line_item->line_item_label = t('Musicianship Fee');
-
-  // Wrap the line item and product to easily set field information.
-  $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-  // Provide a default price.
-  $amount = 4000;
-  $currency_code = 'USD';
-
-  $line_item->commerce_unit_price = array('und' => array(
-    '0' => array('amount' => $amount, 'currency_code' => $currency_code)
-  ));
-
-  if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
-    // Add the base price to the components array.
-    if (!commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price')) {
-      $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add(
-        $line_item_wrapper->commerce_unit_price->value(),
-        'base_price',
-        $line_item_wrapper->commerce_unit_price->value(),
-        TRUE
-      );
-    }
-  }
+function mic_commerce_finaid_title($line_item) {
+  return(t('Financial Aid'));
 }
 
 /**
@@ -455,14 +382,20 @@ function mic_commerce_fee_line_item_new($order_id = 0, $type, $amount) {
 function mic_commerce_commerce_order_presave($order) {
   // Student fee admin setting.
   $student_fee = variable_get('mic_student_fee', 0);
+  $payment_option = FALSE;
 
   // Array of students and fees.
-  $line_item_students = $line_item_fees = array();
+  $line_item_students = $line_item_fees = $fin_aid = array();
 
   // Fee types
   $fee_types = array(
     'mic_newstudent_fee',
     'mic_musicianship_fee',
+  );
+
+  // Fin aid types
+  $fin_aid_types = array(
+    'mic_finaid',
   );
 
   if (!empty($order->commerce_line_items['und'])) {
@@ -500,6 +433,22 @@ function mic_commerce_commerce_order_presave($order) {
         // Keep track of how many fees we already have in cart.
         if (in_array($line_item->type, $fee_types)) {
           $line_item_fees[$line_item->type][] = array(
+            'delta' => $delta,
+            'id' => $line_item->line_item_id
+          );
+        }
+
+        // Check if payment option added
+        if (isset($line_item->field_pi_payment[LANGUAGE_NONE][0]['value'])) {
+          if ($line_item->field_pi_payment[LANGUAGE_NONE][0]['value'] != 'full') {
+            $payment_option = TRUE;
+            $payment_option_choice = $line_item->field_pi_payment[LANGUAGE_NONE][0]['value'];
+          }
+        }
+
+        // Keep track of how many finaid we already have in cart.
+        if (in_array($line_item->type, $fin_aid_types)) {
+          $fin_aid[] = array(
             'delta' => $delta,
             'id' => $line_item->line_item_id
           );
@@ -544,6 +493,33 @@ function mic_commerce_commerce_order_presave($order) {
       $fee_to_remove = array_pop($line_item_fees['mic_musicianship_fee']);
       commerce_line_item_delete($fee_to_remove['id']);
       unset($order->commerce_line_items[LANGUAGE_NONE][$fee_to_remove['delta']]);
+    }
+  }
+
+  $num_fin_aid = count($fin_aid);
+
+  // If payment option already set, update it's value to deduct from total
+  if (isset($payment_option) && $payment_option && isset($payment_option_choice) && ($num_fin_aid < $num_students)) {
+    $total = $order->commerce_order_total[LANGUAGE_NONE][0]['amount'];
+    switch ($payment_option_choice) {
+      case 'finaid':
+        if ($total > 16000) {
+          $deduction = $total - 16000;
+        }
+        break;
+    }
+    // Add payment option as line item to order
+    $line_item = mic_commerce_fee_line_item_new($order->order_id, 'mic_' . $payment_option_choice, $deduction * -1);
+    commerce_line_item_save($line_item);
+    $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
+  }
+
+  // Clean up fin aid
+  if ($num_fin_aid > $num_students) {
+    for ($i = $num_students; $i <= $num_fin_aid; $i++) {
+      $fin_aid_to_remove = array_pop($fin_aid);
+      commerce_line_item_delete($fin_aid_to_remove['id']);
+      unset($order->commerce_line_items[LANGUAGE_NONE][$fin_aid_to_remove['delta']]);
     }
   }
 }
