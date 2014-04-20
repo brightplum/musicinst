@@ -1,0 +1,6 @@
+name = MIC Private Instruction
+description = Private instruction customizations for MIC
+package = Music Institute of Chicago
+core = 7.x
+
+dependencies[] = mic_commerce

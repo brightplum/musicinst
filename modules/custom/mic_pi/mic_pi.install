@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * MIC Private Instruction install file
+ */
+
+/**
+ * Financial Aid Line Item types
+ */
+function mic_pi_install() {
+  commerce_line_item_configure_line_item_types();
+}

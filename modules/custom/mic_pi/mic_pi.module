@@ -1,0 +1,143 @@
+<?php
+/**
+ * @file
+ * MIC Private Instruction customizations
+ */
+
+/**
+ * Implements hook_commerce_line_item_type_info()
+ *
+ * @return array
+ */
+function mic_pi_commerce_line_item_type_info() {
+  $line_item_types = array();
+  $line_item_types['mic_finaid'] = array(
+    'name' => t('Financial Aid'),
+    'description' => t('Financial aid payment plan.'),
+    'product' => FALSE,
+    'add_form_submit_value' => t('Add financial aid'),
+    'callbacks' => array(
+      'title' => 'mic_pi_finaid_title',
+    ),
+  );
+
+  return $line_item_types;
+}
+
+function mic_pi_finaid_title($line_item) {
+  return(t('Financial Aid'));
+}
+
+/**
+ * Implements hook_commerce_order_presave
+ *
+ * @param unknown_type $order
+ */
+function mic_pi_commerce_order_presave($order) {
+  $payment_option = $musicianship = FALSE;
+
+  // Array of students and fees.
+  $line_item_students = $musicianship_line_item = $fin_aid = array();
+
+  // Fin aid types
+  $fin_aid_types = array(
+    'mic_finaid',
+  );
+
+  $types = mic_commerce_check_existing_line_items($order);
+
+  if (!empty($order->commerce_line_items['und'])) {
+    // Go through each line item.
+    foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
+      if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
+        // Count students.
+        if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
+          $line_item_students[] = array(
+            'delta' => $delta,
+            'id' => $line_item->line_item_id,
+          );
+        }
+
+        // Check if payment option added
+        if (isset($line_item->field_pi_payment[LANGUAGE_NONE][0]['value']) && !in_array('mic_finaid', $types)) {
+          if ($line_item->field_pi_payment[LANGUAGE_NONE][0]['value'] != 'full') {
+            $payment_option = TRUE;
+            $payment_option_choice = $line_item->field_pi_payment[LANGUAGE_NONE][0]['value'];
+          }
+
+          // Keep track of how many finaid we already have in cart.
+          if (in_array($line_item->type, $fin_aid_types)) {
+            $fin_aid[] = array(
+              'delta' => $delta,
+              'id' => $line_item->line_item_id,
+            );
+          }
+        }
+      }
+
+      // Check if musicianship chosen
+      if (isset($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value']) && !in_array('musicianship', $types)) {
+        if ($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value'] == 'Yes') {
+          $musicianship = TRUE;
+          $musicianship_line_item[] = array(
+            'delta' => $delta,
+            'id' => $line_item->line_item_id,
+          );
+        }
+      }
+    }
+
+    $num_musicianship = count($musicianship_line_item);
+    $num_students = count($line_item_students);
+    $num_fin_aid = count($fin_aid);
+
+    // If musicianship, add product
+    if (($musicianship) && ($num_musicianship <= $num_students)) {
+      $product = commerce_product_load_by_sku('musicianship');
+      if ($product) {
+        $line_item = commerce_product_line_item_new($product, 1, $order->order_id);
+        commerce_line_item_save($line_item);
+        $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
+      }
+    }
+
+    // If payment option already set, update it's value to deduct from total
+    if (isset($payment_option) && $payment_option && isset($payment_option_choice) && ($num_fin_aid <= $num_students)) {
+      $total = $order->commerce_order_total[LANGUAGE_NONE][0]['amount'];
+      switch ($payment_option_choice) {
+        case 'finaid':
+          if ($total > 16000) {
+            $deduction = $total - 16000;
+          }
+          break;
+      }
+      // Add payment option as line item to order
+      $line_item = mic_commerce_fee_line_item_new($order->order_id, 'mic_' . $payment_option_choice, $deduction * -1);
+      commerce_line_item_save($line_item);
+      $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
+    }
+
+    // Clean up fin aid
+    if ($num_fin_aid > $num_students) {
+      for ($i = $num_students; $i <= $num_fin_aid; $i++) {
+        $fin_aid_to_remove = array_pop($fin_aid);
+        commerce_line_item_delete($fin_aid_to_remove['id']);
+        unset($order->commerce_line_items[LANGUAGE_NONE][$fin_aid_to_remove['delta']]);
+      }
+    }
+
+    // Clean up musicianship
+    if ($num_musicianship > $num_students) {
+      for ($i = $num_students; $i <= $num_musicianship; $i++) {
+        $musicianship_to_remove = array_pop($musicianship_line_item);
+        commerce_line_item_delete($musicianship_to_remove['id']);
+        unset($order->commerce_line_items[LANGUAGE_NONE][$musicianship_to_remove['delta']]);
+      }
+    }
+  }
+}
+
+function mic_pi_commerce_cart_line_item_refresh($line_item, $order_wrapper) {
+  //$line_item->commerce_unit_price['und']['0']['amount'] = 110;
+  //$line_item->commerce_unit_price['und']['0']['data']['components']['0']['price']['amount'] = 110;
+}
