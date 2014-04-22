@@ -31,10 +31,10 @@ function commerce_coupon_pane_checkout_form($form, &$form_state, $checkout_pane,
       '#value' => t('Add coupon'),
       '#name' => 'coupon_add',
       '#limit_validation_errors' => array(),
-      '#ajax' => array(
-        'callback' => 'commerce_coupon_add_coupon_callback',
-        'wrapper' => 'commerce-checkout-coupon-ajax-wrapper',
-      ),
+//      '#ajax' => array(
+//        'callback' => 'commerce_coupon_add_coupon_callback',
+//        'wrapper' => 'commerce-checkout-coupon-ajax-wrapper',
+//      ),
     );
   }
 
