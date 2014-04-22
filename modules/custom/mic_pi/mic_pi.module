@@ -80,7 +80,6 @@ function mic_pi_commerce_cart_line_item_refresh($line_item, $order_wrapper) {
         $type = $line_item->type;
         if ($type == 'product_pi') {
           $pi_line_item_ids[] = $line_item->line_item_id;
-          break;
         }
         else {
           continue;
@@ -156,6 +155,8 @@ function mic_pi_form_alter(&$form, &$form_state, $form_id) {
           unset($form['product_id']['#options'][854]);
           unset($form['product_id']['#options'][853]);
           unset($form['product_id']['#options'][852]);
+          $form['product_id']['#default_value'] = 851;
+          $form['product_id']['#value'] = 851;
         }
       }
 
