@@ -143,6 +143,7 @@ function commerce_coupon_pane_checkout_form_submit($form, &$form_state, $checkou
     if (isset($form_state['triggering_element']) && $form_state['triggering_element']['#name'] == 'coupon_add') {
       $form_state['rebuild'] = TRUE;
     }
+    commerce_cart_order_refresh($order);
   }
 }
 
