@@ -357,6 +357,12 @@ function mic_commerce_fee_line_item_new($order_id = 0, $type, $amount) {
   return $line_item;
 }
 
+/**
+ * Helper function to check line items
+ *
+ * @param $order
+ * @return array
+ */
 function mic_commerce_check_existing_line_items($order) {
   $types = array();
   foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
@@ -677,80 +683,6 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
       );
       $form['#process'][] = 'dialog_process_ajax_form';
     }
-
-    if (isset($form['line_item_fields']) && ($form['line_item_fields']['#bundle'] == 'product_pi')) {
-      // Check to see if pi type is set. If so, unset product options
-      if (isset($form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'])) {
-        $pi_type = $form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'];
-        if ($pi_type == 'Suzuki') {
-          unset($form['product_id']['#options'][851]);
-          unset($form['product_id']['#options'][850]);
-          unset($form['product_id']['#options'][161]);
-        }
-        elseif ($pi_type == 'Traditional') {
-          unset($form['product_id']['#options'][854]);
-          unset($form['product_id']['#options'][853]);
-          unset($form['product_id']['#options'][852]);
-        }
-      }
-
-      // Shove price dropdown into line items list for pre-render later
-      $form['line_item_fields']['product_id'] = $form['product_id'];
-      $form['product_id']['#type'] = 'hidden';
-
-      // Add callback to type dropdown
-      $form['line_item_fields']['field_pi_type'][LANGUAGE_NONE]['#ajax'] = array(
-        'callback' => 'mic_commerce_pi_type_callback',
-        'method' => 'change',
-        'wrapper' => 'pi_type_div',
-      );
-
-      // Add pre-render
-      $form['line_item_fields']['#pre_render'][] = 'mic_commerce_pi_pre_render';
-
-      // Grab entity information from the form.
-      $entity_type = $form['line_item_fields']['#entity_type'];
-      $bundle = $form['line_item_fields']['#bundle'];
-
-      // Lookup field instance information for all of the entity's fields.
-      $instances = field_info_instances($entity_type, $bundle);
-
-      // Add tooltips to each of the form's fields where appropriate.
-      foreach ($instances as $field_name => $instance) {
-        if (isset($form['line_item_fields'][$field_name])) {
-          if (!empty($instance['settings']['field_tooltips_enabled']) && !empty($instance['settings']['field_tooltips_tooltip'])) {
-            // Translate field tooltip.
-            if (module_exists('i18n_field')) {
-              $instance['settings']['field_tooltips_tooltip']['value'] = i18n_field_translate_tooltip($instance, $instance['settings']['field_tooltips_tooltip']['value']);
-            }
-
-            // Add a class to the parent field form item. This will be used by
-            // the tooltip JS to target the child field form items.
-            $form['line_item_fields'][$field_name]['#attributes']['class'][] = 'field-tooltips';
-
-            // Find all field form items and add the sanitized tooltip text as a
-            // title attribute.
-            foreach($form['line_item_fields'][$field_name][LANGUAGE_NONE] as $key => &$field) {
-              if (is_numeric($key) && is_array($field)) {
-                if (isset($field['value'])) {
-                  $field['value']['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
-                }
-                else {
-                  $field['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Attach the tooltip library.
-      $form['#attached']['library'][] = array('field_tooltips', 'tools.tooltip');
-      $form['#attached']['js'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.js';
-      $form['#attached']['css'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.css';
-
-    }
-
   }
 
   //add filter options to orders overview on view
@@ -826,18 +758,6 @@ function mic_commerce_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'commerce_checkout_form_review') {
     $form['buttons']['continue']['#value'] = t('Process payment');
   }
-}
-
-function mic_commerce_pi_pre_render($form) {
-  $form['group_instruction_type']['product_id'] = $form['product_id'];
-  $form['group_instruction_type']['product_id']['#weight'] = 5;
-  unset($form['product_id']);
-  return $form;
-}
-
-function mic_commerce_pi_type_callback($form, $form_state) {
-  $return = commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state);
-  return $return;
 }
 
 /**
@@ -1081,6 +1001,26 @@ function mic_commerce_order_log_history($order_id) {
   return NULL;
 }
 
+/**
+ * Return redirect depending on cart items.
+ *
+ * @return string
+ */
 function mic_commerce_redirect_cart() {
   return (mic_commerce_num_items_cart() > 0) ? 'checkout' : 'cart';
+}
+
+/**
+ * Helper to determine if value is present on line item.
+ *
+ * @param $line_item
+ * @param $field
+ * @param $value
+ * @return bool
+ */
+function mic_commerce_check_line_item_value($line_item, $field, $value) {
+  $field_value = field_get_items('commerce_line_item', $line_item, $field);
+  $field_value = is_array($field_value) ? reset($field_value) : $field_value;
+  return ($field_value['value'] == $value) ? TRUE : FALSE;
+
 }

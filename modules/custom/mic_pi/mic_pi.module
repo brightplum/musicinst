@@ -28,116 +28,146 @@ function mic_pi_finaid_title($line_item) {
   return(t('Financial Aid'));
 }
 
+function mic_pi_commerce_cart_line_item_refresh($line_item, $order_wrapper) {
+  //$line_item->commerce_unit_price['und']['0']['amount'] = 110;
+  //$line_item->commerce_unit_price['und']['0']['data']['components']['0']['price']['amount'] = 110;
+}
+
 /**
- * Implements hook_commerce_order_presave
+ * Implements hook_form_alter.
  *
- * @param unknown_type $order
+ * @param $form
+ * @param $form_state
+ * @param $form_id
  */
-function mic_pi_commerce_order_presave($order) {
-  $payment_option = $musicianship = FALSE;
+function mic_pi_form_alter(&$form, &$form_state, $form_id) {
+  //get tooltip working
+  if (strpos($form_id, 'commerce_cart_add_to_cart_form_') === 0) {
+    // Customizations for Private Instruction form.
+    if (isset($form['line_item_fields']) && ($form['line_item_fields']['#bundle'] == 'product_pi')) {
+      // Check to see if pi type is set. If so, unset product options
+      if (isset($form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'])) {
+        $pi_type = $form_state['line_item']->field_pi_type[LANGUAGE_NONE][0]['value'];
+        if ($pi_type == 'Suzuki') {
+          unset($form['product_id']['#options'][851]);
+          unset($form['product_id']['#options'][850]);
+          unset($form['product_id']['#options'][161]);
+        }
+        elseif ($pi_type == 'Traditional') {
+          unset($form['product_id']['#options'][854]);
+          unset($form['product_id']['#options'][853]);
+          unset($form['product_id']['#options'][852]);
+        }
+      }
 
-  // Array of students and fees.
-  $line_item_students = $musicianship_line_item = $fin_aid = array();
+      // Shove price dropdown into line items list for pre-render later
+      $form['line_item_fields']['product_id'] = $form['product_id'];
+      $form['product_id']['#type'] = 'hidden';
 
-  // Fin aid types
-  $fin_aid_types = array(
-    'mic_finaid',
+      // Add callback to type dropdown
+      $form['line_item_fields']['field_pi_type'][LANGUAGE_NONE]['#ajax'] = array(
+        'callback' => 'mic_pi_add_to_cart_type_callback',
+        'method' => 'change',
+        'wrapper' => 'pi_type_div',
+      );
+
+      // Add pre-render
+      $form['line_item_fields']['#pre_render'][] = 'mic_pi_group_instruction_pre_render';
+
+      // Grab entity information from the form.
+      $entity_type = $form['line_item_fields']['#entity_type'];
+      $bundle = $form['line_item_fields']['#bundle'];
+
+      // Lookup field instance information for all of the entity's fields.
+      $instances = field_info_instances($entity_type, $bundle);
+
+      // Add tooltips to each of the form's fields where appropriate.
+      foreach ($instances as $field_name => $instance) {
+        if (isset($form['line_item_fields'][$field_name])) {
+          if (!empty($instance['settings']['field_tooltips_enabled']) && !empty($instance['settings']['field_tooltips_tooltip'])) {
+            // Translate field tooltip.
+            if (module_exists('i18n_field')) {
+              $instance['settings']['field_tooltips_tooltip']['value'] = i18n_field_translate_tooltip($instance, $instance['settings']['field_tooltips_tooltip']['value']);
+            }
+
+            // Add a class to the parent field form item. This will be used by
+            // the tooltip JS to target the child field form items.
+            $form['line_item_fields'][$field_name]['#attributes']['class'][] = 'field-tooltips';
+
+            // Find all field form items and add the sanitized tooltip text as a
+            // title attribute.
+            foreach($form['line_item_fields'][$field_name][LANGUAGE_NONE] as $key => &$field) {
+              if (is_numeric($key) && is_array($field)) {
+                if (isset($field['value'])) {
+                  $field['value']['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
+                }
+                else {
+                  $field['#attributes']['title'] = check_markup($instance['settings']['field_tooltips_tooltip']['value'], $instance['settings']['field_tooltips_tooltip']['format']);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Attach the tooltip library.
+      $form['#attached']['library'][] = array('field_tooltips', 'tools.tooltip');
+      $form['#attached']['js'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.js';
+      $form['#attached']['css'][] = drupal_get_path('module', 'field_tooltips') . '/field_tooltips.css';
+
+      // Add additional submit handler
+      $form['#submit'][] = 'mic_pi_add_to_cart_form_submit';
+    }
+  }
+}
+
+/**
+ * Additional submit handler to add more products
+ *
+ * @param $form
+ * @param $form_state
+ */
+function mic_pi_add_to_cart_form_submit($form, &$form_state) {
+  $line_item_submitted = $form_state['line_item'];
+
+  // Setup order
+  $order_id = $line_item_submitted->order_id;
+  $order = commerce_order_load($order_id);
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+  // Add products if they exist on the line item
+  $additional_products = array(
+    'musicianship' => array(
+      'field' => 'field_pi_musicianship',
+      'value' => 'Yes',
+    ),
+    'paymentoption-finaid' => array(
+      'field' => 'field_pi_financial_aid_payment',
+      'value' => 1,
+    ),
   );
 
-  $types = mic_commerce_check_existing_line_items($order);
-
-  if (!empty($order->commerce_line_items['und'])) {
-    // Go through each line item.
-    foreach ($order->commerce_line_items['und'] as $delta => $line_item_entry) {
-      if ($line_item = commerce_line_item_load($line_item_entry['line_item_id'])) {
-        // Count students.
-        if (isset($line_item->field_class_lineitem_newstud[LANGUAGE_NONE][0]['value'])) {
-          $line_item_students[] = array(
-            'delta' => $delta,
-            'id' => $line_item->line_item_id,
-          );
-        }
-
-        // Check if payment option added
-        if (isset($line_item->field_pi_payment[LANGUAGE_NONE][0]['value']) && !in_array('mic_finaid', $types)) {
-          if ($line_item->field_pi_payment[LANGUAGE_NONE][0]['value'] != 'full') {
-            $payment_option = TRUE;
-            $payment_option_choice = $line_item->field_pi_payment[LANGUAGE_NONE][0]['value'];
-          }
-
-          // Keep track of how many finaid we already have in cart.
-          if (in_array($line_item->type, $fin_aid_types)) {
-            $fin_aid[] = array(
-              'delta' => $delta,
-              'id' => $line_item->line_item_id,
-            );
-          }
-        }
-      }
-
-      // Check if musicianship chosen
-      if (isset($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value']) && !in_array('musicianship', $types)) {
-        if ($line_item->field_pi_musicianship[LANGUAGE_NONE][0]['value'] == 'Yes') {
-          $musicianship = TRUE;
-          $musicianship_line_item[] = array(
-            'delta' => $delta,
-            'id' => $line_item->line_item_id,
-          );
-        }
-      }
-    }
-
-    $num_musicianship = count($musicianship_line_item);
-    $num_students = count($line_item_students);
-    $num_fin_aid = count($fin_aid);
-
-    // If musicianship, add product
-    if (($musicianship) && ($num_musicianship <= $num_students)) {
-      $product = commerce_product_load_by_sku('musicianship');
-      if ($product) {
-        $line_item = commerce_product_line_item_new($product, 1, $order->order_id);
+  foreach ($additional_products as $sku => $line_item_values) {
+    if (mic_commerce_check_line_item_value($line_item_submitted, $line_item_values['field'], $line_item_values['value'])) {
+      $product = commerce_product_load_by_sku($sku);
+      if (is_object($product)) {
+        $line_item = commerce_product_line_item_new($product, 1, $order_id);
         commerce_line_item_save($line_item);
-        $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
-      }
-    }
-
-    // If payment option already set, update it's value to deduct from total
-    if (isset($payment_option) && $payment_option && isset($payment_option_choice) && ($num_fin_aid <= $num_students)) {
-      $total = $order->commerce_order_total[LANGUAGE_NONE][0]['amount'];
-      switch ($payment_option_choice) {
-        case 'finaid':
-          if ($total > 16000) {
-            $deduction = $total - 16000;
-          }
-          break;
-      }
-      // Add payment option as line item to order
-      $line_item = mic_commerce_fee_line_item_new($order->order_id, 'mic_' . $payment_option_choice, $deduction * -1);
-      commerce_line_item_save($line_item);
-      $order->commerce_line_items[LANGUAGE_NONE][] = array('line_item_id' => $line_item->line_item_id);
-    }
-
-    // Clean up fin aid
-    if ($num_fin_aid > $num_students) {
-      for ($i = $num_students; $i <= $num_fin_aid; $i++) {
-        $fin_aid_to_remove = array_pop($fin_aid);
-        commerce_line_item_delete($fin_aid_to_remove['id']);
-        unset($order->commerce_line_items[LANGUAGE_NONE][$fin_aid_to_remove['delta']]);
-      }
-    }
-
-    // Clean up musicianship
-    if ($num_musicianship > $num_students) {
-      for ($i = $num_students; $i <= $num_musicianship; $i++) {
-        $musicianship_to_remove = array_pop($musicianship_line_item);
-        commerce_line_item_delete($musicianship_to_remove['id']);
-        unset($order->commerce_line_items[LANGUAGE_NONE][$musicianship_to_remove['delta']]);
+        $order_wrapper->commerce_line_items[] = $line_item;
+        commerce_order_save($order);
       }
     }
   }
 }
 
-function mic_pi_commerce_cart_line_item_refresh($line_item, $order_wrapper) {
-  //$line_item->commerce_unit_price['und']['0']['amount'] = 110;
-  //$line_item->commerce_unit_price['und']['0']['data']['components']['0']['price']['amount'] = 110;
+function mic_pi_group_instruction_pre_render($form) {
+  $form['group_instruction_type']['product_id'] = $form['product_id'];
+  $form['group_instruction_type']['product_id']['#weight'] = 5;
+  unset($form['product_id']);
+  return $form;
+}
+
+function mic_pi_add_to_cart_type_callback($form, $form_state) {
+  $return = commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state);
+  return $return;
 }
