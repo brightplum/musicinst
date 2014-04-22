@@ -5,32 +5,131 @@
  */
 
 /**
- * Implements hook_commerce_line_item_type_info()
+ * Implements hook_cart_line_item_refresh
  *
- * @return array
+ * @param $line_item
+ * @param $order_wrapper
  */
-function mic_pi_commerce_line_item_type_info() {
-  $line_item_types = array();
-  $line_item_types['mic_finaid'] = array(
-    'name' => t('Financial Aid'),
-    'description' => t('Financial aid payment plan.'),
-    'product' => FALSE,
-    'add_form_submit_value' => t('Add financial aid'),
-    'callbacks' => array(
-      'title' => 'mic_pi_finaid_title',
-    ),
-  );
-
-  return $line_item_types;
-}
-
-function mic_pi_finaid_title($line_item) {
-  return(t('Financial Aid'));
+function mic_pi_commerce_cart_order_refresh($order_wrapper) {
+//  $pi_line_item_ids = array();
+//  foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
+//    $line_item = $line_item_wrapper->value();
+//    if ($line_item) {
+//      $type = $line_item->type;
+//      if ($type == 'product_pi') {
+//        $pi_line_item_ids[] = $line_item->line_item_id;
+//      }
+//      elseif ($type === 'product') {
+//        $label = $line_item->line_item_label;
+//        switch ($label) {
+//          case 'paymentoption-finaid':
+//            $discounted_price = 16000;
+//            break;
+//        }
+//      }
+//      else {
+//        continue;
+//      }
+//    }
+//  }
+////  if (!empty($pi_line_item_ids) && isset($discounted_price)) {
+////    foreach ($pi_line_item_ids as $pi_line_item_id) {
+////      $line_item = commerce_line_item_load($pi_line_item_id);
+////      mic_commerce_set_line_item_price($line_item, $discounted_price, 'commerce_unit_price');
+////      mic_commerce_set_line_item_price($line_item, $discounted_price, 'commerce_total');
+////      commerce_line_item_save($line_item);
+////      entity_get_controller('commerce_line_item')->resetCache(array($line_item->line_item_id));
+////    }
+////  }
+//  if (isset($discounted_price)) {
+//    $base_price = array(
+//      'amount' => $discounted_price,
+//      'currency_code' => 'USD',
+//      'data' => array(),
+//    );
+//    $order_wrapper->commerce_order_total->data = commerce_price_component_add($base_price, 'base_price', $base_price, TRUE);
+//    $order_wrapper->commerce_order_total->amount = round($discounted_price);
+//  }
 }
 
 function mic_pi_commerce_cart_line_item_refresh($line_item, $order_wrapper) {
-  //$line_item->commerce_unit_price['und']['0']['amount'] = 110;
-  //$line_item->commerce_unit_price['und']['0']['data']['components']['0']['price']['amount'] = 110;
+  $pi_line_item_ids = array();
+  if ($line_item) {
+    $type = $line_item->type;
+    if ($type === 'product') {
+      $label = $line_item->line_item_label;
+      switch ($label) {
+        case 'paymentoption-finaid':
+          $discounted_price = 16000;
+          break;
+
+        case 'paymentoption-installment':
+          $discounted_price = 22500;
+          break;
+
+        case 'paymentoption-partial':
+          $discounted_price = 50000;
+          break;
+      }
+    }
+  }
+  if (isset($discounted_price)) {
+    foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+      $line_item = $line_item_wrapper->value();
+      if ($line_item) {
+        $type = $line_item->type;
+        if ($type == 'product_pi') {
+          $pi_line_item_ids[] = $line_item->line_item_id;
+          break;
+        }
+        else {
+          continue;
+        }
+      }
+    }
+    if (!empty($pi_line_item_ids)) {
+      foreach ($pi_line_item_ids as $pi_line_item_id) {
+        $line_item = commerce_line_item_load($pi_line_item_id);
+        mic_commerce_set_line_item_price($line_item, $discounted_price, 'commerce_unit_price');
+        mic_commerce_set_line_item_price($line_item, $discounted_price, 'commerce_total');
+        commerce_line_item_save($line_item);
+        entity_get_controller('commerce_line_item')->resetCache(array($line_item->line_item_id));
+      }
+    }
+  }
+}
+
+function mic_pi_commerce_product_calculate_sell_price_line_item_alter($line_item) {
+//  if ($line_item->type == 'product_pi') {
+//    if (isset($_POST['op']) && ($_POST['op'] == 'Add to cart')) {
+//      // Check which payment option is filled out
+//      $fin_aid = (isset($_POST['line_item_fields']['field_pi_financial_aid'][LANGUAGE_NONE]))
+//        ? $_POST['line_item_fields']['field_pi_financial_aid'][LANGUAGE_NONE]
+//        : FALSE;
+//      $payment_plan = (isset($_POST['line_item_fields']['field_pi_payment'][LANGUAGE_NONE]))
+//        ? $_POST['line_item_fields']['field_pi_payment'][LANGUAGE_NONE]
+//        : FALSE;
+//      if ($fin_aid && ($fin_aid == 'Yes')) {
+//        mic_commerce_set_line_item_price($line_item, 16000, 'commerce_unit_price');
+//        mic_commerce_set_line_item_price($line_item, 16000, 'commerce_total');
+//      }
+//      elseif ($payment_plan) {
+//        switch ($payment_plan) {
+//          case 'installment':
+//            $price = 22500;
+//            break;
+//
+//          case 'partial':
+//            $price = 50000;
+//            break;
+//        }
+//        if (isset($price)) {
+//          mic_commerce_set_line_item_price($line_item, $price, 'commerce_unit_price');
+//          mic_commerce_set_line_item_price($line_item, $price, 'commerce_total');
+//        }
+//      }
+//    }
+//  }
 }
 
 /**
@@ -145,6 +244,14 @@ function mic_pi_add_to_cart_form_submit($form, &$form_state) {
       'field' => 'field_pi_financial_aid_payment',
       'value' => 1,
     ),
+    'paymentoption-installment' => array(
+      'field' => 'field_pi_payment',
+      'value' => 'installment',
+    ),
+    'paymentoption-partial' => array(
+      'field' => 'field_pi_payment',
+      'value' => 'partial',
+    ),
   );
 
   foreach ($additional_products as $sku => $line_item_values) {
@@ -160,6 +267,12 @@ function mic_pi_add_to_cart_form_submit($form, &$form_state) {
   }
 }
 
+/**
+ * Helper to cleanup form before rendering.
+ *
+ * @param $form
+ * @return mixed
+ */
 function mic_pi_group_instruction_pre_render($form) {
   $form['group_instruction_type']['product_id'] = $form['product_id'];
   $form['group_instruction_type']['product_id']['#weight'] = 5;
@@ -167,6 +280,13 @@ function mic_pi_group_instruction_pre_render($form) {
   return $form;
 }
 
+/**
+ * JSON callback when products refresh
+ *
+ * @param $form
+ * @param $form_state
+ * @return array
+ */
 function mic_pi_add_to_cart_type_callback($form, $form_state) {
   $return = commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state);
   return $return;
