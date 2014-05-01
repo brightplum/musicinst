@@ -1,0 +1,43 @@
+#mic-private-private-registration-form div.inline div.form-item {
+  display: inline-block;
+}
+
+#mic-private-private-registration-form #edit-program-areas div.form-item,
+#mic-private-private-registration-form #edit-instrument div.form-item {
+  float: left;
+  width: 50%;
+}
+
+.clear {
+  clear: both;
+}
+
+.node-type-profile .body-inner-wrapper .middle-column .main-content-wrapper h1,
+.node-type-profile .body-inner-wrapper .main-content-wrapper h1 {
+  margin-bottom: 0px;
+}
+
+.node-profile div.field-type-text,
+.node-profile div.field-type-text-long,
+.node-profile div.field-name-field-profile-hire-date,
+.node-profile div.field-type-taxonomy-term-reference {
+  margin-top: 10px;
+}
+
+.body-inner-wrapper .main-content-wrapper .field-name-field-job-title {
+  color: #455561;
+  margin: 0px 0px 0px 0px;
+}
+
+.body-inner-wrapper .main-content-wrapper .field-name-field-image {
+  display: inline-block;
+  float: left;
+  margin: 10px 20px 20px 0px;
+}
+
+.instrument-programarea {
+  display: inline-block;
+  width: 240px;
+  vertical-align: top;
+  margin-bottom: 15px;
+}

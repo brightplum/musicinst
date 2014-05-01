@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * MIC Private Registration
+ */
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function mic_private_menu() {
+  $items = array();
+  $items['private-registration'] = array(
+    'title' => t('Private Registration Detail'),
+    'description' => t('Register for private instruction.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_private_private_registration_form'),
+    'access arguments' => array('access content'),
+    'file' => 'mic_private.form.inc',
+  );
+
+  return $items;
+}
