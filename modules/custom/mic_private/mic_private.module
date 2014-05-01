@@ -1,0 +1,73 @@
+<?php
+/**
+ * @file
+ * MIC Private Registration
+ */
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function mic_private_menu() {
+  $items = array();
+  $items['private-registration'] = array(
+    'title' => t('Private Registration Detail'),
+    'description' => t('Register for private instruction.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_private_private_registration_form'),
+    'access arguments' => array('access content'),
+    'file' => 'mic_private.form.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Alter the Pay a Bill form for Private Instruction.
+ *
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param $form
+ * @param $form_state
+ */
+function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$form_state) {
+  if (isset($_COOKIE['mic-private-instruction'])) {
+    $data = unserialize($_COOKIE['mic-private-instruction']);
+    $form['#prefix'] = '<h3>Private Registration</h3><p>Your private registration details have been filled in below. If they are correct, choose \'Add to Cart\'.</p>';
+    $form['line_item_fields']['field_billpay_acct'][LANGUAGE_NONE][0]['value']['#default_value'] = $data['values']['family_record'];
+    $form['line_item_fields']['field_billpay_acct'][LANGUAGE_NONE][0]['value']['#disabled'] = TRUE;
+
+    // Format output
+    $info = array();
+    $skip = array(
+      'submit',
+      'form_build_id',
+      'form_id',
+      'op',
+    );
+    foreach ($data['values'] as $key => $value) {
+      if (!in_array($key, $skip)) {
+        if ($key == 'campus') {
+          $term = taxonomy_term_load($value);
+          $value = $term->name;
+        }
+        elseif (in_array($key, array('suzuki', 'musicianship', 'instructor'))) {
+          $node = node_load($value);
+          $value = $node->title;
+        }
+        $info[] = ucfirst($key) . ': ' . $value;
+      }
+    }
+    $info[] = 'Total: $' . round($data['total'], 2);
+
+    $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#default_value'] = implode("---- \n\n ---- ", $info);
+    $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#disabled'] = TRUE;
+    $form['line_item_fields']['field_billpay_amount'][LANGUAGE_NONE][0]['value']['#default_value'] = round($data['calculated_total'], 2);
+    $form['line_item_fields']['field_billpay_amount'][LANGUAGE_NONE][0]['value']['#disabled'] = TRUE;
+
+    // Destroy cookie
+    setcookie("mic-private-instruction", "", time() - 3600);
+  }
+
+}
