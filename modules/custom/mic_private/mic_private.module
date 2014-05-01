@@ -59,11 +59,11 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
         $info[] = ucfirst($key) . ': ' . $value;
       }
     }
-    $info[] = 'Total: $' . round($data['total'], 2);
+    $info[] = 'Total: $' . round($data['calculated_total'], 2);
 
-    $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#default_value'] = implode("---- \n\n ---- ", $info);
+    $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#default_value'] = implode(" ---- \n\n ---- ", $info);
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#disabled'] = TRUE;
-    $form['line_item_fields']['field_billpay_amount'][LANGUAGE_NONE][0]['value']['#default_value'] = round($data['calculated_total'], 2);
+    $form['line_item_fields']['field_billpay_amount'][LANGUAGE_NONE][0]['value']['#default_value'] = round($data['total'], 2);
     $form['line_item_fields']['field_billpay_amount'][LANGUAGE_NONE][0]['value']['#disabled'] = TRUE;
 
     // Destroy cookie
