@@ -21,7 +21,10 @@ function mic_private_private_registration_form($form, &$form_state) {
   $form['student']['type'] = array(
     '#type' => 'select',
     '#title' => t('Student Type'),
-    '#options' => array('New or Returning', 'Continuing'),
+    '#options' => array(
+      'new' => 'New or Returning',
+      'continuing' => 'Continuing',
+    ),
   );
   $form['student']['family_record'] = array(
     '#type' => 'textfield',
@@ -215,107 +218,71 @@ function mic_private_private_registration_form($form, &$form_state) {
 }
 
 /**
- * Validate profile form
- * Grab uploaded headshot file
- *
- * @param $form
- * @param $form_state
- */
-function mic_private_private_registration_form_validate($form, &$form_state) {
-  $file = file_save_upload('headshot', array(
-    'file_validate_is_image' => array(), // Validates file is really an image.
-    'file_validate_extensions' => array('png gif jpg jpeg'), // Validate extensions.
-  ));
-  // If the file passed validation:
-  if ($file) {
-    // Move the file, into the Drupal file system
-    if ($file = file_move($file, 'public://')) {
-      // Save the file for use in the submit handler.
-      $form_state['storage']['file'] = $file;
-    }
-    else {
-      form_set_error('file', t('Failed to write the uploaded file the site\'s file folder.'));
-    }
-  }
-}
-
-/**
  * Save profile from form
  *
  * @param $form
  * @param $form_state
  */
 function mic_private_private_registration_form_submit($form, &$form_state) {
-  $firstname = $form_state['values']['first'];
-  $lastname = $form_state['values']['last'];
-  $name = $firstname . ' ' . $lastname;
+  // Calculate instruction rate
+  $instructor = $form_state['values']['instruction']['instructor'];
+  $length = $form_state['values']['instruction']['length'];
+  $type = $form_state['values']['instruction']['type'];
 
-  //save headshot
-  if ($file = $form_state['storage']['file']) {
-    unset($form_state['storage']['file']);
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
+  $rate = mic_private_calculate_rate($instructor, $length)
+    ? mic_private_calculate_rate($instructor, $length)
+    : 85;
+
+  //$weeks = ($type == 'suzuki') ? 15 : 17;
+  $total = $rate * 17;
+
+  // Calculate discounts
+  if ($form_state['values']['discount']['senior'] == 'Yes') {
+    $total *= .85;
   }
 
-  //check if profile exists
-  $nid = mic_profile_namelookup($name);
-  if ($nid) {
-    $node = node_load($nid);
-  }
-  else {
-    $node = new stdClass();
-    $node->type = 'profile';
-    $node->language = LANGUAGE_NONE;
-    node_object_prepare($node);
-    $node->status = 0;
+  if ($form_state['values']['discount']['multiple'] == 'Yes') {
+    $total -= 25;
   }
 
-  $node->title = $form_state['values']['title'] . ' ' . $name . ' ' . $form_state['values']['suffix'];
-  $node->uid = 4;
-  $node->field_prefix[LANGUAGE_NONE][0]['value'] = $form_state['values']['title'];
-  $node->field_first_name[LANGUAGE_NONE][0]['value'] = $firstname;
-  $node->field_last_name[LANGUAGE_NONE][0]['value'] = $lastname;
-  $node->field_suffix[LANGUAGE_NONE][0]['value'] = $form_state['values']['suffix'];
-  $node->field_job_title[LANGUAGE_NONE][0]['value'] = $form_state['values']['titles'];
-
-  //headshot
-  if (isset($file->fid)) {
-    $node->field_image[LANGUAGE_NONE][0] = (array) $file;
+  if ($form_state['values']['discount']['staff'] == 'Yes') {
+    $total *= .40;
   }
 
-  //program areas
-  $node->field_profile_program_area[LANGUAGE_NONE] = mic_profile_terms($form_state['values']['program_areas']);
-
-  //campus
-  $node->field_profile_campus[LANGUAGE_NONE] = mic_profile_terms($form_state['values']['campus']);
-
-  //instruments
-  $instruments = array();
-  foreach (mic_profile_instruments() as $key => $instrument) {
-    $instruments += $form_state['values'][$key];
+  // Additional fees
+  if ($form_state['values']['student']['type'] == 'new') {
+    $total += 25;
   }
-  $node->field_profile_instruments[LANGUAGE_NONE] = mic_profile_terms($instruments);
 
-  //profile fields
-  $textareas = array(
-    'field_profile_hire_date' => 'hire_date',
+  $calculated_total = $total;
+
+  // Payment options
+  switch ($form_state['values']['payment']['payment']) {
+    case 'installment':
+      $total = 225;
+      break;
+
+    case 'partial':
+      $total = 500;
+      break;
+
+    case 'financialaid':
+      $total = 160;
+      break;
+  }
+
+  // Credit card fee
+  $total *= 1.02;
+
+  $data = array(
+    'values' => $form_state['values'],
+    'calculated_total' => $calculated_total,
+    'total' => $total,
   );
-  $textareas += mic_profile_textareas();
-  foreach ($textareas as $key => $textarea) {
-    if (isset($form_state['values'][$key]) && !empty($form_state['values'][$key])) {
-      $node->$key = array(
-        LANGUAGE_NONE => array(
-          array(
-            'value' => $form_state['values'][$key],
-          ),
-        ),
-      );
-    }
-  }
+  $data = serialize($data);
+  setcookie('mic-private-instruction', $data, '/', 'www.musicinst.org', 1);
 
-  node_save($node);
-
-  drupal_goto("add/profile/$node->nid/thankyou");
+  drupal_goto("pay-bill");
 }
 
 /**
@@ -341,6 +308,12 @@ function mic_private_get_list($bundle) {
   return $options;
 }
 
+/**
+ * Helper to load Suzuki and Musicianship classes.
+ *
+ * @param $type
+ * @return array
+ */
 function mic_private_get_additional_classes($type) {
   $options = array('' => '- Select -');
   $query = new EntityFieldQuery();
@@ -375,6 +348,14 @@ function mic_private_get_additional_classes($type) {
   return $options;
 }
 
+/**
+ * Helper to format fields in a select list.
+ *
+ * @param $entity_type
+ * @param $entity
+ * @param $field
+ * @return array|bool|mixed
+ */
 function mic_private_get_field_display($entity_type, $entity, $field) {
   $field = field_get_items($entity_type, $entity, $field);
   $field = is_array($field) ? reset($field) : $field;
@@ -394,18 +375,25 @@ function mic_private_get_field_display($entity_type, $entity, $field) {
 }
 
 /**
- * Format form values for term saving
+ * Helper to calculate instructor rate.
  *
- * @param $form_values
- * @return array
+ * @param $nid
+ * @param $length
+ * @return null
  */
-function mic_profile_terms($form_values) {
-  $terms = array();
-  foreach ($form_values as $term) {
-    if ($term != 0) {
-      $terms[]['tid'] = $term;
-    }
+function mic_private_calculate_rate($nid, $length) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'pi_instructor_rate')
+    ->fieldCondition('field_instructor_reference', 'nid', $nid);
+  $result = $query->execute();
+  $nid = array_keys($result['node']);
+  if (!empty($nid)) {
+    $node = node_load($nid);
+    $rate = field_get_items('node', $node, 'field_pi_rate_' . $length . 'min');
+    $rate = is_array($rate) ? reset($rate) : $rate;
+    return $rate['value'];
   }
-
-  return $terms;
+  return FALSE;
 }
