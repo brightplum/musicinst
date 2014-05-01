@@ -295,8 +295,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     'total' => $total,
   );
   $data = serialize($data);
-  //setcookie('mic-private-instruction', $data, '/', 'www.musicinst.org', 1);
-  setcookie('mic-private-instruction', $data);
+  setcookie('mic-private-instruction', $data, '/', 'www.musicinst.org', 1);
+  //setcookie('mic-private-instruction', $data);
 
   drupal_goto("pay-bill");
 }
