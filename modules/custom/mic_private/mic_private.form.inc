@@ -18,7 +18,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Student Information'),
   );
-  $form['student']['type'] = array(
+  $form['student']['student_type'] = array(
     '#type' => 'select',
     '#title' => t('Student Type'),
     '#options' => array(
@@ -53,12 +53,18 @@ function mic_private_private_registration_form($form, &$form_state) {
   $form['student']['gender'] = array(
     '#type' => 'select',
     '#title' => t('Gender'),
-    '#options' => array('' => '- Select - ', 'Male', 'Female', 'Other'),
+    '#options' => drupal_map_assoc(
+      array(
+        '' => '- Select - ',
+        'Male',
+        'Female',
+        'Other',
+      )),
   );
   $form['student']['ethnicity'] = array(
     '#type' => 'select',
     '#title' => t('Ethnicity'),
-    '#options' => array(
+    '#options' => drupal_map_assoc(array(
       '' => '- Select - ',
       'American Indian or Alaskan Native',
       'Asian',
@@ -67,7 +73,7 @@ function mic_private_private_registration_form($form, &$form_state) {
       'Hispanic/Latino',
       'White',
       'Two or more races/ethnicities',
-    ),
+    )),
     '#description' => t('Each year, foundations & corporations supporting MIC with grants ask us to provide information about the race & ethnicity of our student. This voluntary information is confidential and will only be used to form aggregate numbers for our programs.'),
   );
   $form['student']['school'] = array(
@@ -94,13 +100,13 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#title' => t('Instruction Information'),
   );
 
-  $form['instruction']['type'] = array(
+  $form['instruction']['instruction_type'] = array(
     '#type' => 'select',
     '#title' => t('Type'),
     '#options' => array(
       '' => '- Select -',
       'suzuki' => 'Suzuki',
-      'musicianship' => 'Musicianship',
+      'traditional' => 'Traditional',
     ),
   );
 
@@ -115,7 +121,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#prefix' => '<div class="inline">',
     '#type' => 'select',
     '#title' => t('Requested Day'),
-    '#options' => array(
+    '#options' => drupal_map_assoc(array(
       '' => '- Select -',
       'Sunday',
       'Monday',
@@ -124,7 +130,7 @@ function mic_private_private_registration_form($form, &$form_state) {
       'Thursday',
       'Friday',
       'Saturday',
-    ),
+    )),
   );
   $form['instruction']['time'] = array(
     '#type' => 'textfield',
@@ -225,39 +231,48 @@ function mic_private_private_registration_form($form, &$form_state) {
  */
 function mic_private_private_registration_form_submit($form, &$form_state) {
   // Calculate instruction rate
-  $instructor = $form_state['values']['instruction']['instructor'];
-  $length = $form_state['values']['instruction']['length'];
-  $type = $form_state['values']['instruction']['type'];
+  $instructor = $form_state['values']['instructor'];
+  $length = $form_state['values']['length'];
+  $instruction_type = $form_state['values']['instruction_type'];
+  $musicianship = $form_state['values']['musicianship'];
 
-  $rate = mic_private_calculate_rate($instructor, $length)
-    ? mic_private_calculate_rate($instructor, $length)
-    : 85;
+  $rate = mic_private_calculate_rate($instructor, $length);
+  $rate = ($rate) ? $rate : 85;
 
   //$weeks = ($type == 'suzuki') ? 15 : 17;
   $total = $rate * 17;
 
+  if (!empty($musicianship)) {
+    if ($instruction_type == 'suzuki') {
+      $total += 65;
+    }
+    else {
+      $total += 120;
+    }
+  }
+
   // Calculate discounts
-  if ($form_state['values']['discount']['senior'] == 'Yes') {
+  if ($form_state['values']['senior']) {
     $total *= .85;
   }
 
-  if ($form_state['values']['discount']['multiple'] == 'Yes') {
+  if ($form_state['values']['multiple']) {
     $total -= 25;
   }
 
-  if ($form_state['values']['discount']['staff'] == 'Yes') {
+  if ($form_state['values']['staff']) {
     $total *= .40;
   }
 
   // Additional fees
-  if ($form_state['values']['student']['type'] == 'new') {
+  if ($form_state['values']['student_type'] == 'new') {
     $total += 25;
   }
 
   $calculated_total = $total;
 
   // Payment options
-  switch ($form_state['values']['payment']['payment']) {
+  switch ($form_state['values']['payment']) {
     case 'installment':
       $total = 225;
       break;
@@ -280,7 +295,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     'total' => $total,
   );
   $data = serialize($data);
-  setcookie('mic-private-instruction', $data, '/', 'www.musicinst.org', 1);
+  //setcookie('mic-private-instruction', $data, '/', 'www.musicinst.org', 1);
+  setcookie('mic-private-instruction', $data);
 
   drupal_goto("pay-bill");
 }
@@ -390,7 +406,7 @@ function mic_private_calculate_rate($nid, $length) {
   $result = $query->execute();
   $nid = array_keys($result['node']);
   if (!empty($nid)) {
-    $node = node_load($nid);
+    $node = node_load($nid[0]);
     $rate = field_get_items('node', $node, 'field_pi_rate_' . $length . 'min');
     $rate = is_array($rate) ? reset($rate) : $rate;
     return $rate['value'];
