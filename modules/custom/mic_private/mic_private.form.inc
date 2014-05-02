@@ -261,7 +261,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   if ($form_state['values']['staff']) {
-    $total *= .40;
+    $total *= .60;
   }
 
   // Additional fees
