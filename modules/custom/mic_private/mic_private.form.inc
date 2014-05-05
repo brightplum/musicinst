@@ -269,7 +269,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $total *= .85;
   }
 
-  if ($form_state['values']['multiple']) {
+  if ($form_state['values']['multiple'] == 'Yes') {
     $total -= 25;
   }
 
