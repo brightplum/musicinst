@@ -184,12 +184,6 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
-  $form['discount']['senior'] = array(
-    '#type' => 'select',
-    '#title' => t('Are you a senior?'),
-    '#options' => array('No', 'Yes'),
-  );
-
   $form['discount']['staff'] = array(
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
