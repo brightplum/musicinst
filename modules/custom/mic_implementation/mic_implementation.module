@@ -114,6 +114,7 @@ function mic_implementation_custom_theme() {
     'cart',
     'checkout',
     'user',
+    'private-registration',
   );
 
   if (is_object($node)) {
