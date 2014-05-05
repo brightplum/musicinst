@@ -336,8 +336,13 @@ function mic_private_get_list($bundle) {
   $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', $bundle)
-    ->fieldCondition('field_profile_program_area', 'tid', 178)
     ->propertyOrderBy('title');
+
+  // Only grab profiles teaching private instruction.
+  if ($bundle == 'profile') {
+    $query->fieldCondition('field_profile_program_area', 'tid', 178);
+  }
+
   $result = $query->execute();
   $nids = array_keys($result['node']);
   $nodes = node_load_multiple($nids);
