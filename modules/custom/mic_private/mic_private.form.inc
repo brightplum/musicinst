@@ -89,9 +89,9 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#suffix' => '</div>',
   );
   $form['student']['instrument'] = array(
-    '#type' => 'textfield',
     '#title' => t('Instrument'),
-    '#size' => 15,
+    '#type' => 'select',
+    '#options' => array('' => '- Select -') + mic_profile_get_taxonomy_options('pi_instrument'),
   );
 
   // Instructor Information
@@ -146,6 +146,8 @@ function mic_private_private_registration_form($form, &$form_state) {
       '30' => '30 minutes',
       '45' => '45 minutes',
       '60' => '60 minutes',
+      '90' => '90 minutes',
+      '120' => '120 minutes',
     ),
     '#suffix' => '</div>',
   );
@@ -178,8 +180,8 @@ function mic_private_private_registration_form($form, &$form_state) {
 
   $form['discount']['multiple'] = array(
     '#type' => 'select',
-    '#title' => t('Are you registering more than one student?'),
-    '#options' => array('No', 'Yes'),
+    '#title' => t('Is this the registration of a second or more student?'),
+    '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
   $form['discount']['senior'] = array(
@@ -191,7 +193,7 @@ function mic_private_private_registration_form($form, &$form_state) {
   $form['discount']['staff'] = array(
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
-    '#options' => array('No', 'Yes'),
+    '#options' => array(0 => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
   );
 
   // Payment
@@ -204,11 +206,23 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Choose Payment Option'),
     '#options' => array(
-      'full' => 'Pay in full now',
-      'installment' => 'Pay $225 now. Balance spread over 3 additional payments.',
-      'partial' => 'Pay $500 now. Balance invoiced in 30 days.',
-      'financialaid' => 'Financial Aid: Pay $160 now. Balance invoiced in 30 days.',
+      'full' => 'Plan 1: Pay in full now',
+      'partial' => 'Plan 2: Pay $500 now. Balance invoiced.',
+      'installment' => 'Plan 3: Pay $185 now. Balance spread over 3 additional payments.',
+      'financialaid' => 'Plan 4: Financial Aid: Pay $165 now. Balance invoiced.',
     ),
+  );
+
+  $form['payment']['installment'] = array(
+    '#type' => 'select',
+    '#title' => t('If Plan 3 (Installment Plan) is chosen above, which day should payments be due?'),
+    '#options' => array('' => '- Select -', 1 => '1st of the month', 15 => '15th of the month'),
+  );
+
+  $form['payment']['payment_form'] = array(
+    '#type' => 'select',
+    '#title' => t('Which form of payment will be using?'),
+    '#options' => array('credit' => 'Credit Card', 'debit' => 'Debit Card', 'echeck' => 'Echeck'),
   );
 
   $form['submit'] = array(
@@ -235,11 +249,12 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $length = $form_state['values']['length'];
   $instruction_type = $form_state['values']['instruction_type'];
   $musicianship = $form_state['values']['musicianship'];
+  $birthdate = $form_state['values']['birthdate'];
 
   $rate = mic_private_calculate_rate($instructor, $length);
-  $rate = ($rate) ? $rate : 85;
+  $default_rate = mic_private_default_rate($instruction_type, $length);
+  $rate = ($rate) ? $rate : $default_rate;
 
-  //$weeks = ($type == 'suzuki') ? 15 : 17;
   $total = $rate * 17;
 
   if (!empty($musicianship)) {
@@ -247,12 +262,16 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
       $total += 65;
     }
     else {
-      $total += 120;
+      $total += 125;
     }
   }
 
   // Calculate discounts
-  if ($form_state['values']['senior']) {
+
+  // Senior discount
+  $birthdate_unix = strtotime($birthdate);
+  $senior_unix = strtotime("-65 years");
+  if ((time() - $senior_unix) > $birthdate_unix) {
     $total *= .85;
   }
 
@@ -261,7 +280,15 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   if ($form_state['values']['staff']) {
-    $total *= .60;
+    switch ($form_state['values']['staff']) {
+      case 'part':
+        $total *= .90;
+        break;
+
+      case 'full':
+        $total *= .60;
+        break;
+    }
   }
 
   // Additional fees
@@ -274,7 +301,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   // Payment options
   switch ($form_state['values']['payment']) {
     case 'installment':
-      $total = 225;
+      $total = 185;
+      $form_state['installment pieces'] = '$' . round(($calculated_total - $total) / 3, 2);
       break;
 
     case 'partial':
@@ -282,12 +310,14 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
       break;
 
     case 'financialaid':
-      $total = 160;
+      $total = 165;
       break;
   }
 
   // Credit card fee
-  $total *= 1.02;
+  if ($form_state['payment_form'] == 'credit') {
+    $total *= 1.0275;
+  }
 
   $data = array(
     'values' => $form_state['values'],
@@ -312,6 +342,7 @@ function mic_private_get_list($bundle) {
   $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', $bundle)
+    ->fieldCondition('field_profile_program_area', 'tid', 178)
     ->propertyOrderBy('title');
   $result = $query->execute();
   $nids = array_keys($result['node']);
@@ -402,6 +433,30 @@ function mic_private_calculate_rate($nid, $length) {
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'pi_instructor_rate')
     ->fieldCondition('field_instructor_reference', 'nid', $nid);
+  $result = $query->execute();
+  $nid = array_keys($result['node']);
+  if (!empty($nid)) {
+    $node = node_load($nid[0]);
+    $rate = field_get_items('node', $node, 'field_pi_rate_' . $length . 'min');
+    $rate = is_array($rate) ? reset($rate) : $rate;
+    return $rate['value'];
+  }
+  return FALSE;
+}
+
+/**
+ * Default rate for private instruction.
+ *
+ * @param $instruction_type
+ * @param $length
+ * @return bool
+ */
+function mic_private_default_rate($instruction_type, $length) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'pi_instructor_rate')
+    ->propertyCondition('title', 'Default ' . ucfirst($instruction_type) . ' Rate');
   $result = $query->execute();
   $nid = array_keys($result['node']);
   if (!empty($nid)) {
