@@ -275,7 +275,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   // Senior discount
   $birthdate_unix = strtotime($birthdate);
   $senior_unix = strtotime("-65 years");
-  if ((time() - $senior_unix) > $birthdate_unix) {
+  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
     $total *= .85;
   }
 
