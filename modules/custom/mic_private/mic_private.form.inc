@@ -30,6 +30,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Family Record ID'),
     '#size' => 15,
+    '#required' => TRUE,
   );
   $form['student']['first'] = array(
     '#prefix' => '<div class="inline">',
@@ -55,7 +56,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#title' => t('Gender'),
     '#options' => drupal_map_assoc(
       array(
-        '' => '- Select - ',
+        '' => '- Select -',
         'Male',
         'Female',
         'Other',
@@ -65,7 +66,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Ethnicity'),
     '#options' => drupal_map_assoc(array(
-      '' => '- Select - ',
+      '' => '- Select -',
       'American Indian or Alaskan Native',
       'Asian',
       'Black/African-American',
@@ -88,10 +89,11 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#size' => 15,
     '#suffix' => '</div>',
   );
-  $form['student']['instrument'] = array(
+  $form['student']['pi_instrument'] = array(
     '#title' => t('Instrument'),
     '#type' => 'select',
     '#options' => array('' => '- Select -') + mic_profile_get_taxonomy_options('pi_instrument'),
+    '#required' => TRUE,
   );
 
   // Instructor Information
@@ -108,6 +110,7 @@ function mic_private_private_registration_form($form, &$form_state) {
       'suzuki' => 'Suzuki',
       'traditional' => 'Traditional',
     ),
+    '#required' => TRUE,
   );
 
   $options = mic_private_get_list('profile');
@@ -116,6 +119,7 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Instructor'),
     '#options' => $options,
+    '#required' => TRUE,
   );
   $form['instruction']['day'] = array(
     '#prefix' => '<div class="inline">',
@@ -131,17 +135,19 @@ function mic_private_private_registration_form($form, &$form_state) {
       'Friday',
       'Saturday',
     )),
+    '#required' => TRUE,
   );
   $form['instruction']['time'] = array(
     '#type' => 'textfield',
     '#title' => t('Requested Time'),
     '#size' => 15,
+    '#required' => TRUE,
   );
   $form['instruction']['length'] = array(
     '#type' => 'select',
     '#title' => t('Length'),
     '#options' => array(
-      '' => '- Select - ',
+      '' => '- Select -',
       '20' => '20 minutes',
       '30' => '30 minutes',
       '45' => '45 minutes',
@@ -150,12 +156,14 @@ function mic_private_private_registration_form($form, &$form_state) {
       '120' => '120 minutes',
     ),
     '#suffix' => '</div>',
+    '#required' => TRUE,
   );
 
   $form['instruction']['campus'] = array(
     '#type' => 'select',
     '#title' => t('Location'),
     '#options' => array('' => '- Select -') + mic_profile_get_taxonomy_options('campus'),
+    '#required' => TRUE,
   );
 
   $options = mic_private_get_additional_classes('suzuki');
@@ -187,7 +195,7 @@ function mic_private_private_registration_form($form, &$form_state) {
   $form['discount']['staff'] = array(
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
-    '#options' => array(0 => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
+    '#options' => array('No' => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
   );
 
   // Payment
@@ -205,18 +213,20 @@ function mic_private_private_registration_form($form, &$form_state) {
       'installment' => 'Plan 3: Pay $185 now. Balance spread over 3 additional payments.',
       'financialaid' => 'Plan 4: Financial Aid: Pay $165 now. Balance invoiced.',
     ),
+    '#required' => TRUE,
   );
 
-  $form['payment']['installment'] = array(
+  $form['payment']['installment_day'] = array(
     '#type' => 'select',
     '#title' => t('If Plan 3 (Installment Plan) is chosen above, which day should payments be due?'),
-    '#options' => array('' => '- Select -', 1 => '1st of the month', 15 => '15th of the month'),
+    '#options' => array('' => '- Select -', '1st' => '1st of the month', '15th' => '15th of the month'),
   );
 
   $form['payment']['payment_form'] = array(
     '#type' => 'select',
-    '#title' => t('Which form of payment will be using?'),
+    '#title' => t('Which form of payment will you be using?'),
     '#options' => array('credit' => 'Credit Card', 'debit' => 'Debit Card', 'echeck' => 'Echeck'),
+    '#required' => TRUE,
   );
 
   $form['submit'] = array(
@@ -273,7 +283,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $total -= 25;
   }
 
-  if ($form_state['values']['staff']) {
+  if ($form_state['values']['staff'] != 'No') {
     switch ($form_state['values']['staff']) {
       case 'part':
         $total *= .90;
@@ -296,7 +306,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   switch ($form_state['values']['payment']) {
     case 'installment':
       $total = 185;
-      $form_state['installment pieces'] = '$' . round(($calculated_total - $total) / 3, 2);
+      $form_state['values']['installment payments'] = '$' . round(($calculated_total - $total) / 3, 2);
       break;
 
     case 'partial':
@@ -309,7 +319,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   // Credit card fee
-  if ($form_state['payment_form'] == 'credit') {
+  if ($form_state['values']['payment_form'] == 'credit') {
     $total *= 1.0275;
   }
 

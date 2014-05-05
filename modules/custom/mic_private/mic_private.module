@@ -57,7 +57,9 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
           $node = node_load($value);
           $value = $node->title;
         }
-        $info[] = ucfirst($key) . ': ' . $value;
+        if (($value != '- Select -') || (!empty($value))) {
+          $info[] = ucfirst($key) . ': ' . $value;
+        }
       }
     }
     $info[] = 'Sub-total: $' . round($data['calculated_total'], 2);
