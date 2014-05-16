@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Install for mic_private
+ */
+
+/**
+ * Set jQuery Update to 1.7
+ */
+function mic_private_update_7000(&$sandbox) {
+  variable_set('jquery_update_jquery_version', 1.7);
+}

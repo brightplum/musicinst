@@ -5,3 +5,11 @@
 .clear {
   clear: both;
 }
+
+p.intro {
+    margin: 10px 0;
+}
+
+.tooltiptext {
+    display: none;
+}

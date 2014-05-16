@@ -12,7 +12,7 @@
 function mic_private_menu() {
   $items = array();
   $items['private-registration'] = array(
-    'title' => t('Private Registration Detail'),
+    'title' => t('2014 - 2015 Private Instruction Registration Form'),
     'description' => t('Register for private instruction.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_private_private_registration_form'),
