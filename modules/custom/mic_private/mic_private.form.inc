@@ -13,6 +13,25 @@
  * @return array|void
  */
 function mic_private_private_registration_form($form, &$form_state) {
+  $form['intro'] = array(
+    '#markup' => '<p class="intro">Please use this form to register if you are a:</p>
+<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION</strong> student at the Music Institute
+of Chicago who has spoken to your local Campus Director. In addition, you
+may use this form to sign up for classes packaged with your private
+instruction (Musicianship and Suzuki Repertoire Classes).</p>
+<p class="intro">2. <strong>CURRENT STUDENT</strong> wishing to re-register in the fall.
+(Current students only need to register once a year. Fall to Spring
+registration is assumed. Summer registration is to be arranged with your teacher.)</p>
+<p class="intro">Please <strong><a href="https://www.musicinst.org/user/login?destination=cart" target="_blank">log in or create an account</a></strong>
+before making purchases.</p>
+<p class="intro">New students and current students registering after the early registration deadline
+of July 1st are charged the annual $25 registration fee.</p>
+<p class="intro"><strong>USER NOTES:</strong><br />
+If you wish to apply for financial aid, but have not yet done so, complete your
+<a href="https://musicinst.wufoo.com/forms/mic-201314-financial-aid-application/" target="_blank">financial aid paperwork</a>
+before using this form.</p>
+<p class="intro">The <strong>red asterisks</strong> = required fields</p>',
+  );
   // Student Information
   $form['student'] = array(
     '#type' => 'fieldset',
@@ -25,12 +44,26 @@ function mic_private_private_registration_form($form, &$form_state) {
       'new' => 'New or Returning',
       'continuing' => 'Continuing',
     ),
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext"><strong>Continuing</strong> means you are studying at MIC spring 2014.<br /><br />
+        <strong>New or Returning</strong> means you are new MIC or you studied here sometime in the past, but not in spring 2014.</div>',
   );
   $form['student']['family_record'] = array(
     '#type' => 'textfield',
     '#title' => t('Family Record ID'),
     '#size' => 15,
-    '#required' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">If you have been assigned your basic 6-digit Record ID, please include that number here.<br /><br />
+Your Record ID can be found on any MIC billing statement under "Record ID" or on your current MIC Student ID Card. (You do not need to include number(s) after the dash).<br /><br />
+If you can\'t find it, please continue.</div>',
   );
   $form['student']['first'] = array(
     '#prefix' => '<div class="inline">',
@@ -89,12 +122,6 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#size' => 15,
     '#suffix' => '</div>',
   );
-  $form['student']['pi_instrument'] = array(
-    '#title' => t('Instrument'),
-    '#type' => 'select',
-    '#options' => array('' => '- Select -') + mic_profile_get_taxonomy_options('pi_instrument'),
-    '#required' => TRUE,
-  );
 
   // Instructor Information
   $form['instruction'] = array(
@@ -102,9 +129,16 @@ function mic_private_private_registration_form($form, &$form_state) {
     '#title' => t('Instruction Information'),
   );
 
+  $form['instruction']['pi_instrument'] = array(
+    '#title' => t('Instrument'),
+    '#type' => 'select',
+    '#options' => array('' => '- Select -') + mic_profile_get_taxonomy_options('pi_instrument'),
+    '#required' => TRUE,
+  );
+
   $form['instruction']['instruction_type'] = array(
     '#type' => 'select',
-    '#title' => t('Type'),
+    '#title' => t('Instruction Type'),
     '#options' => array(
       '' => '- Select -',
       'suzuki' => 'Suzuki',
@@ -117,7 +151,7 @@ function mic_private_private_registration_form($form, &$form_state) {
 
   $form['instruction']['instructor'] = array(
     '#type' => 'select',
-    '#title' => t('Instructor'),
+    '#title' => t('Teacher Name'),
     '#options' => $options,
     '#required' => TRUE,
   );
@@ -145,7 +179,7 @@ function mic_private_private_registration_form($form, &$form_state) {
   );
   $form['instruction']['length'] = array(
     '#type' => 'select',
-    '#title' => t('Length'),
+    '#title' => t('Private Instruction Lesson Length'),
     '#options' => array(
       '' => '- Select -',
       '20' => '20 minutes',
@@ -169,30 +203,72 @@ function mic_private_private_registration_form($form, &$form_state) {
   $options = mic_private_get_additional_classes('suzuki');
   $form['suzuki'] = array(
     '#type' => 'select',
-    '#title' => t('Additional Suzuki Repertoire Class'),
+    '#title' => t('Suzuki Repertoire Class'),
     '#options' => $options,
+    '#states' => array(
+      'visible' => array(
+        ':input[name="instruction_type"]' => array('value' => 'suzuki'),
+      ),
+    ),
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
+If you don\'t know, its ok to leave blank.<br /><br />
+If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>'
   );
 
   $options = mic_private_get_additional_classes('musicianship');
   $form['musicianship'] = array(
     '#type' => 'select',
-    '#title' => t('Additional Musicianship Class'),
+    '#title' => t('Musicianship Class'),
     '#options' => $options,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
+If you don\'t know, its ok to leave blank.<br /><br />
+If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>',
   );
 
   // Discounts
   $form['discount'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Discounts'),
+    '#title' => t('Sibling Discount'),
   );
 
   $form['discount']['multiple'] = array(
+    '#prefix' => 'A $25 discount per sibling, per semester, will be applied for each additional child (18 & under) taking private instruction within the same family. The first student pays in full.',
     '#type' => 'select',
     '#title' => t('Is this the registration of a second or more student?'),
     '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
-  $form['discount']['staff'] = array(
+  // Discounts
+  $form['other_discount'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Other Discounts'),
+  );
+
+  $form['other_discount']['discount_explanation'] = array(
+    '#markup' => 'Seniors: (those 65 or older as of September 1, 2014) receive 15% discount on private lessons<br /><br />
+                  Discounts cannot be stacked. You simply receive the largest discount.<br /><br />
+                  For example: You an MIC full-time employee who is 70 years old taking a private lesson at noon on Mondays. You get a 40% discount.<br />
+                  Or: you are a senior adult taking a 1pm Tuesday lesson, you\'ll receive a 20% discount only',
+  );
+
+  $form['staff_discount'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Staff Discount'),
+  );
+
+  $form['staff_discount']['staff'] = array(
+    '#prefix' => 'MIC Full-time Employees: 40% discount on private lessons.<br />
+                  MIC Part-time Employees: 10% discount on private lessons.',
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
     '#options' => array('No' => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
@@ -235,8 +311,12 @@ function mic_private_private_registration_form($form, &$form_state) {
   );
 
   $form['#attached']['css'] = array(
+    drupal_get_path('module', 'mic_private') . '/css/jquery.qtip.min.css',
     drupal_get_path('module', 'mic_private') . '/css/mic_private.css',
   );
+  // Attach the tooltip library.
+  $form['#attached']['js'][] = '//cdn.jsdelivr.net/qtip2/2.2.0/jquery.qtip.min.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'mic_private') . '/js/mic_private.js';
 
   return $form;
 }
@@ -270,35 +350,43 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     }
   }
 
-  // Calculate discounts
-
-  // Senior discount
-  $birthdate_unix = strtotime($birthdate);
-  $senior_unix = strtotime("-65 years");
-  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
-    $total *= .85;
+  // Additional fees
+  if ($form_state['values']['student_type'] == 'new') {
+    $total += 25;
   }
 
+  // Calculate discounts
+
+  // Senior discount, adult discount
+  $birthdate_unix = strtotime($birthdate);
+  $senior_unix = strtotime("-65 years");
+  $adult_unix = strtotime("-19 years");
+  $discount = array($total);
+  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
+    $discount[] = $total * .85;
+  }
+
+//  if (((time() - $adult_unix) > $birthdate_unix)) {
+//    $discount[] = $total * .80;
+//  }
+
   if ($form_state['values']['multiple'] == 'Yes') {
-    $total -= 25;
+    $discount[] = $total - 25;
   }
 
   if ($form_state['values']['staff'] != 'No') {
     switch ($form_state['values']['staff']) {
       case 'part':
-        $total *= .90;
+        $discount[] = $total * .90;
         break;
 
       case 'full':
-        $total *= .60;
+        $discount[] = $total * .60;
         break;
     }
   }
 
-  // Additional fees
-  if ($form_state['values']['student_type'] == 'new') {
-    $total += 25;
-  }
+  $total = min($discount);
 
   $calculated_total = $total;
 

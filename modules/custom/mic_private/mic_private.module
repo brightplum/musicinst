@@ -12,7 +12,7 @@
 function mic_private_menu() {
   $items = array();
   $items['private-registration'] = array(
-    'title' => t('Private Registration Detail'),
+    'title' => t('2014 - 2015 Private Instruction Registration Form'),
     'description' => t('Register for private instruction.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mic_private_private_registration_form'),
@@ -34,8 +34,9 @@ function mic_private_menu() {
 function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$form_state) {
   if (isset($_COOKIE['mic-private-instruction'])) {
     $data = unserialize($_COOKIE['mic-private-instruction']);
+    $family_record = !empty($data['values']['family_record']) ? $data['values']['family_record'] : 00000;
     $form['#prefix'] = '<h3>Private Registration</h3><p>Your private registration details have been filled in below. If they are correct, choose \'Add to Cart\'.</p>';
-    $form['line_item_fields']['field_billpay_acct'][LANGUAGE_NONE][0]['value']['#default_value'] = $data['values']['family_record'];
+    $form['line_item_fields']['field_billpay_acct'][LANGUAGE_NONE][0]['value']['#default_value'] = $family_record;
     $form['line_item_fields']['field_billpay_acct'][LANGUAGE_NONE][0]['value']['#attributes'] = array('readonly' => 'readonly');
 
     // Format output
