@@ -138,7 +138,7 @@ If you can\'t find it, please continue.</div>',
 
   $form['instruction']['instruction_type'] = array(
     '#type' => 'select',
-    '#title' => t('Type'),
+    '#title' => t('Instruction Type'),
     '#options' => array(
       '' => '- Select -',
       'suzuki' => 'Suzuki',
@@ -151,7 +151,7 @@ If you can\'t find it, please continue.</div>',
 
   $form['instruction']['instructor'] = array(
     '#type' => 'select',
-    '#title' => t('Instructor'),
+    '#title' => t('Teacher Name'),
     '#options' => $options,
     '#required' => TRUE,
   );
@@ -179,7 +179,7 @@ If you can\'t find it, please continue.</div>',
   );
   $form['instruction']['length'] = array(
     '#type' => 'select',
-    '#title' => t('Length'),
+    '#title' => t('Private Instruction Lesson Length'),
     '#options' => array(
       '' => '- Select -',
       '20' => '20 minutes',
@@ -210,6 +210,14 @@ If you can\'t find it, please continue.</div>',
         ':input[name="instruction_type"]' => array('value' => 'suzuki'),
       ),
     ),
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
+If you don\'t know, its ok to leave blank.<br /><br />
+If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>'
   );
 
   $options = mic_private_get_additional_classes('musicianship');
@@ -217,21 +225,50 @@ If you can\'t find it, please continue.</div>',
     '#type' => 'select',
     '#title' => t('Musicianship Class'),
     '#options' => $options,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
+If you don\'t know, its ok to leave blank.<br /><br />
+If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>',
   );
 
   // Discounts
   $form['discount'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Discounts'),
+    '#title' => t('Sibling Discount'),
   );
 
   $form['discount']['multiple'] = array(
+    '#prefix' => 'A $25 discount per sibling, per semester, will be applied for each additional child (18 & under) taking private instruction within the same family. The first student pays in full.',
     '#type' => 'select',
     '#title' => t('Is this the registration of a second or more student?'),
     '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
-  $form['discount']['staff'] = array(
+  // Discounts
+  $form['other_discount'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Other Discounts'),
+  );
+
+  $form['other_discount']['discount_explanation'] = array(
+    '#markup' => 'Seniors: (those 65 or older as of September 1, 2014) receive 15% discount on private lessons<br /><br />
+                  Discounts cannot be stacked. You simply receive the largest discount.<br /><br />
+                  For example: You an MIC full-time employee who is 70 years old taking a private lesson at noon on Mondays. You get a 40% discount.<br />
+                  Or: you are a senior adult taking a 1pm Tuesday lesson, you\'ll receive a 20% discount only',
+  );
+
+  $form['staff_discount'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Staff Discount'),
+  );
+
+  $form['staff_discount']['staff'] = array(
+    '#prefix' => 'MIC Full-time Employees: 40% discount on private lessons.<br />
+                  MIC Part-time Employees: 10% discount on private lessons.',
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
     '#options' => array('No' => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
@@ -313,35 +350,43 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     }
   }
 
-  // Calculate discounts
-
-  // Senior discount
-  $birthdate_unix = strtotime($birthdate);
-  $senior_unix = strtotime("-65 years");
-  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
-    $total *= .85;
+  // Additional fees
+  if ($form_state['values']['student_type'] == 'new') {
+    $total += 25;
   }
 
+  // Calculate discounts
+
+  // Senior discount, adult discount
+  $birthdate_unix = strtotime($birthdate);
+  $senior_unix = strtotime("-65 years");
+  $adult_unix = strtotime("-19 years");
+  $discount = array($total);
+  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
+    $discount[] = $total * .85;
+  }
+
+//  if (((time() - $adult_unix) > $birthdate_unix)) {
+//    $discount[] = $total * .80;
+//  }
+
   if ($form_state['values']['multiple'] == 'Yes') {
-    $total -= 25;
+    $discount[] = $total - 25;
   }
 
   if ($form_state['values']['staff'] != 'No') {
     switch ($form_state['values']['staff']) {
       case 'part':
-        $total *= .90;
+        $discount[] = $total * .90;
         break;
 
       case 'full':
-        $total *= .60;
+        $discount[] = $total * .60;
         break;
     }
   }
 
-  // Additional fees
-  if ($form_state['values']['student_type'] == 'new') {
-    $total += 25;
-  }
+  $total = min($discount);
 
   $calculated_total = $total;
 
