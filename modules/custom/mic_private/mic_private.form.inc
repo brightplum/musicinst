@@ -443,7 +443,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $data = serialize($data);
   setcookie('mic-private-instruction', $data);
 
-  drupal_goto("pay-bill");
+  drupal_goto("pay-bill", array('query' => array('destination' => 'cart')));
 }
 
 /**

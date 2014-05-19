@@ -45,6 +45,7 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
       'submit',
       'form_build_id',
       'form_id',
+      'form_token',
       'op',
     );
     $taxonomy = array('campus', 'pi_instrument');
@@ -72,8 +73,6 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
 
     // Destroy cookie
     setcookie("mic-private-instruction", "", time() - 3600);
-
-    $form_state['redirect'] = 'cart';
   }
 
 }
