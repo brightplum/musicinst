@@ -1,5 +1,7 @@
 #mic-private-private-registration-form div.inline div.form-item {
   display: inline-block;
+  height: 55px;
+  vertical-align: top;
 }
 
 .clear {
