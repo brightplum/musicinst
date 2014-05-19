@@ -28,7 +28,7 @@ before making purchases.</p>
 of July 1st are charged the annual $25 registration fee.</p>
 <p class="intro"><strong>USER NOTES:</strong><br />
 If you wish to apply for financial aid, but have not yet done so, complete your
-<a href="https://musicinst.wufoo.com/forms/mic-201314-financial-aid-application/" target="_blank">financial aid paperwork</a>
+<a href="https://musicinst.wufoo.com/forms/20142015-financial-aid-application/" target="_blank">financial aid paperwork</a>
 before using this form.</p>
 <p class="intro">The <strong>red asterisks</strong> = required fields</p>',
   );
@@ -49,8 +49,8 @@ before using this form.</p>
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext"><strong>Continuing</strong> means you are studying at MIC spring 2014.<br /><br />
-        <strong>New or Returning</strong> means you are new MIC or you studied here sometime in the past, but not in spring 2014.</div>',
+    '#suffix' => '<div class="tooltiptext"><strong>Continuing</strong> means you completed the 2014 spring semester.<br /><br />
+        <strong>New or Returning</strong> means you are new to MIC or are have studied at MIC in the past, but not in spring 2014.</div>',
   );
   $form['student']['family_record'] = array(
     '#type' => 'textfield',
@@ -68,13 +68,13 @@ If you can\'t find it, please continue.</div>',
   $form['student']['first'] = array(
     '#prefix' => '<div class="inline">',
     '#type' => 'textfield',
-    '#title' => t('First Name'),
+    '#title' => t('Student First Name'),
     '#size' => 30,
     '#required' => TRUE,
   );
   $form['student']['last'] = array(
     '#type' => 'textfield',
-    '#title' => t('Last Name'),
+    '#title' => t('Student Last Name'),
     '#size' => 30,
     '#required' => TRUE,
     '#suffix' => '</div>',
@@ -83,6 +83,7 @@ If you can\'t find it, please continue.</div>',
     '#type' => 'textfield',
     '#title' => t('Birthdate'),
     '#size' => 15,
+    '#description' => t('Format: mm/dd/yyyy'),
   );
   $form['student']['gender'] = array(
     '#type' => 'select',
@@ -176,6 +177,7 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('Requested Time'),
     '#size' => 15,
     '#required' => TRUE,
+    '#description' => 'Format: 6:00pm',
   );
   $form['instruction']['length'] = array(
     '#type' => 'select',
@@ -255,10 +257,11 @@ If the student is too young to participate in Musicianship, a Musikgarten class 
   );
 
   $form['other_discount']['discount_explanation'] = array(
-    '#markup' => 'Seniors: (those 65 or older as of September 1, 2014) receive 15% discount on private lessons<br /><br />
-                  Discounts cannot be stacked. You simply receive the largest discount.<br /><br />
-                  For example: You an MIC full-time employee who is 70 years old taking a private lesson at noon on Mondays. You get a 40% discount.<br />
-                  Or: you are a senior adult taking a 1pm Tuesday lesson, you\'ll receive a 20% discount only',
+    '#markup' => 'Seniors - (age 65+) receive a 15% discount on private lessons.<br />
+    Adults - (age 19+), taking a private lesson before 3 p.m. M-F in MIC studios, receives a 20% reduction in tuition.<br />
+(Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
+Merit Scholarship (Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
+It should be noted that there is no "stacking" of percentage discounts, the highest % applies.',
   );
 
   $form['staff_discount'] = array(
@@ -284,25 +287,46 @@ If the student is too young to participate in Musicianship, a Musikgarten class 
     '#type' => 'select',
     '#title' => t('Choose Payment Option'),
     '#options' => array(
-      'full' => 'Plan 1: Pay in full now',
-      'partial' => 'Plan 2: Pay $500 now. Balance invoiced.',
-      'installment' => 'Plan 3: Pay $185 now. Balance spread over 3 additional payments.',
-      'financialaid' => 'Plan 4: Financial Aid: Pay $165 now. Balance invoiced.',
+      'full' => 'PAYMENT PLAN 1: Pay in Full now.',
+      'partial' => 'PAYMENT PLAN 2: Pay $500 now. Balance invoiced.',
+      'installment' => 'PAYMENT PLAN 3: Installment Plan: Pay $185 now. Balance spread over 3 additional payments.',
+      'financialaid' => 'PAYMENT PLAN 4: Financial Aid: Pay $160 now. Balance invoiced.',
     ),
     '#required' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Your registration cannot be accepted without some payment. Please choose the plan that is right for you.
+If you have applied for financial aid and also wish to participate in the installment plan, please choose payment plan 3.</div>',
   );
 
   $form['payment']['installment_day'] = array(
     '#type' => 'select',
-    '#title' => t('If Plan 3 (Installment Plan) is chosen above, which day should payments be due?'),
+    '#title' => t('If PAYMENT PLAN 3 (Installment Plan) is chosen above, which day should payments be due?'),
     '#options' => array('' => '- Select -', '1st' => '1st of the month', '15th' => '15th of the month'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="payment"]' => array('value' => 'installment'),
+      ),
+    ),
   );
 
   $form['payment']['payment_form'] = array(
     '#type' => 'select',
     '#title' => t('Which form of payment will you be using?'),
-    '#options' => array('credit' => 'Credit Card', 'debit' => 'Debit Card', 'echeck' => 'Echeck'),
+    '#options' => array('credit' => 'Credit Card', 'echeck' => 'Echeck'),
     '#required' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Online payment methods include: credit cards or ACH (e-check).<br />
+    MIC accepts American Express, Discover, MasterCard, or Visa.<br />
+    Credit card tuition payments are assessed a processing fee of 2.75%.<br />
+    E-checks are not assessed a processing fee.</div>'
   );
 
   $form['submit'] = array(
@@ -402,7 +426,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
       break;
 
     case 'financialaid':
-      $total = 165;
+      $total = 160;
       break;
   }
 
@@ -463,7 +487,8 @@ function mic_private_get_additional_classes($type) {
   $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'pi_additional_classes')
-    ->fieldCondition('field_pi_class_type', 'value', $type);
+    ->fieldCondition('field_pi_class_type', 'value', $type)
+    ->fieldOrderBy('field_pi_class_display', 'value', 'ASC');
   $result = $query->execute();
   $nids = array_keys($result['node']);
   $nodes = node_load_multiple($nids);
