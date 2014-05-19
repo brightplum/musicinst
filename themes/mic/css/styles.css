@@ -40,7 +40,8 @@ body {
 	display: block;
 }
 
-.hide {
+.hide,
+.tabledrag-toggle-weight {
 	display: none;
 }
 
