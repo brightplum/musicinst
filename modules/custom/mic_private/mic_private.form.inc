@@ -371,6 +371,7 @@ If you have applied for financial aid and also wish to participate in the instal
   );
 
   $form['submit'] = array(
+    '#prefix' => 'Submitting this form will open a new window. Please disable any pop-up blockers.<br />',
     '#type' => 'submit',
     '#value' => t('Get Price and Review'),
   );
@@ -382,6 +383,10 @@ If you have applied for financial aid and also wish to participate in the instal
   // Attach the tooltip library.
   $form['#attached']['js'][] = '//cdn.jsdelivr.net/qtip2/2.2.0/jquery.qtip.min.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'mic_private') . '/js/mic_private.js';
+
+  $form['#attributes'] = array(
+    'target' => "_blank",
+  );
 
   return $form;
 }
