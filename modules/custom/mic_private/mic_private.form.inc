@@ -371,6 +371,7 @@ If you have applied for financial aid and also wish to participate in the instal
   );
 
   $form['submit'] = array(
+    '#prefix' => 'Submitting this form will open a new window. Please disable any pop-up blockers.<br />',
     '#type' => 'submit',
     '#value' => t('Get Price and Review'),
   );
