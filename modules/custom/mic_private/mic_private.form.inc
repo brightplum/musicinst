@@ -421,7 +421,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
 
   // Calculate discounts
   $discount = array($total);
-  
+
   // Senior discount, adult discount
 //  $birthdate_unix = strtotime($birthdate);
 //  $senior_unix = strtotime("-65 years");
