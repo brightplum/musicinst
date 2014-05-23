@@ -87,13 +87,13 @@ function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, 
 
       //student specific info
       $element['gender'] = array(
-        '#title' => t('Gender (voluntary)'),
+        '#title' => t('Gender'),
         '#type' => 'select',
-        '#options' => array('' => 'N/A', 'male' => 'Male', 'female' => 'Female'),
+        '#options' => array('' => 'N/A', 'male' => 'Male', 'female' => 'Female', 'other' => 'Other'),
         '#default_value' => isset($items[$delta]['gender']) ? $items[$delta]['gender'] : '',
       );
       $element['ethnicity'] = array(
-        '#title' => t('Ethnicity (voluntary)'),
+        '#title' => t('Ethnicity'),
         '#type' => 'select',
         '#options' => drupal_map_assoc(array('N/A', 'Asian', 'Pacific Islander', 'Black/African-American', 'Caucasian/European-American', 'Eurasian', 'Hispanic or Latino', 'Native-American or Indigenous', 'Other')),
         '#default_value' => isset($items[$delta]['ethnicity']) ? $items[$delta]['ethnicity'] : '',
@@ -107,7 +107,7 @@ function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, 
         ),
       );
       $element['school'] = array(
-        '#title' => t('School'),
+        '#title' => t('School Name and City'),
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['school']) ? $items[$delta]['school'] : '',
       );

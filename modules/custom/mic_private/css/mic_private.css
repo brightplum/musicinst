@@ -4,6 +4,11 @@
   vertical-align: top;
 }
 
+input,
+select {
+  font-size: 20px;
+}
+
 .clear {
   clear: both;
 }
@@ -14,4 +19,9 @@ p.intro {
 
 .tooltiptext {
     display: none;
+}
+
+.qtip-content {
+    font-size: 16px;
+    line-height: 20px;
 }
