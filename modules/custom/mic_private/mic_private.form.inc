@@ -424,6 +424,10 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $total += 25;
   }
 
+  if ($form_state['values']['student_type'] == 'returning') {
+    $total += 25;
+  }
+
   // Calculate discounts
   $discount = array($total);
 
