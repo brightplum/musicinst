@@ -383,6 +383,10 @@ If you have applied for financial aid and also wish to participate in the instal
   $form['#attached']['js'][] = '//cdn.jsdelivr.net/qtip2/2.2.0/jquery.qtip.min.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'mic_private') . '/js/mic_private.js';
 
+  $form['#attributes'] = array(
+    'target' => "_blank",
+  );
+
   return $form;
 }
 
