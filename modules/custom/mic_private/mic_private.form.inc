@@ -41,7 +41,8 @@ before using this form.</p>
     '#type' => 'select',
     '#title' => t('Student Type'),
     '#options' => array(
-      'new' => 'New or Returning',
+      'new' => 'New',
+      'returning' => 'Returning',
       'continuing' => 'Continuing',
     ),
     '#attributes' => array(
@@ -49,8 +50,9 @@ before using this form.</p>
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext"><strong>Continuing</strong> means you completed the 2014 spring semester.<br /><br />
-        <strong>New or Returning</strong> means you are new to MIC or are have studied at MIC in the past, but not in spring 2014.</div>',
+    '#required' => TRUE,
+    '#suffix' => '<div class="tooltiptext"><strong>New or Returning</strong> means you are new to MIC or are have studied at MIC in the past, but not in spring 2014.<br /><br />
+        <strong>Continuing</strong> means you completed the 2014 spring semester.</div>',
   );
   $form['student']['family_record'] = array(
     '#type' => 'textfield',
@@ -84,6 +86,7 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('Birthdate'),
     '#size' => 15,
     '#description' => t('Format: mm/dd/yyyy'),
+    '#required' => TRUE,
   );
   $form['student']['gender'] = array(
     '#type' => 'select',
@@ -95,6 +98,7 @@ If you can\'t find it, please continue.</div>',
         'Female',
         'Other',
       )),
+    '#required' => TRUE,
   );
   $form['student']['ethnicity'] = array(
     '#type' => 'select',
@@ -177,7 +181,7 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('Requested Time'),
     '#size' => 15,
     '#required' => TRUE,
-    '#description' => 'Format: 6:00pm',
+    '#description' => 'Format: 06:00pm',
   );
   $form['instruction']['length'] = array(
     '#type' => 'select',
@@ -219,14 +223,39 @@ If you can\'t find it, please continue.</div>',
     ),
     '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
 If you don\'t know, its ok to leave blank.<br /><br />
-If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>'
+If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>',
+  );
+
+  // Musicianship Information
+  $form['musicianship'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Musicianship'),
+  );
+
+  $form['musicianship']['take_musicianship'] = array(
+    '#type' => 'select',
+    '#title' => t('Do you wish to take Musicianship classes?'),
+    '#options' => array('no' => 'No', 'yes' => 'Yes'),
+    '#required' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Private Instruction students are encouraged
+to take Musicianship classes at the discounted rate of $??? per semester.</div>'
   );
 
   $options = mic_private_get_additional_classes('musicianship');
-  $form['musicianship'] = array(
+  $form['musicianship']['musicianship'] = array(
     '#type' => 'select',
     '#title' => t('Musicianship Class'),
     '#options' => $options,
+    '#states' => array(
+      'visible' => array(
+        ':input[name="take_musicianship"]' => array('value' => 'yes'),
+      ),
+    ),
     '#attributes' => array(
       'class' => array(
         'hasqtip',
@@ -262,6 +291,18 @@ If the student is too young to participate in Musicianship, a Musikgarten class 
 (Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
 Merit Scholarship (Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
 It should be noted that there is no "stacking" of percentage discounts, the highest % applies.',
+  );
+
+  $form['other_discount']['senior_discount'] = array(
+    '#type' => 'select',
+    '#title' => t('Are you a senior?'),
+    '#options' => array('no' => 'No', 'yes' => 'Yes'),
+  );
+
+  $form['other_discount']['adult_discount'] = array(
+    '#type' => 'select',
+    '#title' => t('Are you an adult who is taking a class before 3pm M-F?'),
+    '#options' => array('no' => 'No', 'yes' => 'Yes'),
   );
 
   $form['staff_discount'] = array(
@@ -357,7 +398,6 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $length = $form_state['values']['length'];
   $instruction_type = $form_state['values']['instruction_type'];
   $musicianship = $form_state['values']['musicianship'];
-  $birthdate = $form_state['values']['birthdate'];
 
   $rate = mic_private_calculate_rate($instructor, $length);
   $default_rate = mic_private_default_rate($instruction_type, $length);
@@ -380,19 +420,28 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   // Calculate discounts
-
-  // Senior discount, adult discount
-  $birthdate_unix = strtotime($birthdate);
-  $senior_unix = strtotime("-65 years");
-  $adult_unix = strtotime("-19 years");
   $discount = array($total);
-  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
-    $discount[] = $total * .85;
-  }
+  
+  // Senior discount, adult discount
+//  $birthdate_unix = strtotime($birthdate);
+//  $senior_unix = strtotime("-65 years");
+//  $adult_unix = strtotime("-19 years");
+//  $discount = array($total);
+//  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
+//    $discount[] = $total * .85;
+//  }
 
 //  if (((time() - $adult_unix) > $birthdate_unix)) {
 //    $discount[] = $total * .80;
 //  }
+
+  if ($form_state['adult_discount'] == 'yes') {
+    $discount[] = $total * .80;
+  }
+
+  if ($form_state['senior_discount'] == 'yes') {
+    $discount[] = $total * .85;
+  }
 
   if ($form_state['values']['multiple'] == 'Yes') {
     $discount[] = $total - 25;
@@ -410,7 +459,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     }
   }
 
-  $total = min($discount);
+  $total = (!empty($discount)) ? min($discount) : $total;
 
   $calculated_total = $total;
 
@@ -418,7 +467,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   switch ($form_state['values']['payment']) {
     case 'installment':
       $total = 185;
-      $form_state['values']['installment payments'] = '$' . round(($calculated_total - $total) / 3, 2);
+      $number = ($calculated_total - $total) / 3;
+      $form_state['values']['installment payments'] = '$' . number_format((float)$number, 2, '.', '');
       break;
 
     case 'partial':
@@ -437,8 +487,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
 
   $data = array(
     'values' => $form_state['values'],
-    'calculated_total' => $calculated_total,
-    'total' => $total,
+    'calculated_total' => number_format((float)$calculated_total, 2, '.', ''),
+    'total' => number_format((float)$total, 2, '.', ''),
   );
   $data = serialize($data);
   setcookie('mic-private-instruction', $data);
