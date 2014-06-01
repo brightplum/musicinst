@@ -4,11 +4,6 @@
   vertical-align: top;
 }
 
-input,
-select {
-  font-size: 20px;
-}
-
 .clear {
   clear: both;
 }
