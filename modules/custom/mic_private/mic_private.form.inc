@@ -295,13 +295,13 @@ It should be noted that there is no "stacking" of percentage discounts, the high
   $form['other_discount']['senior_discount'] = array(
     '#type' => 'select',
     '#title' => t('Are you a senior?'),
-    '#options' => array('no' => 'No', 'yes' => 'Yes'),
+    '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
   $form['other_discount']['adult_discount'] = array(
     '#type' => 'select',
     '#title' => t('Are you an adult who is taking a class before 3pm M-F?'),
-    '#options' => array('no' => 'No', 'yes' => 'Yes'),
+    '#options' => drupal_map_assoc(array('No', 'Yes')),
   );
 
   $form['staff_discount'] = array(
@@ -310,8 +310,6 @@ It should be noted that there is no "stacking" of percentage discounts, the high
   );
 
   $form['staff_discount']['staff'] = array(
-    '#prefix' => 'MIC Full-time Employees: 40% discount on private lessons.<br />
-                  MIC Part-time Employees: 10% discount on private lessons.',
     '#type' => 'select',
     '#title' => t('Are you a MIC staff member?'),
     '#options' => array('No' => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
@@ -443,16 +441,12 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
 //    $discount[] = $total * .80;
 //  }
 
-  if ($form_state['adult_discount'] == 'yes') {
+  if ($form_state['adult_discount'] == 'Yes') {
     $discount[] = $total * .80;
   }
 
-  if ($form_state['senior_discount'] == 'yes') {
+  if ($form_state['senior_discount'] == 'Yes') {
     $discount[] = $total * .85;
-  }
-
-  if ($form_state['values']['multiple'] == 'Yes') {
-    $discount[] = $total - 25;
   }
 
   if ($form_state['values']['staff'] != 'No') {
@@ -468,6 +462,10 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   $total = (!empty($discount)) ? min($discount) : $total;
+
+  if ($form_state['values']['multiple'] == 'Yes') {
+    $total -= 25;
+  }
 
   $calculated_total = $total;
 
