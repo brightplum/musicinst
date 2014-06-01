@@ -15,22 +15,22 @@
 function mic_private_private_registration_form($form, &$form_state) {
   $form['intro'] = array(
     '#markup' => '<p class="intro">Please use this form to register if you are a:</p>
-<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION</strong> student at the Music Institute
-of Chicago who has spoken to your local Campus Director. In addition, you
+<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION STUDENT</strong> student at the Music Institute
+of Chicago who has completed the placement interview with your local Campus Director. In addition, you
 may use this form to sign up for classes packaged with your private
 instruction (Musicianship and Suzuki Repertoire Classes).</p>
 <p class="intro">2. <strong>CURRENT STUDENT</strong> wishing to re-register in the fall.
 (Current students only need to register once a year. Fall to Spring
-registration is assumed. Summer registration is to be arranged with your teacher.)</p>
+registration is assumed. For summer private instruction registration, please <a href="https://musicinst.org/summer-lessons-music-institute-chicago">click here</a>.)</p>
 <p class="intro">Please <strong><a href="https://www.musicinst.org/user/login?destination=cart" target="_blank">log in or create an account</a></strong>
-before making purchases.</p>
+before registering.</p>
 <p class="intro">New students and current students registering after the early registration deadline
 of July 1st are charged the annual $25 registration fee.</p>
-<p class="intro"><strong>USER NOTES:</strong><br />
+<p class="intro"><strong>FINANCIAL AID:</strong><br />
 If you wish to apply for financial aid, but have not yet done so, complete your
 <a href="https://musicinst.wufoo.com/forms/20142015-financial-aid-application/" target="_blank">financial aid paperwork</a>
 before using this form.</p>
-<p class="intro">The <strong>red asterisks</strong> = required fields</p>',
+<p class="intro">The <span class="form-required" title="This field is required.">*</span> = required fields</p>',
   );
   // Student Information
   $form['student'] = array(
