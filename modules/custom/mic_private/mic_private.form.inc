@@ -188,7 +188,6 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('Private Instruction Lesson Length'),
     '#options' => array(
       '' => '- Select -',
-      '20' => '20 minutes',
       '30' => '30 minutes',
       '45' => '45 minutes',
       '60' => '60 minutes',
@@ -516,12 +515,15 @@ function mic_private_get_list($bundle) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', $bundle)
-    ->propertyOrderBy('title');
+    ->entityCondition('bundle', $bundle);
 
   // Only grab profiles teaching private instruction.
   if ($bundle == 'profile') {
     $query->fieldCondition('field_profile_program_area', 'tid', 178);
+    $query->fieldOrderBy('field_first_name', 'value', 'ASC');
+  }
+  else {
+    $query->propertyOrderBy('title');
   }
 
   $result = $query->execute();
@@ -547,7 +549,7 @@ function mic_private_get_additional_classes($type) {
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'pi_additional_classes')
     ->fieldCondition('field_pi_class_type', 'value', $type)
-    ->fieldOrderBy('field_pi_class_display', 'value', 'ASC');
+    ->fieldOrderBy('field_pi_class_order', 'value', 'ASC');
   $result = $query->execute();
   $nids = array_keys($result['node']);
   $nodes = node_load_multiple($nids);
