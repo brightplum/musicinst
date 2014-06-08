@@ -240,11 +240,6 @@ If you can\'t find it, please continue.</div>',
         ':input[name="instruction_type"]' => array('value' => 'suzuki'),
       ),
     ),
-    '#attributes' => array(
-      'class' => array(
-        'hasqtip',
-      ),
-    ),
   );
 
   // Musicianship Information
