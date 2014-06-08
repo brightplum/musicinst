@@ -15,7 +15,7 @@
 function mic_private_private_registration_form($form, &$form_state) {
   $form['intro'] = array(
     '#markup' => '<p class="intro">Please use this form to register if you are a:</p>
-<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION STUDENT</strong> student at the Music Institute
+<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION STUDENT</strong> at the Music Institute
 of Chicago who has completed the placement interview with your local Campus Director. In addition, you
 may use this form to sign up for classes packaged with your private
 instruction (Musicianship and Suzuki Repertoire Classes).</p>
