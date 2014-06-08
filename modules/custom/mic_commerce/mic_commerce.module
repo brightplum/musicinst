@@ -867,7 +867,12 @@ function _mic_commerce_get_classes() {
  * Rules action: displays a the default translatable Add to Cart message.
  */
 function mic_commerce_cart_rules_add_to_cart_message($product) {
-  drupal_set_message(t('%title added to your cart. Make another purchase <em>or</em> <strong><a href="!cart-url">review your order</a></strong>.', array('%title' => $product->title, '!cart-url' => url('cart'))));
+  drupal_set_message(t('%title added to your cart. Add <a href="!private-url">private instruction</a> for another student, <a href="!group-url">add group classes</a>, <em>or</em> <strong><a href="!cart-url">review your order</a></strong>.', array(
+    '%title' => $product->title,
+    '!cart-url' => url('cart'),
+    '!private-url' => url('private-registration'),
+    '!group-url' => url('class-finder', array('query' => array('semester' => 327))),
+  )));
 }
 
 /**
