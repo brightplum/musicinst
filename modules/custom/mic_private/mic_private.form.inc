@@ -392,7 +392,7 @@ If you have applied for financial aid and also wish to participate in the instal
   $form['submit'] = array(
     '#prefix' => 'Submitting this form will open a new window. Please disable any pop-up blockers.<br />',
     '#type' => 'submit',
-    '#value' => t('Get Price and Review'),
+    '#value' => t('Review your Registration'),
   );
 
   $form['#attached']['css'] = array(
@@ -421,22 +421,12 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $instructor = $form_state['values']['instructor'];
   $length = $form_state['values']['length'];
   $instruction_type = $form_state['values']['instruction_type'];
-  $musicianship = $form_state['values']['musicianship'];
 
-  $rate = mic_private_calculate_rate($instructor, $length);
+  $rate = mic_private_calculate_instructor_rate($instructor, $length);
   $default_rate = mic_private_default_rate($instruction_type, $length);
   $rate = ($rate) ? $rate : $default_rate;
 
   $total = $rate * 17;
-
-  if (!empty($musicianship)) {
-    if ($instruction_type == 'suzuki') {
-      $total += 65;
-    }
-    else {
-      $total += 125;
-    }
-  }
 
   // Additional fees
   if ($form_state['values']['student_type'] == 'new') {
@@ -447,21 +437,18 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $total += 25;
   }
 
+  // Add suzuki, musicianship fee
+  $musicianship = $form_state['values']['musicianship'];
+  $suzuki = $form_state['values']['suzuki'];
+  foreach (array($musicianship, $suzuki) as $pi_class) {
+    if (!empty($pi_class)) {
+      $fee = mic_private_calculate_class_fee($pi_class);
+      $total += $fee;
+    }
+  }
+
   // Calculate discounts
   $discount = array($total);
-
-  // Senior discount, adult discount
-//  $birthdate_unix = strtotime($birthdate);
-//  $senior_unix = strtotime("-65 years");
-//  $adult_unix = strtotime("-19 years");
-//  $discount = array($total);
-//  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
-//    $discount[] = $total * .85;
-//  }
-
-//  if (((time() - $adult_unix) > $birthdate_unix)) {
-//    $discount[] = $total * .80;
-//  }
 
   if ($form_state['values']['adult_discount'] == 'Yes') {
     $discount[] = $total * .80;
@@ -509,9 +496,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   // Credit card fee
-  if ($form_state['values']['payment_form'] == 'credit') {
-    $total *= 1.0275;
-  }
+  $total *= 1.0275;
 
   $data = array(
     'values' => $form_state['values'],
@@ -521,7 +506,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $data = serialize($data);
   setcookie('mic-private-instruction', $data);
 
-  drupal_goto("pay-bill", array('query' => array('destination' => 'cart')));
+  drupal_goto("private-instruction-review", array('query' => array('destination' => 'cart')));
 }
 
 /**
@@ -630,7 +615,7 @@ function mic_private_get_field_display($entity_type, $entity, $field) {
  * @param $length
  * @return null
  */
-function mic_private_calculate_rate($nid, $length) {
+function mic_private_calculate_instructor_rate($nid, $length) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
@@ -645,6 +630,22 @@ function mic_private_calculate_rate($nid, $length) {
     return $rate['value'];
   }
   return FALSE;
+}
+
+/**
+ * Return the musicianship/suzuki fee value.
+ *
+ * @param $nid
+ * @return int
+ */
+function mic_private_calculate_class_fee($nid) {
+  if (is_numeric($nid) && $nid) {
+    $node = node_load($nid);
+    $fee = field_get_items('node', $node, 'field_pi_class_fee');
+    $fee = is_array($fee) ? reset($fee) : $fee;
+    return $fee['value'];
+  }
+  return 0;
 }
 
 /**
