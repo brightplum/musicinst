@@ -15,7 +15,7 @@
 function mic_private_private_registration_form($form, &$form_state) {
   $form['intro'] = array(
     '#markup' => '<p class="intro">Please use this form to register if you are a:</p>
-<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION STUDENT</strong> student at the Music Institute
+<p class="intro">1. <strong>NEW PRIVATE INSTRUCTION STUDENT</strong> at the Music Institute
 of Chicago who has completed the placement interview with your local Campus Director. In addition, you
 may use this form to sign up for classes packaged with your private
 instruction (Musicianship and Suzuki Repertoire Classes).</p>
@@ -25,9 +25,8 @@ registration is assumed. For summer private instruction registration, please <a 
 <p class="intro">Please <strong><a href="https://www.musicinst.org/user/login?destination=cart" target="_blank">log in or create an account</a></strong>
 before registering.</p>
 <p class="intro">New students and current students registering after the early registration deadline
-of July 1st are charged the annual $25 registration fee.</p>
-<p class="intro"><strong>FINANCIAL AID:</strong><br />
-If you wish to apply for financial aid, but have not yet done so, complete your
+of July 15th are charged the annual $25 registration fee.</p>
+<p class="intro">If you wish to apply for financial aid, but have not yet done so, complete your
 <a href="https://musicinst.wufoo.com/forms/20142015-financial-aid-application/" target="_blank">financial aid paperwork</a>
 before using this form.</p>
 <p class="intro">The <span class="form-required" title="This field is required.">*</span> = required fields</p>',
@@ -51,7 +50,7 @@ before using this form.</p>
       ),
     ),
     '#required' => TRUE,
-    '#suffix' => '<div class="tooltiptext"><strong>New or Returning</strong> means you are new to MIC or are have studied at MIC in the past, but not in spring 2014.<br /><br />
+    '#suffix' => '<div class="tooltiptext"><strong>New or Returning</strong> means you are new to MIC or have studied at MIC in the past, but not in spring 2014.<br /><br />
         <strong>Continuing</strong> means you completed the 2014 spring semester.</div>',
   );
   $form['student']['family_record'] = array(
@@ -82,22 +81,27 @@ If you can\'t find it, please continue.</div>',
     '#suffix' => '</div>',
   );
   $form['student']['birthdate'] = array(
+    '#prefix' => '<div class="inline">',
     '#type' => 'textfield',
     '#title' => t('Birthdate'),
     '#size' => 15,
     '#description' => t('Format: mm/dd/yyyy'),
     '#required' => TRUE,
   );
+  $form['student']['grade'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Grade'),
+    '#size' => 15,
+    '#suffix' => '</div>',
+  );
   $form['student']['gender'] = array(
     '#type' => 'select',
     '#title' => t('Gender'),
-    '#options' => drupal_map_assoc(
-      array(
-        '' => '- Select -',
-        'Male',
-        'Female',
-        'Other',
-      )),
+    '#options' => drupal_map_assoc(array(
+      'Male',
+      'Female',
+      'Other',
+    )),
     '#required' => TRUE,
   );
   $form['student']['ethnicity'] = array(
@@ -126,6 +130,28 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('School Location'),
     '#size' => 15,
     '#suffix' => '</div>',
+  );
+  $form['student']['how_did_you_hear'] = array(
+    '#type' => 'select',
+    '#title' => t('How did you hear about MIC?'),
+    '#options' => drupal_map_assoc(array(
+      '' => '- Select -',
+      'Word of Mouth',
+      'Campus Visibility',
+      'Google Search',
+      'Website',
+      'Ad/Flyer',
+      'Print Media',
+      'Radio',
+      'Alumni',
+      'Referred by Current/Former Family',
+      'Referred by Faculty/Staff',
+      'Arts Calendar',
+      'Referred by Public/Private School Teacher',
+      'Sibling',
+      'Nichols Concert Hall',
+      'MIC Event',
+    )),
   );
 
   // Instructor Information
@@ -165,7 +191,6 @@ If you can\'t find it, please continue.</div>',
     '#type' => 'select',
     '#title' => t('Requested Day'),
     '#options' => drupal_map_assoc(array(
-      '' => '- Select -',
       'Sunday',
       'Monday',
       'Tuesday',
@@ -220,9 +245,6 @@ If you can\'t find it, please continue.</div>',
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
-If you don\'t know, its ok to leave blank.<br /><br />
-If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>',
   );
 
   // Musicianship Information
@@ -241,8 +263,8 @@ If the student is too young to participate in Musicianship, a Musikgarten class 
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext">Private Instruction students are encouraged
-to take Musicianship classes at the discounted rate of $??? per semester.</div>'
+    '#suffix' => '<div class="tooltiptext">Private instruction students are encouraged to take Musicianship classes
+at the heavily discounted rate of $90 annually.</div>'
   );
 
   $options = mic_private_get_additional_classes('musicianship');
@@ -260,9 +282,9 @@ to take Musicianship classes at the discounted rate of $??? per semester.</div>'
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule:<br /><br />
-If you don\'t know, its ok to leave blank.<br /><br />
-If the student is too young to participate in Musicianship, a Musikgarten class may be substituted.  Please arrange this with your local campus director.</div>',
+    '#suffix' => '<div class="tooltiptext">Please select your Musicianship class based upon teacher placement and your schedule.<br /><br />
+If you don’t know what class to take, it’s ok to skip this field.<br /><br />
+If the student is between ages 3-7, a Musikgarten class may be substituted for just the cost of materials per semester.</div>',
   );
 
   // Discounts
@@ -306,12 +328,12 @@ It should be noted that there is no "stacking" of percentage discounts, the high
 
   $form['staff_discount'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Staff Discount'),
+    '#title' => t('Music Institute of Chicago Employees'),
   );
 
   $form['staff_discount']['staff'] = array(
     '#type' => 'select',
-    '#title' => t('Are you a MIC staff member?'),
+    '#title' => t('Are you MIC faculty or staff?'),
     '#options' => array('No' => 'No', 'part' => 'Yes - Part-Time', 'full' => 'Yes - Full-time'),
   );
 
@@ -351,26 +373,26 @@ If you have applied for financial aid and also wish to participate in the instal
     ),
   );
 
-  $form['payment']['payment_form'] = array(
-    '#type' => 'select',
-    '#title' => t('Which form of payment will you be using?'),
-    '#options' => array('credit' => 'Credit Card', 'echeck' => 'Echeck'),
-    '#required' => TRUE,
-    '#attributes' => array(
-      'class' => array(
-        'hasqtip',
-      ),
-    ),
-    '#suffix' => '<div class="tooltiptext">Online payment methods include: credit cards or ACH (e-check).<br />
-    MIC accepts American Express, Discover, MasterCard, or Visa.<br />
-    Credit card tuition payments are assessed a processing fee of 2.75%.<br />
-    E-checks are not assessed a processing fee.</div>'
-  );
+//  $form['payment']['payment_form'] = array(
+//    '#type' => 'select',
+//    '#title' => t('Which form of payment will you be using?'),
+//    '#options' => array('credit' => 'Credit Card', 'echeck' => 'Echeck'),
+//    '#required' => TRUE,
+//    '#attributes' => array(
+//      'class' => array(
+//        'hasqtip',
+//      ),
+//    ),
+//    '#suffix' => '<div class="tooltiptext">Online payment methods include: credit cards or ACH (e-check).<br />
+//    MIC accepts American Express, Discover, MasterCard, or Visa.<br />
+//    Credit card tuition payments are assessed a processing fee of 2.75%.<br />
+//    E-checks are not assessed a processing fee.</div>'
+//  );
 
   $form['submit'] = array(
     '#prefix' => 'Submitting this form will open a new window. Please disable any pop-up blockers.<br />',
     '#type' => 'submit',
-    '#value' => t('Get Price and Review'),
+    '#value' => t('Review your Registration'),
   );
 
   $form['#attached']['css'] = array(
@@ -399,22 +421,12 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $instructor = $form_state['values']['instructor'];
   $length = $form_state['values']['length'];
   $instruction_type = $form_state['values']['instruction_type'];
-  $musicianship = $form_state['values']['musicianship'];
 
-  $rate = mic_private_calculate_rate($instructor, $length);
+  $rate = mic_private_calculate_instructor_rate($instructor, $length);
   $default_rate = mic_private_default_rate($instruction_type, $length);
   $rate = ($rate) ? $rate : $default_rate;
 
   $total = $rate * 17;
-
-  if (!empty($musicianship)) {
-    if ($instruction_type == 'suzuki') {
-      $total += 65;
-    }
-    else {
-      $total += 125;
-    }
-  }
 
   // Additional fees
   if ($form_state['values']['student_type'] == 'new') {
@@ -425,27 +437,24 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $total += 25;
   }
 
+  // Add suzuki, musicianship fee
+  $musicianship = $form_state['values']['musicianship'];
+  $suzuki = $form_state['values']['suzuki'];
+  foreach (array($musicianship, $suzuki) as $pi_class) {
+    if (!empty($pi_class)) {
+      $fee = mic_private_calculate_class_fee($pi_class);
+      $total += $fee;
+    }
+  }
+
   // Calculate discounts
   $discount = array($total);
 
-  // Senior discount, adult discount
-//  $birthdate_unix = strtotime($birthdate);
-//  $senior_unix = strtotime("-65 years");
-//  $adult_unix = strtotime("-19 years");
-//  $discount = array($total);
-//  if (((time() - $senior_unix) > $birthdate_unix) && ($birthdate_unix < 1)) {
-//    $discount[] = $total * .85;
-//  }
-
-//  if (((time() - $adult_unix) > $birthdate_unix)) {
-//    $discount[] = $total * .80;
-//  }
-
-  if ($form_state['adult_discount'] == 'Yes') {
+  if ($form_state['values']['adult_discount'] == 'Yes') {
     $discount[] = $total * .80;
   }
 
-  if ($form_state['senior_discount'] == 'Yes') {
+  if ($form_state['values']['senior_discount'] == 'Yes') {
     $discount[] = $total * .85;
   }
 
@@ -487,9 +496,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   // Credit card fee
-  if ($form_state['values']['payment_form'] == 'credit') {
-    $total *= 1.0275;
-  }
+  $total *= 1.0275;
 
   $data = array(
     'values' => $form_state['values'],
@@ -499,7 +506,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $data = serialize($data);
   setcookie('mic-private-instruction', $data);
 
-  drupal_goto("pay-bill", array('query' => array('destination' => 'cart')));
+  drupal_goto("private-instruction-review", array('query' => array('destination' => 'cart')));
 }
 
 /**
@@ -608,7 +615,7 @@ function mic_private_get_field_display($entity_type, $entity, $field) {
  * @param $length
  * @return null
  */
-function mic_private_calculate_rate($nid, $length) {
+function mic_private_calculate_instructor_rate($nid, $length) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
@@ -623,6 +630,22 @@ function mic_private_calculate_rate($nid, $length) {
     return $rate['value'];
   }
   return FALSE;
+}
+
+/**
+ * Return the musicianship/suzuki fee value.
+ *
+ * @param $nid
+ * @return int
+ */
+function mic_private_calculate_class_fee($nid) {
+  if (is_numeric($nid) && $nid) {
+    $node = node_load($nid);
+    $fee = field_get_items('node', $node, 'field_pi_class_fee');
+    $fee = is_array($fee) ? reset($fee) : $fee;
+    return $fee['value'];
+  }
+  return 0;
 }
 
 /**
