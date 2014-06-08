@@ -78,8 +78,6 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
     }
     $info[] = 'Sub-total: $' . round($data['calculated_total'], 2);
 
-    $info[] = 'Credit card fee: 2.75%';
-
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#title'] = 'Submitted Details';
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#default_value'] = implode("\n", $info);
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#attributes'] = array('readonly' => 'readonly');

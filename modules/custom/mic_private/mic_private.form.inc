@@ -491,7 +491,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   // Credit card fee
-  $total *= 1.0275;
+//  $total *= 1.0275;
 
   $data = array(
     'values' => $form_state['values'],
