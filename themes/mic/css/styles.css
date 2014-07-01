@@ -1373,6 +1373,29 @@ Home-Body Wrapper
 	width: 266px;
 }
 
+/* Group Classes - Right Column */
+ul#group-classes li {
+    padding:25px 10px;
+    border-radius:10px;
+    text-align:center;
+    font-size: 18px;
+    background: #babd1f none;
+}
+
+ul#group-classes li a {
+    content: " >>"
+}
+
+ul#group-classes li a:after {
+    color: #fff;
+}
+
+ul#group-classes li.menu-1968.first {
+    background-color:#e80002;
+    margin-bottom: 5px;
+}
+
+
 /*  Top */
 .home-body-wrapper .right-column .inner-top {
 	width: 266px;
