@@ -1385,6 +1385,11 @@ Home-Body Wrapper
 }
 
 /* Group Classes - Right Column */
+ul#group-classes {
+    border-top: 1px #AAAAAA solid;
+    padding-top: 10px;
+}
+
 ul#group-classes li {
     padding:25px 10px;
     border-radius:10px;
@@ -1404,6 +1409,18 @@ ul#group-classes li a:after {
 
 ul#group-classes li.menu-1968.first {
     background-color:#e80002;
+}
+
+ul#group-classes li.menu-1969 {
+    background-color:#405560;
+}
+
+ul#group-classes li.menu-1970 {
+    background-color:#bec220;
+}
+
+ul#group-classes li.menu-1971 {
+    background-color:#559cd7;
 }
 
 /*  Bottom */
