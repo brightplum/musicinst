@@ -72,13 +72,19 @@
 					    	
 					    	<div class="inner-top">
 					    		
-					    		<span class="title">Find a Class</span>
+					    		<span class="title">Private Lessons and Group Classes</span>
 					    	
 					    	</div>
 					    	
 					    	<div class="inner-bottom">
-					    	
-								<?php echo $classfinder_widget; ?>
+
+                              <?php print theme('links', array(
+                                'links' => menu_navigation_links('menu-group-classes'),
+                                'attributes' => array(
+                                  'id' => 'group-classes',
+                                  'class' => array('links'),
+                                ),
+                              )); ?>
 					    	
 					    	</div>
 					    	
