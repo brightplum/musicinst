@@ -495,8 +495,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
 
   $data = array(
     'values' => $form_state['values'],
-    'calculated_total' => number_format((float)$calculated_total, 2, '.', ''),
-    'total' => number_format((float)$total, 2, '.', ''),
+    'calculated_total' => money_format('%i', $calculated_total),
+    'total' => money_format('%i', $total),
   );
   $data = serialize($data);
   setcookie('mic-private-instruction', $data);
