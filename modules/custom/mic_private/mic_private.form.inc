@@ -423,25 +423,6 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
 
   $total = $rate * 17;
 
-  // Additional fees
-  if ($form_state['values']['student_type'] == 'new') {
-    $total += 25;
-  }
-
-  if ($form_state['values']['student_type'] == 'returning') {
-    $total += 25;
-  }
-
-  // Add suzuki, musicianship fee
-  $musicianship = $form_state['values']['musicianship'];
-  $suzuki = $form_state['values']['suzuki'];
-  foreach (array($musicianship, $suzuki) as $pi_class) {
-    if (!empty($pi_class)) {
-      $fee = mic_private_calculate_class_fee($pi_class);
-      $total += $fee;
-    }
-  }
-
   // Calculate discounts
   $discount = array($total);
 
@@ -466,6 +447,25 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   }
 
   $total = (!empty($discount)) ? min($discount) : $total;
+
+  // Additional fees
+  if ($form_state['values']['student_type'] == 'new') {
+    $total += 25;
+  }
+
+  if ($form_state['values']['student_type'] == 'returning') {
+    $total += 25;
+  }
+
+  // Add suzuki, musicianship fee
+  $musicianship = $form_state['values']['musicianship'];
+  $suzuki = $form_state['values']['suzuki'];
+  foreach (array($musicianship, $suzuki) as $pi_class) {
+    if (!empty($pi_class)) {
+      $fee = mic_private_calculate_class_fee($pi_class);
+      $total += $fee;
+    }
+  }
 
   if ($form_state['values']['multiple'] == 'Yes') {
     $total -= 25;
