@@ -53,6 +53,12 @@ before using this form.</p>
     '#suffix' => '<div class="tooltiptext"><strong>New or Returning</strong> means you are new to MIC or have studied at MIC in the past, but not in spring 2014.<br /><br />
         <strong>Continuing</strong> means you completed the 2014 spring semester.</div>',
   );
+  $form['student']['adult_student'] = array(
+    '#type' => 'select',
+    '#title' => t('Is the student an adult?'),
+    '#options' => array('no' => 'No', 'yes' => 'Yes'),
+    '#required' => TRUE,
+  );
   $form['student']['family_record'] = array(
     '#type' => 'textfield',
     '#title' => t('Family Record ID'),
@@ -221,6 +227,17 @@ If you can\'t find it, please continue.</div>',
     ),
     '#suffix' => '</div>',
     '#required' => TRUE,
+  );
+
+  $form['instruction']['weeks'] = array(
+    '#type' => 'select',
+    '#title' => t('Requested Number of Weeks'),
+    '#options' => drupal_map_assoc(range(17, 1)),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="adult_student"]' => array('value' => 'yes'),
+      ),
+    ),
   );
 
   $form['instruction']['campus'] = array(
@@ -421,7 +438,17 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $default_rate = mic_private_default_rate($instruction_type, $length);
   $rate = ($rate) ? $rate : $default_rate;
 
-  $total = $rate * 17;
+  // If adult student, set their own weeks
+  $adult_student = $form_state['values']['adult_student'];
+  if ($adult_student == 'yes') {
+    $weeks = !empty($form_state['values']['weeks'])
+      ? $form_state['values']['weeks']
+      : 17;
+  }
+  else {
+    $weeks = 17;
+  }
+  $total = $rate * $weeks;
 
   // Calculate discounts
   $discount = array($total);
