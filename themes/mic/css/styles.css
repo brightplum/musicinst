@@ -1397,14 +1397,13 @@ ul#group-classes li {
     font-size: 18px;
     background: #babd1f none;
     margin-bottom: 5px;
+    -moz-box-shadow:    3px 5px 6px #ccc;
+    -webkit-box-shadow: 3px 5px 6px #ccc;
+    box-shadow:         3px 5px 6px #ccc;
 }
 
 ul#group-classes li a {
     color: #fff;
-}
-
-ul#group-classes li a:after {
-    content: " >>"
 }
 
 ul#group-classes li.menu-1968.first {
