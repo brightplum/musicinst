@@ -1406,27 +1406,33 @@ ul#group-classes li a {
     color: #fff;
 }
 
-ul#group-classes li.menu-1968.first {
+ul#group-classes li.menu-1968.first,
+ul#group-classes li.menu-1951.first {
     background-color:#e80002;
 }
 
-ul#group-classes li.menu-1969 {
+ul#group-classes li.menu-1969,
+ul#group-classes li.menu-1952 {
     background-color:#405560;
 }
 
-ul#group-classes li.menu-1970 {
+ul#group-classes li.menu-1970,
+ul#group-classes li.menu-1953 {
     background-color:#bec220;
 }
 
-ul#group-classes li.menu-1971 {
+ul#group-classes li.menu-1971,
+ul#group-classes li.menu-1997 {
     background-color:#559cd7;
 }
 
-ul#group-classes li.menu-1972 {
+ul#group-classes li.menu-1972,
+ul#group-classes li.menu-1998 {
     background-color:#ef7700;
 }
 
-ul#group-classes li.menu-1973 {
+ul#group-classes li.menu-1973,
+ul#group-classes li.menu-1999 {
     background-color:#f6b300;
 }
 
