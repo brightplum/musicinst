@@ -1,4 +1,3 @@
-// $Id: imce_set_app.js,v 1.8.2.1 2010/12/12 07:14:44 ufku Exp $
 /*
  * IMCE Integration by URL
  * Ex-1: http://example.com/imce?app=XEditor|url@urlFieldId|width@widthFieldId|height@heightFieldId
@@ -54,7 +53,7 @@ imce.hooks.load.push(function(win) {
     if (appFields.url.indexOf(',') > -1) {
       var arr = appFields.url.split(',');
       for (var i in arr) {
-        if ($('#'+ arr[i], appWindow.document).size()) {
+        if ($('#'+ arr[i], appWindow.document).length) {
           appFields.url = arr[i];
           break;
         }
