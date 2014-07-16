@@ -42,16 +42,8 @@ before using this form.</p>
     '#options' => array(
       'new' => 'New',
       'returning' => 'Returning',
-      'continuing' => 'Continuing',
-    ),
-    '#attributes' => array(
-      'class' => array(
-        'hasqtip',
-      ),
     ),
     '#required' => TRUE,
-    '#suffix' => '<div class="tooltiptext"><strong>New or Returning</strong> means you are new to MIC or have studied at MIC in the past, but not in spring 2014.<br /><br />
-        <strong>Continuing</strong> means you completed the 2014 spring semester.</div>',
   );
   $form['student']['adult_student'] = array(
     '#type' => 'select',
@@ -359,10 +351,9 @@ It should be noted that there is no "stacking" of percentage discounts, the high
     '#type' => 'select',
     '#title' => t('Choose Payment Option'),
     '#options' => array(
-      'full' => 'PAYMENT PLAN 1: Pay in Full now.',
-      'partial' => 'PAYMENT PLAN 2: Pay $500 now. Balance invoiced.',
-      'installment' => 'PAYMENT PLAN 3: Installment Plan: Pay $185 now. Balance spread over 3 additional payments.',
-      'financialaid' => 'PAYMENT PLAN 4: Financial Aid: Pay $160 now. Balance invoiced.',
+      'full' => 'Pay in Full now.',
+      'installment' => 'Installment Plan: Pay $185 now. Balance spread over 3 additional payments.',
+      'financialaid' => 'Financial Aid: Pay $160 now. Balance invoiced.',
     ),
     '#required' => TRUE,
     '#attributes' => array(
@@ -376,7 +367,7 @@ If you have applied for financial aid and also wish to participate in the instal
 
   $form['payment']['installment_day'] = array(
     '#type' => 'select',
-    '#title' => t('If PAYMENT PLAN 3 (Installment Plan) is chosen above, which day should payments be due?'),
+    '#title' => t('If Installment Plan is chosen above, which day should payments be due?'),
     '#options' => array('' => '- Select -', '1st' => '1st of the month', '15th' => '15th of the month'),
     '#states' => array(
       'visible' => array(
@@ -384,22 +375,6 @@ If you have applied for financial aid and also wish to participate in the instal
       ),
     ),
   );
-
-//  $form['payment']['payment_form'] = array(
-//    '#type' => 'select',
-//    '#title' => t('Which form of payment will you be using?'),
-//    '#options' => array('credit' => 'Credit Card', 'echeck' => 'Echeck'),
-//    '#required' => TRUE,
-//    '#attributes' => array(
-//      'class' => array(
-//        'hasqtip',
-//      ),
-//    ),
-//    '#suffix' => '<div class="tooltiptext">Online payment methods include: credit cards or ACH (e-check).<br />
-//    MIC accepts American Express, Discover, MasterCard, or Visa.<br />
-//    Credit card tuition payments are assessed a processing fee of 2.75%.<br />
-//    E-checks are not assessed a processing fee.</div>'
-//  );
 
   $form['submit'] = array(
     '#prefix' => 'Submitting this form will open a new window. Please disable any pop-up blockers.<br />',
