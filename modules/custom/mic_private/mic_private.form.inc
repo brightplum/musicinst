@@ -362,7 +362,7 @@ It should be noted that there is no "stacking" of percentage discounts, the high
       ),
     ),
     '#suffix' => '<div class="tooltiptext">Your registration cannot be accepted without some payment. Please choose the plan that is right for you.
-If you have applied for financial aid and also wish to participate in the installment plan, please choose payment plan 3.</div>',
+If you have applied for financial aid and also wish to participate in the installment plan, please choose the Installment Plan.</div>',
   );
 
   $form['payment']['installment_day'] = array(
