@@ -60,23 +60,32 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
         }
         if (($value != '- Select -') && (!empty($value)) && ($value != 'No')) {
           // Custom displays
-          if ($key == 'multiple') {
-            $key = $key . ' (-$25 sibling discount)';
-          }
+          switch ($key) {
+            case 'multiple':
+              $key = $key . ' (-$25 sibling discount)';
+              break;
 
-          if ($key  == 'adult_discount') {
-            $key = $key . ' (20% discount)';
-          }
+            case 'adult_discount':
+              $key = $key . ' (20% discount)';
+              break;
 
-          if ($key  == 'senior_discount') {
-            $key = $key . ' (15% discount)';
+            case 'senior_discount':
+              $key = $key . ' (15% discount)';
+              break;
+
+
           }
 
           $info[] = filter_xss(ucfirst($key)) . ': ' . filter_xss($value);
         }
       }
     }
-    $info[] = 'Sub-total: $' . $data['calculated_total'];
+    $info[] = 'Lesson Total: $' . filter_xss($data['lesson_total']);
+    if (isset($data['musicianship_fee'])) {
+      $info[] = 'Musicianship Fee: $' . filter_xss($data['musicianship_fee']);
+    }
+    $info[] = '$25 Registration Fee';
+    $info[] = 'Sub-total: $' . filter_xss($data['calculated_total']);
 
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#title'] = 'Submitted Details';
     $form['line_item_fields']['field_billpay_info'][LANGUAGE_NONE][0]['value']['#default_value'] = implode("\n", $info);
