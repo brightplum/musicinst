@@ -85,7 +85,7 @@ function mic_private_form_commerce_cart_add_to_cart_form_325_alter(&$form, &$for
     if (isset($data['musicianship_fee'])) {
       $info[] = 'Musicianship Fee: $' . filter_xss($data['musicianship_fee']);
     }
-    $info[] = 'Registration Fee: $25';
+    $info[] = 'Registration Fee: $25.00';
     $info[] = "\n";
 
     $info[] = 'Sub-total: $' . filter_xss($data['calculated_total']);
