@@ -409,6 +409,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $length = $form_state['values']['length'];
   $instruction_type = $form_state['values']['instruction_type'];
 
+  $musicianship_fee = NULL;
+
   $rate = mic_private_calculate_instructor_rate($instructor, $length);
   $default_rate = mic_private_default_rate($instruction_type, $length);
   $rate = ($rate) ? $rate : $default_rate;
@@ -424,6 +426,9 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     $weeks = 17;
   }
   $total = $rate * $weeks;
+
+  // Pull out lesson total for display
+  $lesson_total = $total;
 
   // Calculate discounts
   $discount = array($total);
@@ -464,8 +469,8 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $suzuki = $form_state['values']['suzuki'];
   foreach (array($musicianship, $suzuki) as $pi_class) {
     if (!empty($pi_class)) {
-      $fee = mic_private_calculate_class_fee($pi_class);
-      $total += $fee;
+      $musicianship_fee = mic_private_calculate_class_fee($pi_class);
+      $total += $musicianship_fee;
     }
   }
 
@@ -492,11 +497,10 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
       break;
   }
 
-  // Credit card fee
-//  $total *= 1.0275;
-
   $data = array(
     'values' => $form_state['values'],
+    'lesson_total' => money_format('%i', $lesson_total),
+    'musicianship_fee' => money_format('%i', $musicianship_fee),
     'calculated_total' => money_format('%i', $calculated_total),
     'total' => money_format('%i', $total),
   );
