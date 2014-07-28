@@ -788,7 +788,12 @@ function commerce_cart_order_refresh($order) {
   $line_item_changed = FALSE;
 
   foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
-    $cloned_line_item = clone($line_item_wrapper->value());
+    if (is_object($line_item_wrapper->value())) {
+      $cloned_line_item = clone($line_item_wrapper->value());
+    }
+    else {
+      $cloned_line_item = new stdClass();
+    }
 
     // If the line item is a product line item...
     if (in_array($cloned_line_item->type, commerce_product_line_item_types())) {
