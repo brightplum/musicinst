@@ -554,7 +554,7 @@ function mic_private_get_additional_classes($type) {
   $query
     ->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', 'pi_additional_classes')
-    ->entityCondition('status', 1)
+    ->propertyCondition('status', 1)
     ->fieldCondition('field_pi_class_type', 'value', $type)
     ->fieldOrderBy('field_pi_class_order', 'value', 'ASC');
   $result = $query->execute();
