@@ -352,7 +352,6 @@ It should be noted that there is no "stacking" of percentage discounts, the high
     '#title' => t('Choose Payment Option'),
     '#options' => array(
       'full' => 'Pay in Full now.',
-      'installment' => 'Installment Plan: Pay $185 now. Balance spread over 3 additional payments.',
       'financialaid' => 'Financial Aid: Pay $160 now. Balance invoiced.',
     ),
     '#required' => TRUE,
@@ -361,8 +360,7 @@ It should be noted that there is no "stacking" of percentage discounts, the high
         'hasqtip',
       ),
     ),
-    '#suffix' => '<div class="tooltiptext">Your registration cannot be accepted without some payment. Please choose the plan that is right for you.
-If you have applied for financial aid and also wish to participate in the installment plan, please choose the Installment Plan.</div>',
+    '#suffix' => '<div class="tooltiptext">Your registration cannot be accepted without some payment. Please choose the plan that is right for you.</div>',
   );
 
   $form['payment']['installment_day'] = array(
