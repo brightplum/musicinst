@@ -33,15 +33,11 @@
     		<div class="social-links-horizontal">
     			
     			<ul>
-    										
-    			    <li class="facebook"><a href="<?php echo $settings['facebook_url']; ?>">FaceBook</a></li>
-    			    
-    			    <li class="youtube"><a href="<?php echo $settings['youtube_url']; ?>">YouTube</a></li>
-    			    
-    			    <li class="twitter"><a href="<?php echo $settings['twitter_url']; ?>">Twitter</a></li>
-    			    
-    			    <li class="linkedin last"><a href="<?php echo $settings['linkedin_url']; ?>">LinkedIn</a></li>
-    			    
+                  <li class="facebook"><a href="<?php echo $settings['facebook_url']; ?>">FaceBook</a></li>
+    			  <li class="youtube"><a href="<?php echo $settings['youtube_url']; ?>">YouTube</a></li>
+    			  <li class="twitter"><a href="<?php echo $settings['twitter_url']; ?>">Twitter</a></li>
+                  <li class="pinterest"><a href="http://www.pinterest.com/miccommunity/">Pinterest</a></li>
+                  <li class="linkedin last"><a href="<?php echo $settings['linkedin_url']; ?>">LinkedIn</a></li>
     			</ul>
     												
     		</div>

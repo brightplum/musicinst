@@ -3442,6 +3442,10 @@ Misc
 	background: url('../images/structure/footer/social/twitter.jpg') no-repeat;
 }
 
+.footer-inner-wrapper .social-links-horizontal li.pinterest a {
+    background: url('../images/structure/footer/social/pinterest.png') no-repeat;
+}
+
 .footer-inner-wrapper .social-links-horizontal li.youtube a {
 	background: url('../images/structure/footer/social/youtube.jpg') no-repeat;
 }
