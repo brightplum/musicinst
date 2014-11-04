@@ -40,8 +40,6 @@
     			    
     			    <li class="twitter"><a href="<?php echo $settings['twitter_url']; ?>">Twitter</a></li>
     			    
-    			    <li class="flickr"><a href="<?php echo $settings['flickr_url']; ?>">Flickr</a></li>
-    			    
     			    <li class="linkedin last"><a href="<?php echo $settings['linkedin_url']; ?>">LinkedIn</a></li>
     			    
     			</ul>

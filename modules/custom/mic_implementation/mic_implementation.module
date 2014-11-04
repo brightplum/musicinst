@@ -57,7 +57,6 @@ function mic_implementation_page_build(&$page) {
     			    <li class="facebook"><a href="http://www.facebook.com/event.php?eid=248352321856849#!/pages/Music-Institute-of-Chicago/122556627793586">FaceBook</a></li>
     			    <li class="youtube"><a href="http://www.youtube.com/MusicInstChicago/">YouTube</a></li>
     			    <li class="twitter"><a href="http://twitter.com/#!/miccommunity">Twitter</a></li>
-    			    <li class="flickr"><a href="http://www.flickr.com/photos/musicinstitute/">Flickr</a></li>
     			    <li class="linkedin last"><a href="http://www.flickr.com/photos/musicinstitute/">LinkedIn</a></li>
     			</ul>
     		</div>';
