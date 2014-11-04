@@ -6,9 +6,9 @@ configure = admin/config/system/securepages
 
 files[] = securepages.test
 
-; Information added by drupal.org packaging script on 2012-02-03
-version = "7.x-1.x-dev"
+; Information added by  packaging script on 2013-11-06
+version = "7.x-1.0-beta2"
 core = "7.x"
 project = "securepages"
-datestamp = "1328272184"
+datestamp = "1383727115"
 
