@@ -55,7 +55,7 @@ function mic_implementation_page_build(&$page) {
 	$footer_social = '<div class="social-links-horizontal">
     			<ul>
     			    <li class="facebook"><a href="http://www.facebook.com/event.php?eid=248352321856849#!/pages/Music-Institute-of-Chicago/122556627793586">FaceBook</a></li>
-    			    <li class="youtube"><a href="http://www.youtube.com/MusicInstChicago/">YouTube</a></li>
+    			    <li class="youtube"><a href="https://www.youtube.com/channel/UCwMVvwfC-c8BCol7tthqYUA">YouTube</a></li>
     			    <li class="twitter"><a href="http://twitter.com/#!/miccommunity">Twitter</a></li>
     			    <li class="pinterest"><a href="http://www.pinterest.com/miccommunity/">Pinterest</a></li>
     			    <li class="linkedin last"><a href="http://www.flickr.com/photos/musicinstitute/">LinkedIn</a></li>
