@@ -462,6 +462,10 @@ MISC
 	background: url('../images/structure/header/social/flickr.jpg') no-repeat;
 }
 
+.header-inner-wrapper .social-links-horizontal li.pinterest a {
+    background: url('../images/structure/header/social/pinterest.png') no-repeat;
+}
+
 .header-inner-wrapper .social-links-horizontal li.linkedin a {
 	background: url('../images/structure/header/social/linkedin.jpg') no-repeat;
 }
