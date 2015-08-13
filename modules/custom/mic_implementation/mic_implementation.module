@@ -61,7 +61,7 @@ function mic_implementation_page_build(&$page) {
     			    <li class="linkedin last"><a href="http://www.flickr.com/photos/musicinstitute/">LinkedIn</a></li>
     			</ul>
     		</div>';
-  $footer_bottom = '<div class="footer-copyright">&copy; 2012 Music Institute of Chicago</div>';
+  $footer_bottom = '<div class="footer-copyright">&copy; 2015 Music Institute of Chicago</div>';
 
   switch ($theme) {
     case 'mic_theme':
@@ -115,7 +115,7 @@ function mic_implementation_custom_theme() {
     'checkout',
     'user',
     'private-registration',
-    'event-listing',
+    'event-listings',
   );
 
   if (is_object($node)) {
@@ -145,11 +145,20 @@ function mic_implementation_node_view($node, $view_mode, $langcode) {
   switch ($node->type) {
     case 'item_course':
       if ($view_mode == 'full') {
-        $node->content['classes'] = array(
-          '#classes' => mic_implementation_get_course_classes($node->nid),
-          '#weight' => 10,
-          '#theme' => 'mic_course',
-        );
+        $semesters = mic_implementation_get_active_semesters();
+        $semesters = taxonomy_term_load_multiple(array_keys($semesters));
+        $weight = 10;
+        foreach ($semesters as $semester) {
+          if (is_object($semester)) {
+            $node->content['classes_' . $semester->tid] = array(
+              '#classes' => mic_implementation_get_course_classes($node->nid, $semester->tid),
+              '#semester' => $semester->name,
+              '#weight' => $weight,
+              '#theme' => 'mic_course',
+            );
+            $weight += 5;
+          }
+        }
       }
 
       // Collapse fieldsets where semester isn't set.
@@ -177,7 +186,32 @@ function mic_implementation_node_view($node, $view_mode, $langcode) {
   }
 }
 
-function mic_implementation_get_course_classes($nid) {
+/**
+ * Get active semesters.
+ *
+ * @return mixed
+ */
+function mic_implementation_get_active_semesters() {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'taxonomy_term')
+    ->entityCondition('bundle', 'semester')
+    ->fieldCondition('field_visibility', 'value', 1);
+  $result = $query->execute();
+  return $result['taxonomy_term'];
+}
+
+/**
+ * Get classes for a course.
+ *
+ * @param int $nid
+ *   The node id of the course.
+ * @param int $semester_tid
+ *   The semester taxonomy id.
+ *
+ * @return mixed
+ */
+function mic_implementation_get_course_classes($nid, $semester_tid = NULL) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'commerce_product')
@@ -187,6 +221,10 @@ function mic_implementation_get_course_classes($nid) {
     ->fieldCondition('field_sunset_date', 'value', time(), '>=')
     ->fieldCondition('field_sunrise_date', 'value', time(), '<=')
     ->fieldOrderBy('field_start_date', 'value');
+
+  if (isset($semester_tid)) {
+    $query->fieldCondition('field_semester_reference', 'tid', $semester_tid);
+  }
 
   $result = $query->execute();
 
@@ -238,14 +276,8 @@ function mic_implementation_get_course_classes($nid) {
       $status = field_get_items('commerce_product', $pc, 'field_status');
       $status = reset($status);
       if ($status['value'] == 'Open') {
-        //$add_to_cart = mic_commerce_add_to_cart($product_class->product_id);
         $add_to_cart = l('Add to Cart', 'addtocart/nojs/' . $product_class->product_id . '/' . $nid, array('attributes' => array('class' => array('use-dialog', 'use-ajax'))));
-        //temporary hack until we fully launch
-        //$node = menu_get_object('node');
-        //$allowed = array(1729);
-        //if (is_object($node) && in_array($node->nid, $allowed)) {
-          $class[] = $add_to_cart;
-        //}
+        $class[] = $add_to_cart;
       }
       else {
         $class[] = $status['value'];
@@ -362,7 +394,7 @@ function mic_implementation_theme($existing, $type, $theme, $path) {
 	);
 
 	$theme['mic_course'] = array(
-		'variables' => array('classes' => NULL),
+		'variables' => array('classes' => NULL, 'semester' => NULL),
 		'function' => 'mic_implementation_theme_mic_course',
 		'path' => $path,
 	);

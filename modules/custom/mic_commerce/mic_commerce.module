@@ -46,6 +46,16 @@ function mic_commerce_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
+  $items['admin/commerce/force-delete-order'] = array(
+    'title' => t('Force Delete an Order'),
+    'description' => t('Force delete an order manually from commerce tables.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mic_commerce_admin_order_delete_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
 	return $items;
 }
 

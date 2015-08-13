@@ -64,7 +64,7 @@ function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, 
     case 'mic_student_standard':
       // Add the relationship, name, and instrument fields.
       $element['relationship'] = array(
-        '#title' => t('Relationship'),
+        '#title' => t('Relationship to account holder'),
         '#type' => 'select',
         '#default_value' => isset($items[$delta]['relationship']) ? $items[$delta]['relationship'] : '',
         '#options' => _mic_student_relationship_options(),
@@ -95,11 +95,21 @@ function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, 
       $element['ethnicity'] = array(
         '#title' => t('Ethnicity'),
         '#type' => 'select',
-        '#options' => drupal_map_assoc(array('N/A', 'Asian', 'Pacific Islander', 'Black/African-American', 'Caucasian/European-American', 'Eurasian', 'Hispanic or Latino', 'Native-American or Indigenous', 'Other')),
+        '#options' => drupal_map_assoc(array(
+          '' => '- Select -',
+          'American Indian or Alaskan Native',
+          'Asian',
+          'Black/African-American',
+          'Native Hawaiian or Other Pacific Islander',
+          'Hispanic/Latino',
+          'White',
+          'Two or more races/ethnicities',
+        )),
         '#default_value' => isset($items[$delta]['ethnicity']) ? $items[$delta]['ethnicity'] : '',
+        '#description' => 'Each year, foundations & corporations supporting MIC with grants ask us to provide information about the race & ethnicity of our student.<br /> This voluntary information is confidential and will only be used to form aggregate numbers for our programs.',
       );
       $element['birthday'] = array(
-        '#title' => t('Birthday'),
+        '#title' => t('Birthdate'),
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['birthday']) ? $items[$delta]['birthday'] : '',
         '#attributes' => array(
@@ -138,9 +148,11 @@ function mic_student_field_widget_form(&$form, &$form_state, $field, $instance, 
 function _mic_student_relationship_options() {
   $relationships = array(
     '' => '- Choose -',
+    'self' => 'Self',
     'child' => 'Child',
     'grandchild' => 'Grandchild',
     'partner_spouse' => 'Partner / Spouse',
+    'other' => 'Other',
   );
 
   return $relationships;

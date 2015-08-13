@@ -147,8 +147,9 @@ function mic_implementation_theme_mic_feature_video(&$variables) {
 }
 
 function mic_implementation_theme_mic_course(&$variables) {
-  $header = $rows = array();
-  $variables = reset($variables);
+  $rows = array();
+  $semester = $variables['semester'];
+  $variables = $variables['classes'];
 
 	$header = array(
     t('Day'),
@@ -169,7 +170,7 @@ function mic_implementation_theme_mic_course(&$variables) {
     }
   }
 
-  $output = '<h3>Classes</h3>';
+  $output = '<h3>' . $semester . ' Classes</h3>';
   $output .= theme('table', array('rows' => $rows, 'header' => $header));
 
   return $output;

@@ -514,7 +514,16 @@ function mic_implementation_get_taxonomy_feature_video($node) {
 function mic_implementation_get_classes($post) {
 	$courses = $nodes = array();
 
-  if(valid_post($post)) {
+  if (valid_post($post)) {
+
+    // Intercept Jazz Studies, Chamber Music
+    if (91 == $post['program_area']) {
+      drupal_goto('jazz-studies');
+    }
+
+    if (88 == $post['program_area']) {
+      drupal_goto('chamber-music');
+    }
 
     $query = new EntityFieldQuery();
     $query
@@ -570,7 +579,6 @@ function mic_implementation_get_classes($post) {
                 $nodes[$nid] = array(
                   'title' => $node->title,
                   'href' => 'node/' . $nid,
-                  'query' => array('semester' => strtolower($semester)),
                 );
               }
             }

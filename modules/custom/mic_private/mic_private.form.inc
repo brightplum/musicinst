@@ -22,12 +22,12 @@ instruction (Musicianship and Suzuki Repertoire Classes).</p>
 <p class="intro">2. <strong>CURRENT STUDENT</strong> wishing to re-register in the fall.
 (Current students only need to register once a year. Fall to Spring
 registration is assumed. For summer private instruction registration, please <a href="https://musicinst.org/summer-lessons-music-institute-chicago">click here</a>.)</p>
-<p class="intro">Please <strong><a href="https://www.musicinst.org/user/login?destination=cart" target="_blank">log in or create an account</a></strong>
-before registering.</p>
-<p class="intro">New students and current students registering after the early registration deadline
-of July 15th are charged the annual $25 registration fee.</p>
+<p class="intro">If you have not already created an account, <strong><a href="https://www.musicinst.org/user/register">please do so before registering</a></strong>.
+If you have an account, please make sure your information is up-to-date and that you are <strong><a href="https://www.musicinst.org/user/login?destination=cart" target="_blank">logged in</a></strong> before registering.</p>
+<p class="intro">New students and current students registering after the early registration deadline of June 8 are charged the annual $25 registration fee.</p>
+<p class="intro">All online registrations will be charged a 2% processing fee.  If you wish to avoid this fee, you may fill out a <a href="https://www.musicinst.org/sites/default/files/attachments/FY16%20Registration%20Form-8.5x11.pdf">paper registration form</a> and submit it with payment by cash or check, or in person by debit card at one of our main MIC campus locations.</p>
 <p class="intro">If you wish to apply for financial aid, but have not yet done so, complete your
-<a href="https://musicinst.wufoo.com/forms/20142015-financial-aid-application/" target="_blank">financial aid paperwork</a>
+<a href="https://musicinst.wufoo.com/forms/20152016-financial-aid-application/" target="_blank">financial aid paperwork</a>
 before using this form.</p>
 <p class="intro">The <span class="form-required" title="This field is required.">*</span> = required fields</p>',
   );
@@ -36,14 +36,30 @@ before using this form.</p>
     '#type' => 'fieldset',
     '#title' => t('Student Information'),
   );
+  $form['student']['year'] = array(
+    '#type' => 'select',
+    '#title' => t('Private Instruction Year'),
+    '#options' => array(
+      'FY16' => 'FY16',
+    ),
+    '#required' => TRUE,
+  );
   $form['student']['student_type'] = array(
     '#type' => 'select',
     '#title' => t('Student Type'),
     '#options' => array(
       'new' => 'New',
+      'continuing' => 'Continuing',
       'returning' => 'Returning',
     ),
     '#required' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Continuing: you studied at MIC spring 2015.
+New or Returning: you are new MIC or you studied here sometime in the past, but it was prior to spring 2015.</div>',
   );
   $form['student']['adult_student'] = array(
     '#type' => 'select',
@@ -90,7 +106,12 @@ If you can\'t find it, please continue.</div>',
     '#type' => 'textfield',
     '#title' => t('Grade'),
     '#size' => 15,
-    '#suffix' => '</div>',
+    '#attributes' => array(
+      'class' => array(
+        'hasqtip',
+      ),
+    ),
+    '#suffix' => '<div class="tooltiptext">Grade as of 9/1/2015.</div></div>',
   );
   $form['student']['gender'] = array(
     '#type' => 'select',
@@ -134,21 +155,20 @@ If you can\'t find it, please continue.</div>',
     '#title' => t('How did you hear about MIC?'),
     '#options' => drupal_map_assoc(array(
       '' => '- Select -',
-      'Word of Mouth',
-      'Campus Visibility',
-      'Google Search',
-      'Website',
-      'Ad/Flyer',
-      'Print Media',
-      'Radio',
       'Alumni',
-      'Referred by Current/Former Family',
-      'Referred by Faculty/Staff',
-      'Arts Calendar',
-      'Referred by Public/Private School Teacher',
-      'Sibling',
+      'Campus Visibility',
+      'Flyer',
+      'Internet Search',
+      'MIC Event (Concerts/Outreach)',
+      'Music Store',
       'Nichols Concert Hall',
-      'MIC Event',
+      'Paid Advertising',
+      'Referred by MIC Family',
+      'Referred by MIC Faculty/Staff',
+      'Referred by Private/School Teacher',
+      'Sibling',
+      'Social Media/MIC Website',
+      'Word of Mouth',
     )),
   );
 
@@ -268,7 +288,7 @@ If you can\'t find it, please continue.</div>',
       ),
     ),
     '#suffix' => '<div class="tooltiptext">Private instruction students are encouraged to take Musicianship classes
-at the heavily discounted rate of $90 annually.</div>'
+at the heavily discounted rate of $90 annually.</div>',
   );
 
   $options = mic_private_get_additional_classes('musicianship');
@@ -313,8 +333,8 @@ If the student is between ages 3-7, a Musikgarten class may be substituted for j
   $form['other_discount']['discount_explanation'] = array(
     '#markup' => 'Seniors - (age 65+) receive a 15% discount on private lessons.<br />
     Adults - (age 19+), taking a private lesson before 3 p.m. M-F in MIC studios, receives a 20% reduction in tuition.<br />
-(Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
-Merit Scholarship (Do not pay in full, the adjusted balance will be reflected on your next invoice)<br />
+(Do not pay in full, the adjusted balance will be reflected on your next statement)<br />
+Merit Scholarship (Do not pay in full, the adjusted balance will be reflected on your next statement)<br />
 It should be noted that there is no "stacking" of percentage discounts, the highest % applies.',
   );
 
@@ -347,12 +367,19 @@ It should be noted that there is no "stacking" of percentage discounts, the high
     '#title' => t('Payment Information'),
   );
 
+  $form['payment']['payment_explanation'] = array(
+    '#markup' => '<a href="https://www.musicinst.org/installment-plan" target="_blank"> Learn more about the Installment Plan and download the necessary enrollment paperwork here >></a><br />
+     <a href="https://www.musicinst.org/financial-aid" target="_blank">Learn more about Financial Aid and complete the application here >></a><br />',
+  );
+
   $form['payment']['payment'] = array(
     '#type' => 'select',
     '#title' => t('Choose Payment Option'),
     '#options' => array(
       'full' => 'Pay in Full now.',
-      'financialaid' => 'Financial Aid: Pay $160 now. Balance invoiced.',
+      'partial' => 'Partial: Pay $500 Now.  Balance due before lessons begin/start of semester.',
+      'installment' => 'Installment Plan: Pay $200 now. Remaining balance paid in installments.',
+      'financialaid' => 'Financial Aid: Pay $175 now. Balance due before lessons begin/start of semester.',
     ),
     '#required' => TRUE,
     '#attributes' => array(
@@ -361,17 +388,6 @@ It should be noted that there is no "stacking" of percentage discounts, the high
       ),
     ),
     '#suffix' => '<div class="tooltiptext">Your registration cannot be accepted without some payment. Please choose the plan that is right for you.</div>',
-  );
-
-  $form['payment']['installment_day'] = array(
-    '#type' => 'select',
-    '#title' => t('If Installment Plan is chosen above, which day should payments be due?'),
-    '#options' => array('' => '- Select -', '1st' => '1st of the month', '15th' => '15th of the month'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="payment"]' => array('value' => 'installment'),
-      ),
-    ),
   );
 
   $form['submit'] = array(
@@ -454,12 +470,19 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   $total = (!empty($discount)) ? min($discount) : $total;
 
   // Additional fees
-  if ($form_state['values']['student_type'] == 'new') {
+  $student_types = array(
+    'new',
+    'returning',
+  );
+  if (in_array($form_state['values']['student_type'], $student_types)) {
     $total += 25;
   }
 
-  if ($form_state['values']['student_type'] == 'returning') {
-    $total += 25;
+  // Charge continuing students on June 8, 2015.
+  if (time() > 1433739600) {
+    if ($form_state['values']['student_type'] == 'continuing') {
+      $total += 25;
+    }
   }
 
   // Add suzuki, musicianship fee
@@ -481,7 +504,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
   // Payment options
   switch ($form_state['values']['payment']) {
     case 'installment':
-      $total = 185;
+      $total = 200;
       $number = ($calculated_total - $total) / 3;
       $form_state['values']['installment payments'] = '$' . number_format((float)$number, 2, '.', '');
       break;
@@ -491,7 +514,7 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
       break;
 
     case 'financialaid':
-      $total = 160;
+      $total = 175;
       break;
   }
 
@@ -503,9 +526,21 @@ function mic_private_private_registration_form_submit($form, &$form_state) {
     'total' => money_format('%i', $total),
   );
   $data = serialize($data);
-  setcookie('mic-private-instruction', $data);
+  $hash = hash('md5', time());
+  db_insert('mic_private')
+    ->fields(array(
+      'hash' => $hash,
+      'data' => $data,
+    ))
+    ->execute();
+  setcookie('mic-private-instruction', $data, time() + 86400);
 
-  drupal_goto("private-instruction-review", array('query' => array('destination' => 'cart')));
+  drupal_goto("private-instruction-review", array(
+    'query' => array(
+      'destination' => 'cart',
+      'hash' => $hash,
+    )
+  ));
 }
 
 /**
@@ -523,8 +558,9 @@ function mic_private_get_list($bundle) {
 
   // Only grab profiles teaching private instruction.
   if ($bundle == 'profile') {
-    $query->fieldCondition('field_profile_program_area', 'tid', 178);
-    $query->fieldOrderBy('field_first_name', 'value', 'ASC');
+    $query->fieldCondition('field_profile_program_area', 'tid', 178)
+      ->fieldOrderBy('field_last_name', 'value', 'ASC')
+      ->fieldOrderBy('field_first_name', 'value', 'ASC');
   }
   else {
     $query->propertyOrderBy('title');
@@ -534,7 +570,11 @@ function mic_private_get_list($bundle) {
   $nids = array_keys($result['node']);
   $nodes = node_load_multiple($nids);
   foreach ($nodes as $node) {
-    $options[$node->nid] = $node->title;
+    $first = field_get_items('node', $node, 'field_first_name');
+    $first = reset($first);
+    $last = field_get_items('node', $node, 'field_last_name');
+    $last = reset($last);
+    $options[$node->nid] = $last['value'] . ', ' . $first['value'];
   }
 
   return $options;

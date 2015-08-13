@@ -10,3 +10,53 @@
 function mic_private_update_7000(&$sandbox) {
   variable_set('jquery_update_jquery_version', 1.7);
 }
+
+/**
+ * Create mic_private table.
+ */
+function mic_private_update_7001() {
+  if (!db_table_exists('mic_private')) {
+    $schema['mic_private'] = array(
+      'description' => 'MIC Private Registration',
+      'fields' => array(
+        'hash' => array(
+          'description' => 'The hash for private registration data',
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+        ),
+        'data' => array(
+          'description' => 'The serialized private registration data',
+          'type' => 'blob',
+        ),
+      ),
+      'primary key' => array('hash'),
+    );
+    db_create_table('mic_private', $schema['mic_private']);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * @return mixed
+ */
+function mic_private_schema() {
+  $schema['mic_private'] = array(
+    'description' => 'MIC Private Registration',
+    'fields' => array(
+      'hash' => array(
+        'description' => 'The hash for private registration data',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'description' => 'The serialized private registration data',
+        'type' => 'blob',
+      ),
+    ),
+    'primary key' => array('hash'),
+  );
+  return $schema;
+}

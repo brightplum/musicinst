@@ -32,3 +32,31 @@ function mic_commerce_admin_student_fee_form() {
 
   return system_settings_form($form);
 }
+
+function mic_commerce_admin_order_delete_form() {
+  $form = array();
+
+  $form['order_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter an order number to delete'),
+    '#required' => TRUE,
+    '#description' => t('This action cannot be undone.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete Order'),
+  );
+
+  return $form;
+}
+
+function mic_commerce_admin_order_delete_form_submit($form, &$form_state) {
+  $order_id = $form_state['values']['order_id'];
+  $result = db_query("DELETE FROM {commerce_order} WHERE order_id = :order_id", array(':order_id' => $order_id));
+  $rev_result = db_query("DELETE FROM {commerce_order_revision} WHERE order_id = :order_id", array(':order_id' => $order_id));
+
+  drupal_set_message("Rows deleted from commerce_order: " . $result->rowCount());
+  drupal_set_message("Rows deleted from commerce_order_revision: " . $rev_result->rowCount());
+  drupal_set_message("Order {$order_id} deleted.");
+}
